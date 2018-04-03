@@ -5,10 +5,12 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
-import no.nav.legeerklaering.model.Legeerklaring
+import no.nav.model.fellesformat.AppRec
+import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.HentPerson
 import javax.jms.BytesMessage
 import javax.jms.MessageConsumer
+import javax.xml.datatype.XMLGregorianCalendar
 
 val jaxbAnnotationModule = JaxbAnnotationModule()
 val objectMapper: ObjectMapper = ObjectMapper().registerModule(jaxbAnnotationModule)
@@ -69,4 +71,16 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     ccsid = 1208
     setIntProperty(WMQConstants.JMS_IBM_ENCODING, MQC.MQENC_NATIVE)
     setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
+}
+
+fun createApprec(legeeklaering: Legeerklaring, gendate: XMLGregorianCalendar): String {
+
+      val apprec = AppRec().apply {
+          msgType.v = "APPREC"
+          miGversion = "1.0 2004-11-21"
+          genDate = gendate
+      }
+
+
+    return "lool"
 }

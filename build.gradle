@@ -45,9 +45,20 @@ compileKotlin {
 
 jaxb2 {
     xjc {
-        'legeerklaering' {
-            basePackage = 'no.nav.legeerklaering.model'
-            schema = 'src/main/resources/xsd/NAV-Legeerklaring-2008-06-06.xsd'
+        //'legeerklaering' {
+        //    basePackage = 'no.nav.model.legeerklaering'
+        //    schema = 'src/main/resources/xsd/NAV-Legeerklaring-2008-06-06.xsd'
+        //    encoding = 'UTF-8'
+        //}
+//
+        //'fellesformat' {
+        //    basePackage = 'no.nav.model.fellesformat'
+        //    schema = 'src/main/resources/xsd/Fellesformat_1.0.xsd'
+        //    encoding = 'UTF-8'
+        //}
+        'generate-xjb-classes' {
+            basePackage = 'no.nav.model.fellesformat'
+            schema = 'src/main/resources/xsd/Fellesformat_1.0.xsd'
             encoding = 'UTF-8'
         }
     }
