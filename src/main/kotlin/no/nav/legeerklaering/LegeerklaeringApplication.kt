@@ -1,6 +1,9 @@
 package no.nav.legeerklaering
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
@@ -14,8 +17,14 @@ import javax.jms.MessageConsumer
 import javax.xml.datatype.DatatypeFactory
 
 
-val jaxbAnnotationModule = JaxbAnnotationModule()
-val objectMapper: ObjectMapper = ObjectMapper().registerModule(jaxbAnnotationModule)
+val jaxbAnnotationModule = JaxbAnnotationModule().apply {
+
+}
+val jacksonXmlModule = JacksonXmlModule().apply {
+    setDefaultUseWrapper(false)
+}
+val objectMapper: ObjectMapper = XmlMapper(jacksonXmlModule).registerModule(jaxbAnnotationModule)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 val newInstance = DatatypeFactory.newInstance()
 
 fun main(args: Array<String>) {
@@ -42,7 +51,8 @@ fun listen(consumer: MessageConsumer) = consumer.setMessageListener {
     if (it is BytesMessage) {
         val bytes = ByteArray(it.bodyLength.toInt())
         it.readBytes(bytes)
-        val legeerklaering = objectMapper.readValue<Legeerklaring>(bytes, Legeerklaring::class.java)
+        val fellesformat = objectMapper.readValue<EIFellesformat>(bytes, EIFellesformat::class.java)
+        val legeerklaering = fellesformat.msgHead.document.get(0).refDoc.content.any as Legeerklaring
         val outcome = validateMessage(legeerklaering)
 
         when (outcome) {
@@ -76,80 +86,91 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
 }
 
-fun createApprec(fellesformat: EIFellesformat): String {
+fun createApprec(fellesformat: EIFellesformat): EIFellesformat {
 
     val fellesformatApprec = EIFellesformat().apply {
-        mottakenhetBlokk = mottakenhetBlokk.apply {
+        mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
             ebRole = LegeerklaeringConstant.ebRoleNav.string
             ebService = LegeerklaeringConstant.ebServiceLegemelding.string
             ebAction = LegeerklaeringConstant.ebActionSvarmelding.string
         }
         AppRec().apply {
-            msgType.v = LegeerklaeringConstant.APPREC.string
+            msgType = AppRecCS().apply {
+                v = LegeerklaeringConstant.APPREC.string
+            }
             miGversion = LegeerklaeringConstant.APPRECVersionV1_0.string
             genDate = newInstance.newXMLGregorianCalendar(GregorianCalendar())
             id = fellesformat.mottakenhetBlokk.ediLoggId
 
-            sender.hcp.inst.apply {
-                name = fellesformat.msgHead.msgInfo.receiver.organisation.organisationName
 
-                for (i in fellesformat.msgHead.msgInfo.receiver.organisation.ident.indices) {
-                    id = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).id
-                    typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).typeId
+            sender = AppRec.Sender().apply {
+                hcp = HCP().apply {
+                    inst = Inst().apply {
+                        name = fellesformat.msgHead.msgInfo.receiver.organisation.organisationName
 
-                    val additionalIds = fellesformat.msgHead.msgInfo.receiver.organisation.ident.drop(1)
-                            .map { mapIdentToAdditionalId(it) }
+                        for (i in fellesformat.msgHead.msgInfo.receiver.organisation.ident.indices) {
+                            id = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).id
+                            typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).typeId
 
-                    additionalId.addAll(additionalIds)
-                }
-            }
+                            val additionalIds = fellesformat.msgHead.msgInfo.receiver.organisation.ident.drop(1)
+                                    .map { mapIdentToAdditionalId(it) }
 
-            receiver.hcp.inst.apply {
-                name = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
-
-                for (i in fellesformat.msgHead.msgInfo.sender.organisation.ident.indices) {
-                    id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).id
-                    typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).typeId
-
-                    val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.ident.drop(1)
-                            .map { mapIdentToAdditionalId(it) }
-
-                    additionalId.addAll(additionalIds)
-
-                }
-
-                hcPerson.apply {
-                    name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
-
-                    for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
-                        id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).id
-                        typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).typeId
-
-                        val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.drop(1)
-                                .map { mapIdentToAdditionalId(it) }
-
-                        additionalId.addAll(additionalIds)
+                            additionalId.addAll(additionalIds)
+                        }
                     }
                 }
+            }
 
+            receiver = AppRec.Receiver().apply {
+                hcp = HCP().apply {
+                    inst = Inst().apply {
+                        name = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
+
+                        for (i in fellesformat.msgHead.msgInfo.sender.organisation.ident.indices) {
+                            id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).id
+                            typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).typeId
+
+                            val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.ident.drop(1)
+                                    .map { mapIdentToAdditionalId(it) }
+
+                            additionalId.addAll(additionalIds)
+
+                        }
+
+                        hcPerson.add(HCPerson().apply {
+                            name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
+                                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
+
+                            for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
+                                id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).id
+                                typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).typeId
+
+                                val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.drop(1)
+                                        .map { mapIdentToAdditionalId(it) }
+
+                                additionalId.addAll(additionalIds)
+                            }
+                        })
+
+                    }
             }
-            status.apply {
-                v = "1"
-                dn = "OK"
-            }
-            originalMsgId.apply {
-                msgType.apply {
-                    v = "LE"
-                    dn = "Legeerklæring"
+                status = AppRecCS().apply {
+                    v = "1"
+                    dn = "OK"
                 }
-                issueDate = fellesformat.msgHead.msgInfo.genDate
-                id = fellesformat.msgHead.msgInfo.msgId
+                originalMsgId = OriginalMsgId().apply {
+                    msgType = AppRecCS().apply {
+                        v = "LE"
+                        dn = "Legeerklæring"
+                    }
+                    issueDate = fellesformat.msgHead.msgInfo.genDate
+                    id = fellesformat.msgHead.msgInfo.msgId
+                }
             }
         }
     }
-    return fellesformatApprec.toString()
+    return fellesformatApprec
 }
 
 
@@ -164,7 +185,7 @@ fun mapIdentToAdditionalId(ident: Ident): AdditionalId = AdditionalId().apply {
 
 fun mapIdentToInst(ident: Ident): Inst = Inst().apply {
     id = ident.id
-     typeId= AppRecCS().apply {
+    typeId= AppRecCS().apply {
         dn = ident.typeId.dn
         v = ident.typeId.v
     }

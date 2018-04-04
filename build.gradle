@@ -16,13 +16,10 @@ buildscript {
             url "https://plugins.gradle.org/m2/"
         }
 
-        //gradlePluginPortal()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "gradle.plugin.com.ewerk.gradle.plugins:jaxb2-plugin:1.0.7"
-        //classpath "org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1"
-        //classpath "org.jvnet.jaxb2_commons:jaxb2-basics-annotate:1.11.1"
     }
 }
 
@@ -76,7 +73,8 @@ dependencies {
     compile "no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:3.2.0"
     compile "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
 
-    compile "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.4.0"
+    compile "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.9.5"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.5"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     testImplementation "junit:junit:$junit_version"
