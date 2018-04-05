@@ -17,9 +17,7 @@ import javax.jms.MessageConsumer
 import javax.xml.datatype.DatatypeFactory
 
 
-val jaxbAnnotationModule = JaxbAnnotationModule().apply {
-
-}
+val jaxbAnnotationModule = JaxbAnnotationModule()
 val jacksonXmlModule = JacksonXmlModule().apply {
     setDefaultUseWrapper(false)
 }
@@ -86,7 +84,7 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
 }
 
-fun createApprec(fellesformat: EIFellesformat): EIFellesformat {
+fun createApprec(fellesformat: EIFellesformat, apprecStatus: String): EIFellesformat {
 
     val fellesformatApprec = EIFellesformat().apply {
         mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
@@ -95,7 +93,7 @@ fun createApprec(fellesformat: EIFellesformat): EIFellesformat {
             ebService = LegeerklaeringConstant.ebServiceLegemelding.string
             ebAction = LegeerklaeringConstant.ebActionSvarmelding.string
         }
-        AppRec().apply {
+        appRec = AppRec().apply {
             msgType = AppRecCS().apply {
                 v = LegeerklaeringConstant.APPREC.string
             }
@@ -135,7 +133,6 @@ fun createApprec(fellesformat: EIFellesformat): EIFellesformat {
                                     .map { mapIdentToAdditionalId(it) }
 
                             additionalId.addAll(additionalIds)
-
                         }
 
                         hcPerson.add(HCPerson().apply {
@@ -151,29 +148,51 @@ fun createApprec(fellesformat: EIFellesformat): EIFellesformat {
 
                                 additionalId.addAll(additionalIds)
                             }
-                        })
-
+                            }
+                            )
+                        }
                     }
-            }
-                status = AppRecCS().apply {
-                    v = "1"
-                    dn = "OK"
+
                 }
+
+            when{
+                apprecStatus.equals("avvist") -> {
+                    status = createApprecStatus(2)
+                    error.add(AppRecCV().apply {
+                        //@TODO change dn(Get the rule description thas denies the message) and the correct v
+                       dn = "Pasienten sitt fødselsnummer eller D-nummer '010101' er ikke 11 tegn. Det er 6 tegn langt."
+                       v ="47"
+                       s ="2.16.578.1.12.4.1.1.8223"
+                   })
+                }
+
+                apprecStatus.equals("duplikat") -> {
+                    status = createApprecStatus(2)
+                    error.add(AppRecCV().apply {
+                        dn = "Duplikat! - Denne meldingen er mottatt tidligere. Skal ikke sendes på nytt."
+                        v="801"
+                        s="2.16.578.1.12.4.1.1.8223"
+                    })
+                }
+
+
+                apprecStatus.equals("ok") ->
+                    status = createApprecStatus(1)
+
+            }
+
                 originalMsgId = OriginalMsgId().apply {
                     msgType = AppRecCS().apply {
-                        v = "LE"
-                        dn = "Legeerklæring"
+                        v = LegeerklaeringConstant.LE.string
+                        dn = LegeerklaeringConstant.Legeerklæring.string
                     }
                     issueDate = fellesformat.msgHead.msgInfo.genDate
                     id = fellesformat.msgHead.msgInfo.msgId
                 }
             }
         }
-    }
     return fellesformatApprec
-}
-
-
+    }
 
 fun mapIdentToAdditionalId(ident: Ident): AdditionalId = AdditionalId().apply {
     id = ident.id
@@ -188,5 +207,16 @@ fun mapIdentToInst(ident: Ident): Inst = Inst().apply {
     typeId= AppRecCS().apply {
         dn = ident.typeId.dn
         v = ident.typeId.v
+    }
+}
+
+fun createApprecStatus(status: Int): AppRecCS = AppRecCS().apply {
+    if (status == 2) {
+        v = "2"
+        dn = "Avvist"
+    }
+    else {
+        v = "1"
+        dn = "OK"
     }
 }

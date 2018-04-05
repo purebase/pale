@@ -9,6 +9,10 @@
             <Organisation>
                 <OrganisationName>Kule helsetjenester AS</OrganisationName>
                 <Ident>
+                    <Id>223456789</Id>
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
+                </Ident>
+                <Ident>
                     <Id>0123</Id>
                     <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
                 </Ident>
@@ -23,8 +27,16 @@
                     <MiddleName>Fos</MiddleName>
                     <GivenName>Inga</GivenName>
                     <Ident>
+                        <Id>1234</Id>
+                        <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret" S="1.16.578.1.12.4.3.1.8116" V="HER" />
+                    </Ident>
+                    <Ident>
+                        <Id>1234567</Id>
+                        <TypeId DN="HPR-nummer" S="1.16.578.1.12.3.1.1.8116" V="HPR" />
+                    </Ident>
+                    <Ident>
                         <Id>04030350265</Id>
-                        <TypeId DN="Fødselsnummer" V="FNR" S="9.87.654.3.21.9.8.7.6543.2198" />
+                        <TypeId DN="Fødselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
                     </Ident>
                     <Address>
                         <StreetAdr />
@@ -38,8 +50,12 @@
             <Organisation>
                 <OrganisationName>NAV</OrganisationName>
                 <Ident>
-                    <Id>0234</Id>
+                    <Id>12668</Id>
                     <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
+                </Ident>
+                <Ident>
+                    <Id>123456789</Id>
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
                 </Ident>
                 <Address>
                     <StreetAdr />

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <MottakenhetBlokk ediLoggId="FiktivTestdata0001" ebRole="Nav" ebService="Legemelding" ebAction="Svarmelding" />
+    <AppRec xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21">
+        <MsgType V="APPREC" />
+        <MIGversion>1.0 2004-11-21</MIGversion>
+        <GenDate>2018-04-03T15:54:51+02:00</GenDate>
+        <Id>FiktivTestdata0001</Id>
+        <Sender>
+            <HCP>
+                <Inst>
+                    <Name>NAV</Name>
+                    <Id>12668</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
+                    <AdditionalId>
+                        <Id>123456789</Id>
+                        <Type DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" V="ENH" />
+                    </AdditionalId>
+                </Inst>
+            </HCP>
+        </Sender>
+        <Receiver>
+            <HCP>
+                <Inst>
+                    <Name>Kule helsetjenester AS</Name>
+                    <Id>223456789</Id>
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
+                    <HCPerson>
+                        <Name>Inga Valda</Name>
+                        <Id>1234</Id>
+                        <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret" S="1.16.578.1.12.4.3.1.8116" V="HER"/>
+                        <AdditionalId>
+                            <Id>1234567</Id>
+                            <Type DN="HPR-nummer" S="1.16.578.1.12.3.1.1.8116" V="HPR"/>
+                        </AdditionalId>
+                    </HCPerson>
+                </Inst>
+            </HCP>
+        </Receiver>
+        <Status V="2" DN="Avvist" />
+        <Error DN="Duplikat! - Denne meldingen er mottatt tidligere. Skal ikke sendes på nytt." V="801" S="2.16.578.1.12.4.1.1.8223" />
+        <OriginalMsgId>
+            <MsgType V="LE" DN="Legeerklæring" />
+            <IssueDate>2017-12-29T03:49:45</IssueDate>
+            <Id>05565fb0-cd7e-410d-bc1f-e1e918df2eac</Id>
+        </OriginalMsgId>
+    </AppRec>
+</EI_fellesformat>
