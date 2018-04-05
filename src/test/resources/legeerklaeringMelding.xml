@@ -1,0 +1,131 @@
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+<MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlxd="http://www.w3.org/2000/09/xmldsig#">
+    <MsgInfo>
+        <Type V="Legerklæring ved arbeidsuførhet" DN="LEGEERKL"/>
+        <MIGversion>v1.2 2006-05-24</MIGversion>
+        <GenDate>2017-12-29T03:49:45</GenDate>
+        <MsgId>05565fb0-cd7e-410d-bc1f-e1e918df2eac</MsgId>
+        <Sender>
+            <Organisation>
+                <OrganisationName>Kule helsetjenester AS</OrganisationName>
+                <Ident>
+                    <Id>0123</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
+                </Ident>
+                <Address>
+                    <StreetAdr/>
+                    <PostalCode/>
+                    <City/>
+                </Address>
+                <Organisation/>
+                <HealthcareProfessional>
+                    <FamilyName>Valda</FamilyName>
+                    <MiddleName>Fos</MiddleName>
+                    <GivenName>Inga</GivenName>
+                    <Ident>
+                        <Id>04030350265</Id>
+                        <TypeId DN="Fødselsnummer" V="FNR" S="9.87.654.3.21.9.8.7.6543.2198" />
+                    </Ident>
+                    <Address>
+                        <StreetAdr />
+                        <PostalCode />
+                        <City />
+                    </Address>
+                </HealthcareProfessional>
+            </Organisation>
+        </Sender>
+        <Receiver>
+            <Organisation>
+                <OrganisationName>NAV</OrganisationName>
+                <Ident>
+                    <Id>0234</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
+                </Ident>
+                <Address>
+                    <StreetAdr />
+                    <PostalCode />
+                    <City />
+                </Address>
+            </Organisation>
+        </Receiver>
+    </MsgInfo>
+    <Document>
+        <RefDoc>
+            <MsgType DN="XML-instans" V="XML" />
+            <Content>
+                <Legeerklaring xmlns="http://www.kith.no/xmlstds/legeerklaring/2008-06-06">
+                    <LegeerklaringGjelder typeLegeerklaring="2"/>
+                    <Pasientopplysninger flereArbeidsforhold="2">
+                        <Pasient fodselsnummer="12128913767" trygdekontor="NAV Sagene">
+                            <Navn>
+                                <Etternavn>Bergheim</Etternavn>
+                                <Fornavn>Daniel</Fornavn>
+                                <Mellomnavn>Yndesdal</Mellomnavn>
+                            </Navn>
+                            <Arbeidsforhold primartArbeidsforhold="1">
+                                <Virksomhet virksomhetsBetegnelse="" organisasjonsnummer="123456789">
+                                    <!--Optional:-->
+                                    <VirksomhetsAdr adressetype="RES">
+                                        <PostalAddress>
+                                            <StreetAddress>Oppdiktet gate 32</StreetAddress>
+                                            <PostalCode>1234</PostalCode>
+                                            <City>Ukjentby</City>
+                                            <Country>Norge</Country>
+                                        </PostalAddress>
+                                        <Teleinformasjon typeTelekom="MC">string</Teleinformasjon>
+                                    </VirksomhetsAdr>
+                                </Virksomhet>
+                                <Yrkesbetegnelse>Dokumentforfalsker</Yrkesbetegnelse>
+                            </Arbeidsforhold>
+                            <PersonAdr adressetype="H">
+                                <PostalAddress>
+                                    <StreetAddress>Hjemmeaddresse 2</StreetAddress>
+                                    <PostalCode>1234</PostalCode>
+                                    <City>Ukjentby</City>
+                                    <Country>Norge</Country>
+                                </PostalAddress>
+                            </PersonAdr>
+                        </Pasient>
+                    </Pasientopplysninger>
+                    <PlanUtredBehandle>
+                        <NyVurdering>Trenger ikke ny vurdering</NyVurdering>
+                        <BehandlingsPlan>Trenger å slappe av med litt fisking</BehandlingsPlan>
+                        <UtredningsPlan>Burde dra ut på fisketur for å slappe av</UtredningsPlan>
+                    </PlanUtredBehandle>
+                    <DiagnoseArbeidsuforhet arbeidsuforFra="2017-11-05+01:00">
+                        <DiagnoseKodesystem kodesystem="1">
+                            <Enkeltdiagnose diagnose="82-01-Le" kodeverdi="K74" sortering="0" />
+                            <Enkeltdiagnose diagnose="Nyresvikt kronisk" kodeverdi="U99" sortering="1" />
+                        </DiagnoseKodesystem>
+                        <VurderingYrkesskade borVurderes="2" skadeDato="2017-10-14"/>
+                        <StatusPresens>vetikkehvasomskalhit</StatusPresens>
+                        <SymptomerBehandling>vethellerikkehvasomskalhit</SymptomerBehandling>
+                    </DiagnoseArbeidsuforhet>
+                    <ForslagTiltak tiltak="2">
+                        <AktueltTiltak typeTiltak="1">
+                            <HvilkeAndreTiltak />
+                        </AktueltTiltak>
+                        <Opplysninger />
+                        <BegrensningerTiltak>Trenger lettere arbeid</BegrensningerTiltak>
+                    </ForslagTiltak>
+                    <VurderingFunksjonsevne>
+                        <Arbeidssituasjon arbeidssituasjon="4" annenArbeidssituasjon=""/>
+                        <VurderingArbeidsevne gjenopptaArbeid="2" taAnnetArbeid="1" narTaAnnetArbeid="1">
+                            <IkkeGjore>Ikke tunge løft</IkkeGjore>
+                        </VurderingArbeidsevne>
+                        <Funksjonsevne>Kan ikke lengre danse</Funksjonsevne>
+                    </VurderingFunksjonsevne>
+                    <Prognose bedreArbeidsevne="2">
+                        <AntattVarighet>Ikke varig.</AntattVarighet>
+                        <VarighetFunksjonsnedsettelse>Ikke varig.</VarighetFunksjonsnedsettelse>
+                        <VarighetNedsattArbeidsevne>Ikke varig.</VarighetNedsattArbeidsevne>
+                    </Prognose>
+                    <ArsakssammenhengLegeerklaring>Sikker.</ArsakssammenhengLegeerklaring>
+                    <ForbeholdLegeerklaring tilbakeholdInnhold="2" />
+                </Legeerklaring>
+            </Content>
+        </RefDoc>
+    </Document>
+</MsgHead>
+<MottakenhetBlokk ediLoggId="FiktivTestdata0001" avsender="04030350265" ebXMLSamtaleId="1234" avsenderRef="00123456789" avsenderFnrFraDigSignatur="04030350265" mottattDatotid="2017-12-29T12:21:35+02:00" ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
+</EI_fellesformat>

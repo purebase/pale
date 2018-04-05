@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <MottakenhetBlokk ediLoggId="1804031337enge07364.1" ebRole="Nav" ebService="Legemelding" ebAction="Svarmelding" />
+    <AppRec xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21">
+        <MsgType V="APPREC" />
+        <MIGversion>1.0 2004-11-21</MIGversion>
+        <GenDate>2018-04-03T15:54:51+02:00</GenDate>
+        <Id>FiktivTestdata0001</Id>
+        <Sender>
+            <HCP>
+                <Inst>
+                    <Name>NAV</Name>
+                    <Id>0234</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" />
+                </Inst>
+            </HCP>
+        </Sender>
+        <Receiver>
+            <HCP>
+                <Inst>
+                    <Name>Kule helsetjenester AS</Name>
+                    <Id>0123</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" />
+                    <HCPerson>
+                        <Name>Inga Valda</Name>
+                        <Id>04030350265</Id>
+                        <TypeId  DN="Fødselsnummer" V="FNR"/>
+                    </HCPerson>
+                </Inst>
+            </HCP>
+        </Receiver>
+        <Status V="1" DN="OK" />
+        <OriginalMsgId>
+            <MsgType V="LE" DN="Legeerklæring" />
+            <IssueDate>2017-12-29T03:49:45</IssueDate>
+            <Id>05565fb0-cd7e-410d-bc1f-e1e918df2eac</Id>
+        </OriginalMsgId>
+    </AppRec>
+</EI_fellesformat>
