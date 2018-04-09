@@ -1,7 +1,13 @@
 buildscript {
     ext.ibm_mq_version = '9.0.4.0'
-    ext.kotlin_version = '1.2.21'
+    ext.kotlin_version = '1.2.31'
     ext.junit_version = '4.12'
+    ext.jackson_version = '2.9.5'
+    ext.jedis_version = '2.9.0'
+    ext.nav_person_v3_version = '3.2.0'
+    ext.jaxb2_plugin_version = '1.0.7'
+    ext.redis_mock_version = '0.1.6'
+    ext.logback_version = '1.2.3'
 
     repositories {
         mavenCentral()
@@ -19,7 +25,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "gradle.plugin.com.ewerk.gradle.plugins:jaxb2-plugin:1.0.7"
+        classpath "gradle.plugin.com.ewerk.gradle.plugins:jaxb2-plugin:$jaxb2_plugin_version"
     }
 }
 
@@ -70,13 +76,16 @@ repositories {
 }
 
 dependencies {
-    compile "no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:3.2.0"
+    compile "no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:$nav_person_v3_version"
     compile "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
-
-    compile "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.9.5"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.5"
-
+    compile "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jackson_version"
+    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "redis.clients:jedis:$jedis_version"
+    compile "ai.grakn:redis-mock:$redis_mock_version"
+
+    implementation "ch.qos.logback:logback-classic:$logback_version"
+
     testImplementation "junit:junit:$junit_version"
 }
 

@@ -4,6 +4,8 @@ package no.nav.legeerklaering
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import redis.clients.jedis.Jedis
+import java.util.*
 
 class ValidatorsTest {
 

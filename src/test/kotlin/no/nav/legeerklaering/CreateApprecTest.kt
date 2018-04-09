@@ -10,9 +10,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMottakenhetBlokkAvsender() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.mottakenhetBlokk.avsender, apprecFellesformat.mottakenhetBlokk.avsender)
     }
@@ -20,9 +20,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMottakenhetBlokkEdiLoggId() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.mottakenhetBlokk.ediLoggId, apprecFellesformat.mottakenhetBlokk.ediLoggId)
     }
@@ -30,9 +30,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMottakenhetBlokkEbRole() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.mottakenhetBlokk.ebRole, apprecFellesformat.mottakenhetBlokk.ebRole)
     }
@@ -40,9 +40,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMottakenhetBlokkEbService() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.mottakenhetBlokk.ebService, apprecFellesformat.mottakenhetBlokk.ebService)
     }
@@ -50,9 +50,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMottakenhetBlokkEbAction() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.mottakenhetBlokk.ebAction, apprecFellesformat.mottakenhetBlokk.ebAction)
     }
@@ -60,9 +60,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMsgTypeDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.msgType.dn, apprecFellesformat.appRec.msgType.dn)
     }
@@ -70,9 +70,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithMIGversion() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.miGversion, apprecFellesformat.appRec.miGversion)
     }
@@ -82,7 +82,7 @@ class CreateApprecTest {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
         val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedCurrentDate.day, apprecFellesformat.appRec.genDate.day)
         assertEquals(expectedCurrentDate.hour, apprecFellesformat.appRec.genDate.hour)
@@ -92,9 +92,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecId() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.id, apprecFellesformat.appRec.id)
     }
@@ -102,9 +102,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstName() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.name, apprecFellesformat.appRec.sender.hcp.inst.name)
     }
@@ -112,9 +112,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstId() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.id, apprecFellesformat.appRec.sender.hcp.inst.id)
     }
@@ -122,9 +122,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstTypeIdDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.typeId.dn, apprecFellesformat.appRec.sender.hcp.inst.typeId.dn)
     }
@@ -132,9 +132,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstTypeIdV() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.typeId.v, apprecFellesformat.appRec.sender.hcp.inst.typeId.v)
     }
@@ -142,9 +142,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstId() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.additionalId[0].id, apprecFellesformat.appRec.sender.hcp.inst.additionalId[0].id)
     }
@@ -152,9 +152,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstTypeDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.additionalId[0].type.dn, apprecFellesformat.appRec.sender.hcp.inst.additionalId[0].type.dn)
     }
@@ -162,9 +162,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstTypeV() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.sender.hcp.inst.additionalId[0].type.v, apprecFellesformat.appRec.sender.hcp.inst.additionalId[0].type.v)
     }
@@ -172,9 +172,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstName() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.receiver.hcp.inst.name, apprecFellesformat.appRec.receiver.hcp.inst.name)
     }
@@ -182,9 +182,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstId() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.receiver.hcp.inst.id, apprecFellesformat.appRec.receiver.hcp.inst.id)
     }
@@ -192,9 +192,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstTypeIdDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.receiver.hcp.inst.typeId.dn, apprecFellesformat.appRec.receiver.hcp.inst.typeId.dn)
     }
@@ -202,9 +202,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstTypeIdVIs1() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.receiver.hcp.inst.typeId.v, apprecFellesformat.appRec.receiver.hcp.inst.typeId.v)
     }
@@ -212,9 +212,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithStatusDnIsOK() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.status.dn, apprecFellesformat.appRec.status.dn)
     }
@@ -222,9 +222,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecDuplikatWithApprecReceiverHCPInstTypeIdVIs2() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecDuplikat.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecDuplikat.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "duplikat")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "duplikat")
 
         assertEquals(expectedApprecFellesformat.appRec.receiver.hcp.inst.typeId.v, apprecFellesformat.appRec.receiver.hcp.inst.typeId.v)
     }
@@ -232,9 +232,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecDuplikatWithStatusDnIsAvist() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecDuplikat.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecDuplikat.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "duplikat")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "duplikat")
 
         assertEquals(expectedApprecFellesformat.appRec.status.dn, apprecFellesformat.appRec.status.dn)
     }
@@ -242,9 +242,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecDuplikatWithErrosDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecDuplikat.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecDuplikat.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "duplikat")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "duplikat")
 
         assertEquals(expectedApprecFellesformat.appRec.error.get(0).dn, apprecFellesformat.appRec.error.get(0).dn)
     }
@@ -252,9 +252,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecDuplikatWithErrosV() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecDuplikat.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecDuplikat.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "duplikat")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "duplikat")
 
         assertEquals(expectedApprecFellesformat.appRec.error.get(0).v, apprecFellesformat.appRec.error.get(0).v)
     }
@@ -262,9 +262,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecDuplikatWithErross() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecDuplikat.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecDuplikat.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "duplikat")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "duplikat")
 
         assertEquals(expectedApprecFellesformat.appRec.error.get(0).s, apprecFellesformat.appRec.error.get(0).s)
     }
@@ -272,9 +272,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecAvistWithApprecReceiverHCPInstTypeIdVIs2() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecAvist.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecAvist.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "avvist")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "avvist")
 
         assertEquals(expectedApprecFellesformat.appRec.receiver.hcp.inst.typeId.v, apprecFellesformat.appRec.receiver.hcp.inst.typeId.v)
     }
@@ -282,9 +282,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecDAvistWithStatusDnIsAvist() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecAvist.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecAvist.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "avvist")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "avvist")
 
         assertEquals(expectedApprecFellesformat.appRec.status.dn, apprecFellesformat.appRec.status.dn)
     }
@@ -292,9 +292,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecRAvistWithErroDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecAvist.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecAvist.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "avvist")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "avvist")
 
         assertEquals(expectedApprecFellesformat.appRec.error.get(0).dn, apprecFellesformat.appRec.error.get(0).dn)
     }
@@ -302,9 +302,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecAvistWithErroV() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecAvist.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecAvist.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "avvist")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "avvist")
 
         assertEquals(expectedApprecFellesformat.appRec.error.get(0).v, apprecFellesformat.appRec.error.get(0).v)
     }
@@ -312,9 +312,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecAvistWithErroS() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecAvist.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecAvist.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "avvist")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "avvist")
 
         assertEquals(expectedApprecFellesformat.appRec.error.get(0).s, apprecFellesformat.appRec.error.get(0).s)
     }
@@ -322,9 +322,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithStatusV() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.status.v, apprecFellesformat.appRec.status.v)
     }
@@ -332,9 +332,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdMsgTypeDn() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.originalMsgId.msgType.dn, apprecFellesformat.appRec.originalMsgId.msgType.dn)
     }
@@ -342,9 +342,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdMsgTypeV() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.originalMsgId.msgType.v, apprecFellesformat.appRec.originalMsgId.msgType.v)
     }
@@ -352,9 +352,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdIssueDate() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.originalMsgId.issueDate, apprecFellesformat.appRec.originalMsgId.issueDate)
     }
@@ -362,9 +362,9 @@ class CreateApprecTest {
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdId() {
         val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-        val expectedApprecFellesformat = Utils.readToFellesformat("/legeerklaeringApprecOK.xml")
+        val expectedApprecFellesformat = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
 
-        val apprecFellesformat = createApprec(inputMeldingFellesformat, "ok")
+        val apprecFellesformat = LegeerklaeringApplication().createApprec(inputMeldingFellesformat, "ok")
 
         assertEquals(expectedApprecFellesformat.appRec.originalMsgId.id, apprecFellesformat.appRec.originalMsgId.id)
     }
