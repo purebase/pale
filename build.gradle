@@ -8,6 +8,10 @@ buildscript {
     ext.jaxb2_plugin_version = '1.0.7'
     ext.redis_mock_version = '0.1.6'
     ext.logback_version = '1.2.3'
+    ext.kafka_version = '1.0.0'
+    ext.confluent_version = '4.0.0'
+    ext.pdf_box_version = '2.0.9'
+    ext.$mustache_version = '0.9.5'
 
     repositories {
         mavenCentral()
@@ -62,6 +66,12 @@ jaxb2 {
             bindingsDir = 'src/main/resources'
             extension = true
         }
+
+        'arenaEiaSkjema' {
+            basePackage = 'no.nav.model.arenaEiaSkjema'
+            schema = 'src/main/resources/xsd/ArenaInfo2-1.xsd'
+            encoding = 'UTF-8'
+        }
     }
 }
 
@@ -73,6 +83,18 @@ repositories {
     maven {
         url 'https://repo.adeo.no/repository/maven-snapshots/'
     }
+
+    maven {
+        name 'Confluent maven repo'
+        url 'http://packages.confluent.io/maven/'
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 dependencies {
@@ -83,15 +105,12 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "redis.clients:jedis:$jedis_version"
     compile "ai.grakn:redis-mock:$redis_mock_version"
+    compile "org.apache.pdfbox:pdfbox:$pdf_box_version"
 
     implementation "ch.qos.logback:logback-classic:$logback_version"
+    implementation "io.confluent:kafka-avro-serializer:$confluent_version"
+    implementation "org.apache.kafka:kafka-clients:$kafka_version"
+    implementation "no.nav.tjenester:nav-journalbehandling-tjenestespesifikasjon:1.3.3:jaxws"
 
     testImplementation "junit:junit:$junit_version"
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
 }

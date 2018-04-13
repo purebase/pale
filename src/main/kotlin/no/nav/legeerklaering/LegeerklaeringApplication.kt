@@ -2,15 +2,25 @@ package no.nav.legeerklaering
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
+import no.nav.model.arenaEiaSkjema.ArenaEiaInfo
 import no.nav.model.fellesformat.*
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.HentPerson
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.Bruker
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.Fildetaljer
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.JournalpostDokumentInfoRelasjon
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
+import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdmodel.PDPage
+import org.apache.pdfbox.pdmodel.PDPageContentStream
+import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.slf4j.LoggerFactory
 import java.util.*
 import javax.jms.BytesMessage
@@ -18,6 +28,8 @@ import javax.jms.MessageConsumer
 import javax.xml.datatype.DatatypeFactory
 import java.security.MessageDigest
 import redis.clients.jedis.Jedis
+import java.io.ByteArrayOutputStream
+
 
 
 val jaxbAnnotationModule = JaxbAnnotationModule()
@@ -26,8 +38,9 @@ val jacksonXmlModule = JacksonXmlModule().apply {
 }
 val objectMapper: ObjectMapper = XmlMapper(jacksonXmlModule).registerModule(jaxbAnnotationModule)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .enable(SerializationFeature.INDENT_OUTPUT)
 val newInstance = DatatypeFactory.newInstance()
-private val log = LoggerFactory.getLogger(LegeerklaeringApplication::class.java!!)
+private val log = LoggerFactory.getLogger(LegeerklaeringApplication::class.java)
 
 class LegeerklaeringApplication {
 
@@ -78,18 +91,35 @@ class LegeerklaeringApplication {
 
             when (outcome) {
                 is Success -> {
-                    // Send message to a internal kafka topic, then poll it and run the enrichment process
+                    // Send message to a internal kafka topic
+
+                    //poll it message from kafka topic
+
+                    //call TPS
+                    tpsFinnPersonData("fnr")
+
+                    //call TSS
+                    tssFinnSamhandlerData("fnr")
+                    //Run the rule controll
+
+                    //Akriver Message
+                    archiveMessage(legeerklaering,fellesformat)
+
+                    // send to Message
+                    createArenaEiaInfo(legeerklaering, fellesformat)
                 }
 
                 is ValidationError -> {
                     createApprec(fellesformat, "avvist")
-                    // Inform sender that the message was invalid
                 }
             }
         }
     }
 
     fun validateMessage(legeeklaering: Legeerklaring): Outcome {
+
+        //TODO need to implement fpsak|-nare to implments rules
+
         val pasient = legeeklaering.pasientopplysninger.pasient
         if (!validatePersonNumber(pasient.fodselsnummer)) {
             ValidationError("Invalid personnummer, checksum not matching")
@@ -184,9 +214,9 @@ class LegeerklaeringApplication {
                         status = createApprecStatus(2)
                         error.add(AppRecCV().apply {
                             //@TODO change dn(Get the rule description thas denies the message) and the correct v
-                            dn = "Pasienten sitt fødselsnummer eller D-nummer '010101' er ikke 11 tegn. Det er 6 tegn langt."
+                            dn = "LegeErklæringen valideringen misslyktes"
                             v = "47"
-                            s = "2.16.578.1.12.4.1.1.8223"
+                            s = "2.16.578.1.12.4.1.1.8222"
                         })
                     }
 
@@ -195,7 +225,7 @@ class LegeerklaeringApplication {
                         error.add(AppRecCV().apply {
                             dn = "Duplikat! - Denne meldingen er mottatt tidligere. Skal ikke sendes på nytt."
                             v = "801"
-                            s = "2.16.578.1.12.4.1.1.8223"
+                            s = "2.16.578.1.12.4.1.1.8222"
                         })
                     }
 
@@ -273,5 +303,186 @@ class LegeerklaeringApplication {
         }
     }
 
+    fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat): ArenaEiaInfo = ArenaEiaInfo().apply {
+        ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
+        hendelseStatus = "TIL_VURDERING" //TODO
+        version = "2.0"
+        skjemaType = LegeerklaeringConstant.LE.string
+        mappeType = "UP"
+        pasientData.fnr = legeeklaering.pasientopplysninger.pasient.fodselsnummer
+        pasientData.isSperret = false //TODO
+        pasientData.tkNummer = "" //TODO
+        legeData.navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
+                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
+        legeData.fnr = getHCPFodselsnummer(fellesformat)
+        legeData.tssid = "asdad" //TODO
+        eiaData.apply {
+            systemSvar.add(ArenaEiaInfo.EiaData.SystemSvar().apply {
+                meldingsNr = 141.toBigInteger() //TODO
+                meldingsTekst = "Usikkert svar fra TSS,  lav sannsynlighet (55,8%) for identifikasjon av  samhandler.  Bør verifiseres." //TODO
+                meldingsPrioritet = 4.toBigInteger() //TODO
+                meldingsType = "2" //TODO
+            })
+            signaturDato.year = fellesformat.msgHead.msgInfo.genDate.year
+            signaturDato.month = fellesformat.msgHead.msgInfo.genDate.month
+            signaturDato.day = fellesformat.msgHead.msgInfo.genDate.day
+        }
+    }
 
+
+    fun getHCPFodselsnummer(fellesformat: EIFellesformat): String {
+
+        for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
+
+            if (fellesformat.msgHead.msgInfo.sender.organisation.ident[i].typeId.dn.equals("Fødselsnummer"))
+            {
+                return fellesformat.msgHead.msgInfo.sender.organisation.ident[i].id
+            }
+        }
+        return ""
+    }
+
+    fun tssFinnSamhandlerData(fnr: String): String {
+        return ""
+    }
+
+    fun tpsFinnPersonData(fnr: String): String {
+        return ""
+    }
+
+    fun archiveMessage(legeeklaering: Legeerklaring ,fellesformat: EIFellesformat):
+            LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
+
+        journalpostDokumentInfoRelasjonListe.add(
+                JournalpostDokumentInfoRelasjon().apply {
+                    //Fagmelding
+                    dokumentInfo.apply {
+                        when {
+                            legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) -> {
+                                begrensetPartsinnsynFraTredjePart = false
+                            }
+
+                            else -> begrensetPartsinnsynFraTredjePart = true
+
+                        }
+                        fildetaljerListe.add(Fildetaljer().apply {
+                            //fil = //the base64 pdf
+                            filnavn = "LE--113-2.pdf"
+                            filtypeKode = "PDF"
+                            variantFormatKode = "ARKIV"
+                            versjon = 1
+                        })
+                        kategoriKode = "ES"
+                        tittel = "Legeerklæring"
+                        brevkode = "900002"
+                        sensitivt = false
+                        organInternt = false
+                        versjon = 1
+                    }
+                    tilknyttetJournalpostSomKode = "HOVEDDOKUMENT"
+                    tilknyttetAvNavn =  "EIA_AUTO"
+                    versjon = 1
+                }
+
+        )
+
+        journalpostDokumentInfoRelasjonListe.add(JournalpostDokumentInfoRelasjon().apply {
+            //Behandlingsvedlegg
+            dokumentInfo.apply {
+                when {
+                    legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) -> {
+                        begrensetPartsinnsynFraTredjePart = false
+                    }
+
+                    else -> begrensetPartsinnsynFraTredjePart = true
+
+                }
+                fildetaljerListe.add(Fildetaljer().apply {
+                    //fil = //the base64 pdf
+                    filnavn = "LE-behandlingsvedlegg-113-2.pdf"
+                    filtypeKode = "PDF"
+                    variantFormatKode = "ARKIV"
+                    versjon = 1
+                })
+                kategoriKode = "ES"
+                tittel = "Legeerklæring-behandlingsvedlegg"
+                brevkode = "900002"
+                sensitivt = false
+                organInternt = true
+                versjon = 1
+            }
+            tilknyttetJournalpostSomKode = "VEDLEGG"
+            tilknyttetAvNavn =  "EIA_AUTO"
+            versjon = 1
+        })
+
+        gjelderListe.add(Bruker().apply {
+            brukerId = "04030350265"
+            brukertypeKode = "PERSON"
+        })
+        merknad = "Legeerklæring"
+        mottakskanalKode = "EIA"
+        mottattDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
+        innhold = "Legeerklæring"
+        journalForendeEnhetId = ""
+        journalposttypeKode = "1"
+        journalstatusKode = "MO"
+        dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
+        fagomradeKode = "OPP"
+        fordeling = "EIA_OK"
+        avsenderMottaker = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
+                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
+        avsenderMottakerId = getHCPFodselsnummer(fellesformat)
+        opprettetAvNavn = "EIA_AUTO"
+
+    }
+
+fun createPDFBase64Encoded(legeeklaering: Legeerklaring): String{
+
+    val document = PDDocument()
+    val blankPage = PDPage()
+    document.addPage(blankPage)
+    val font = PDType1Font.HELVETICA_BOLD;
+    val contentStream = PDPageContentStream(document, blankPage)
+
+    contentStream.beginText()
+    val folketrygdenxPosision = 15f
+    val folketrygdenyPosision = 750f
+    contentStream.setFont(font, 18f)
+    contentStream.newLineAtOffset(folketrygdenxPosision, folketrygdenyPosision)
+    contentStream.showText("FOLKETRYGDEN")
+    contentStream.endText()
+
+    contentStream.beginText()
+    val legeerklringVedxPosision = 350f
+    val legeerklringVedyPosision = 760f
+    contentStream.setFont(font, 12f)
+    contentStream.newLineAtOffset(legeerklringVedxPosision, legeerklringVedyPosision)
+    contentStream.showText("Legeerklæring ved arbeidsuførhet")
+    contentStream.endText()
+
+    contentStream.beginText()
+    val legeesendeNAVKontorxPosision = 350f
+    val legeesendeNAVKontoryPosision = 740f
+    contentStream.setFont(font, 8f)
+    contentStream.newLineAtOffset(legeesendeNAVKontorxPosision, legeesendeNAVKontoryPosision)
+    contentStream.showText("Legen skal sende denne til NAV-kontoret.")
+    contentStream.endText()
+
+    contentStream.beginText()
+    val erklaeringenGjelderxPosision = 15f
+    val erklaeringenGjelderyPosision = 720f
+    contentStream.setFont(font, 12f)
+    contentStream.newLineAtOffset(erklaeringenGjelderxPosision, erklaeringenGjelderyPosision)
+    contentStream.showText("0 Erklæringen gjelder")
+    contentStream.endText()
+
+    contentStream.close()
+
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    document.save(byteArrayOutputStream)
+
+
+    return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray())
+    }
 }
