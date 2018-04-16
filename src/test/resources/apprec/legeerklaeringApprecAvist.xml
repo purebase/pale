@@ -38,7 +38,7 @@
             </HCP>
         </Receiver>
         <Status V="2" DN="Avvist" />
-        <Error DN="LegeErklæringen valideringen misslyktes" V="47" S="2.16.578.1.12.4.1.1.8223" />
+        <Error DN="LegeErklæringen valideringen misslyktes" V="47" S="2.16.578.1.12.4.1.1.8222" />
         <OriginalMsgId>
             <MsgType V="LE" DN="Legeerklæring" />
             <IssueDate>2017-12-29T03:49:45</IssueDate>

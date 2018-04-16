@@ -8,7 +8,7 @@ class CreatearchiveMessage{
     @Test
     fun shouldCreateArenaEiaInfo() {
 
-        val fellesformat = Utils.readToFellesformat("/readToLegerklearing.xml")
+        val fellesformat = Utils.readToFellesformat("/legeerklaering.xml")
         val legeerklaring = Utils.readToLegerklearing("/legeerklaeringFagmelding.xml")
 
         LegeerklaeringApplication().archiveMessage(legeerklaring, fellesformat)

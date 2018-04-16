@@ -36,8 +36,18 @@ buildscript {
 group 'no.nav.legeerklaering'
 version '1.0-SNAPSHOT'
 
+//apply plugin: 'idea'
 apply plugin: 'kotlin'
 apply plugin: "com.ewerk.gradle.plugins.jaxb2"
+
+/*
+idea {
+    module{
+        sourceDirs += files('src/generated')
+        generatedSourceDirs += files('src/generated')
+    }
+}
+*/
 
 sourceSets {
     generated {

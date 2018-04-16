@@ -13,10 +13,7 @@ import no.nav.model.arenaEiaSkjema.ArenaEiaInfo
 import no.nav.model.fellesformat.*
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.HentPerson
-import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.Bruker
-import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.Fildetaljer
-import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.JournalpostDokumentInfoRelasjon
-import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
@@ -28,8 +25,9 @@ import javax.jms.MessageConsumer
 import javax.xml.datatype.DatatypeFactory
 import java.security.MessageDigest
 import redis.clients.jedis.Jedis
+import java.awt.Color
 import java.io.ByteArrayOutputStream
-
+import javax.xml.datatype.XMLGregorianCalendar
 
 
 val jaxbAnnotationModule = JaxbAnnotationModule()
@@ -309,37 +307,45 @@ class LegeerklaeringApplication {
         version = "2.0"
         skjemaType = LegeerklaeringConstant.LE.string
         mappeType = "UP"
-        pasientData.fnr = legeeklaering.pasientopplysninger.pasient.fodselsnummer
-        pasientData.isSperret = false //TODO
-        pasientData.tkNummer = "" //TODO
-        legeData.navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
+        pasientData = ArenaEiaInfo.PasientData().apply {
+            fnr = legeeklaering.pasientopplysninger.pasient.fodselsnummer
+            isSperret = false //TODO
+            tkNummer = "" //TODO
+        }
+        legeData = ArenaEiaInfo.LegeData().apply {
+            navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
-        legeData.fnr = getHCPFodselsnummer(fellesformat)
-        legeData.tssid = "asdad" //TODO
-        eiaData.apply {
+            fnr = getHCPFodselsnummer(fellesformat)
+            tssid = "asdad" //TODO
+    }
+        eiaData = ArenaEiaInfo.EiaData().apply {
             systemSvar.add(ArenaEiaInfo.EiaData.SystemSvar().apply {
                 meldingsNr = 141.toBigInteger() //TODO
                 meldingsTekst = "Usikkert svar fra TSS,  lav sannsynlighet (55,8%) for identifikasjon av  samhandler.  Bør verifiseres." //TODO
                 meldingsPrioritet = 4.toBigInteger() //TODO
                 meldingsType = "2" //TODO
             })
-            signaturDato.year = fellesformat.msgHead.msgInfo.genDate.year
-            signaturDato.month = fellesformat.msgHead.msgInfo.genDate.month
-            signaturDato.day = fellesformat.msgHead.msgInfo.genDate.day
+            signaturDato = newInstance.newXMLGregorianCalendar(GregorianCalendar().apply {
+                set(fellesformat.msgHead.msgInfo.genDate.year, fellesformat.msgHead.msgInfo.genDate.month,fellesformat.msgHead.msgInfo.genDate.day)
+            })
+
         }
     }
 
 
     fun getHCPFodselsnummer(fellesformat: EIFellesformat): String {
 
-        for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
+        for (ident in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident) {
 
-            if (fellesformat.msgHead.msgInfo.sender.organisation.ident[i].typeId.dn.equals("Fødselsnummer"))
+            if (ident.typeId.v.equals("FNR"))
             {
-                return fellesformat.msgHead.msgInfo.sender.organisation.ident[i].id
+                return ident.id
             }
+
         }
+
         return ""
+
     }
 
     fun tssFinnSamhandlerData(fnr: String): String {
@@ -353,17 +359,13 @@ class LegeerklaeringApplication {
     fun archiveMessage(legeeklaering: Legeerklaring ,fellesformat: EIFellesformat):
             LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
 
-        journalpostDokumentInfoRelasjonListe.add(
-                JournalpostDokumentInfoRelasjon().apply {
+        val fagmeldingJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
                     //Fagmelding
-                    dokumentInfo.apply {
+                    dokumentInfo = DokumentInfo().apply {
                         when {
-                            legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) -> {
+                            legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) ->
                                 begrensetPartsinnsynFraTredjePart = false
-                            }
-
                             else -> begrensetPartsinnsynFraTredjePart = true
-
                         }
                         fildetaljerListe.add(Fildetaljer().apply {
                             //fil = //the base64 pdf
@@ -384,11 +386,9 @@ class LegeerklaeringApplication {
                     versjon = 1
                 }
 
-        )
-
-        journalpostDokumentInfoRelasjonListe.add(JournalpostDokumentInfoRelasjon().apply {
+        val behandlingsvedleggJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
             //Behandlingsvedlegg
-            dokumentInfo.apply {
+            dokumentInfo = DokumentInfo().apply {
                 when {
                     legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) -> {
                         begrensetPartsinnsynFraTredjePart = false
@@ -414,7 +414,10 @@ class LegeerklaeringApplication {
             tilknyttetJournalpostSomKode = "VEDLEGG"
             tilknyttetAvNavn =  "EIA_AUTO"
             versjon = 1
-        })
+        }
+
+        journalpostDokumentInfoRelasjonListe.add(fagmeldingJournalpostDokumentInfoRelasjon)
+        journalpostDokumentInfoRelasjonListe.add(behandlingsvedleggJournalpostDokumentInfoRelasjon)
 
         gjelderListe.add(Bruker().apply {
             brukerId = "04030350265"
@@ -476,6 +479,9 @@ fun createPDFBase64Encoded(legeeklaering: Legeerklaring): String{
     contentStream.newLineAtOffset(erklaeringenGjelderxPosision, erklaeringenGjelderyPosision)
     contentStream.showText("0 Erklæringen gjelder")
     contentStream.endText()
+
+    contentStream.addRect(15f, 665f, 550f, 40f)
+    contentStream.setNonStrokingColor(Color.white)
 
     contentStream.close()
 
