@@ -368,8 +368,8 @@ class LegeerklaeringApplication {
                             else -> begrensetPartsinnsynFraTredjePart = true
                         }
                         fildetaljerListe.add(Fildetaljer().apply {
-                            //fil = //the base64 pdf
-                            filnavn = "LE--113-2.pdf"
+                            fil = createPDFBase64Encoded(legeeklaering)
+                            filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2.pdf"
                             filtypeKode = "PDF"
                             variantFormatKode = "ARKIV"
                             versjon = 1
@@ -398,8 +398,8 @@ class LegeerklaeringApplication {
 
                 }
                 fildetaljerListe.add(Fildetaljer().apply {
-                    //fil = //the base64 pdf
-                    filnavn = "LE-behandlingsvedlegg-113-2.pdf"
+                    fil = createPDFBase64Encoded(legeeklaering)
+                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2-behandlingsvedlegg.pdf"
                     filtypeKode = "PDF"
                     variantFormatKode = "ARKIV"
                     versjon = 1
@@ -440,7 +440,7 @@ class LegeerklaeringApplication {
 
     }
 
-fun createPDFBase64Encoded(legeeklaering: Legeerklaring): String{
+fun createPDFBase64Encoded(legeeklaering: Legeerklaring): ByteArray{
 
     val document = PDDocument()
     val blankPage = PDPage()
@@ -489,6 +489,6 @@ fun createPDFBase64Encoded(legeeklaering: Legeerklaring): String{
     document.save(byteArrayOutputStream)
 
 
-    return Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray())
+    return Base64.getEncoder().encode(byteArrayOutputStream.toByteArray())
     }
 }
