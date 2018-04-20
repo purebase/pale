@@ -9,8 +9,10 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
-import no.nav.model.arenaEiaSkjema.ArenaEiaInfo
+import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.*
+import no.nav.model.msghead.*
+import no.nav.model.apprec.*
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.HentPerson
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
