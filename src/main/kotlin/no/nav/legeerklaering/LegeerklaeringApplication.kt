@@ -28,7 +28,9 @@ import javax.xml.datatype.DatatypeFactory
 import java.security.MessageDigest
 import redis.clients.jedis.Jedis
 import java.awt.Color
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import javax.xml.bind.JAXBContext
 import javax.xml.datatype.XMLGregorianCalendar
 
 
@@ -37,8 +39,10 @@ val jacksonXmlModule = JacksonXmlModule().apply {
     setDefaultUseWrapper(false)
 }
 val objectMapper: ObjectMapper = XmlMapper(jacksonXmlModule).registerModule(jaxbAnnotationModule)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        //.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .enable(SerializationFeature.INDENT_OUTPUT)
+val fellesformatJaxBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
+val fellesformatUnmarshaller = fellesformatJaxBContext.createUnmarshaller()
 val newInstance = DatatypeFactory.newInstance()
 private val log = LoggerFactory.getLogger(LegeerklaeringApplication::class.java)
 
@@ -68,7 +72,9 @@ class LegeerklaeringApplication {
         if (it is BytesMessage) {
             val bytes = ByteArray(it.bodyLength.toInt())
             it.readBytes(bytes)
-            val fellesformat = objectMapper.readValue<EIFellesformat>(bytes, EIFellesformat::class.java)
+            val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
+
+            //val fellesformat = objectMapper.readValue<EIFellesformat>(bytes, EIFellesformat::class.java)
 
             val hashValue = createSHA1(fellesformat.toString())
 

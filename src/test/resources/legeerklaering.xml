@@ -1,5 +1,5 @@
 <EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
-<MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlxd="http://www.w3.org/2000/09/xmldsig#">
+    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlxd="http://www.w3.org/2000/09/xmldsig#">
     <MsgInfo>
         <Type V="Legerklæring ved arbeidsuførhet" DN="LEGEERKL"/>
         <MIGversion>v1.2 2006-05-24</MIGversion>
