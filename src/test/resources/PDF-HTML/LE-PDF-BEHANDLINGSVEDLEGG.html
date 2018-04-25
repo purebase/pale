@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<html>
+  <head>
+    <meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type" />
+    <style type="text/css">.header { border: none; border-collapse: collapse; margin-bottom: 1mm; width: 100%; max-width: 200mm; font-family: Arial; page-break-inside: avoid; }
+					.header td { border: none; font-size: 1.0em; page-break-inside: avoid; }
+					.headerRight td { border: none; font-size: 1.0em; page-break-inside: avoid; }
+					.tabell { border: 1px solid black; border-collapse: collapse; margin-bottom: 5mm; width: 100%; max-width: 200mm; font-family: Arial; page-break-inside: avoid; }
+					.centerAlign { text-align: center; }
+					.overskrift_font { font-family: "Arial"; font-size: 1em; font-weight: bold; }
+					.tittel_font { font-family: "Arial"; font-size: 1em; font-weight: bold; }
+					.ledetekst_font { font-family: "Arial"; font-size: 0.9em; font-weight: bold; }
+					.innhold_font { font-family: "Arial"; font-size: 0.9em; }
+				</style>
+  </head>
+  <body>	
+    <table class="header">
+      <tr>
+        <td width="100%" class="centerAlign">
+          <font class="overskrift_font">Behandlingsvedlegg</font>
+        </td>
+      </tr>
+    </table>
+	</br>
+    <table class="header">
+      <tr>
+        <td width="100%" class="centerAlign">
+          <font class="tittel_font">Behandlingsvedlegget viser informasjon fra automatisk kontroll av dokumentet.</font>
+        </td>
+      </tr>
+    </table>
+	</br>
+	 <table class="header">
+      <tr>
+        <td width="100%" class="centerAlign">
+		<!-- if(operasjonstype == 2){
+		  Dokumentet er sendt til manuell behandling}
+			else{Oppføgingsmelding er sendt til Arena.-->
+          <font class="tittel_font">Dokumentet er sendt til manuell behandling</font>
+        </td>
+      </tr>
+    </table>
+<!--Start Vises kun dersom det er merknader av typen retur-->	
+	<table class="tabell">
+      <tr>
+        <td width="100%">
+          <font class="ledetekst_font">Dokumentet er avvist og returnert til avsender med følgende merknad:</font>
+        </td>
+      </tr>
+	  <tr>
+	  <!--Kan innholde flere-->
+        <td width="100%">
+          <font class="innhold_font"> merknad.tekst +"Nr: "+ merknad.nr</font>
+        </td>
+      </tr>
+    </table>
+	<!--END Vises kun dersom det er merknader av typen retur-->	
+	<!--Start Vises kun dersom det er merknader av typen manuell-Behandling-->	
+	<table class="tabell">
+      <tr>
+        <td width="100%">
+          <font class="ledetekst_font">Dokumentet er sendt til manuell behandling med følgende merknad:</font>
+        </td>
+      </tr>
+	  <tr>
+	  <!--Kan innholde flere-->
+        <td width="100%">
+          <font class="innhold_font">merknad.tekst +"Nr: "+ merknad.nr</font>
+        </td>
+      </tr>
+    </table>
+	<!--END Vises kun dersom det er merknader av typen manuell-Behandling-->	
+	<!--Start Vises kun dersom det er merknader av typen oppfolging-->	
+	<table class="tabell">
+      <tr>
+        <td width="100%" class="header">
+		<!-- $F{tidsstempel} != null ? (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse($F{tidsstempel}).after( new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2010-11-26T13:30:00")) ? "Følgende oppfølgingsmerknad er sendt til Arena" : "Følgende melding er sendt til Arena") : "Følgende melding er sendt til Arena"-->
+          <font class="ledetekst_font">Følgende oppfølgingsmerknad er sendt til Arena</font>
+      </font>
+        </td>
+      </tr>
+	   <tr>
+	   <!--Kan innholde flere-->
+        <td width="100%">
+		  <font class="innhold_font">merknad.tekst +"Nr: "+ merknad.nr</td>
+      </tr>
+    </table>
+	<!--END Vises kun dersom det er merknader av typen oppfolging-->	
+	<!--Start Vises kun dersom det er merknader av typen notis-->	
+	<table class="tabell">
+      <tr>
+        <td width="100%" class="header">
+          <font class="ledetekst_font">Følgende notis er registrert:\n Disse merknadene beskriver funn som er gjort i den automatiske saksbehandlingen og skal normalt ikke medføre saksbehandling</font>
+		  </td>
+      </tr>
+	  <td>
+		<!--Kan innholde flere-->
+	     <font class="innhold_font">merknad.tekst +"Nr: "+ merknad.nr</font>
+	  </td>
+	  </tr>
+    </table>
+	<!--Start Vises kun dersom det er merknader av typen notis-->	
+	<table class="header">
+      <tr>
+        <td width="100%" class="header">
+          <font class="ledetekst_font">Informasjon om dokumentet</font>
+        </td>
+      </tr>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="25%">
+          <font class="ledetekst_font">type</font>
+        </td>
+		<td width="25%">
+          <font class="ledetekst_font">Status</font>
+        </td>
+		<td width="50%">
+          <font class="ledetekst_font">Pasient Id</font>
+        </td>
+      </tr>
+	   <tr>
+        <td width="25%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.type.v</font>
+        </td>
+		<td width="25%">
+		<!--
+		if(operasjonstype == 1){
+		GODKJENT
+		}
+		if(operasjonstype == 2){
+		MANUELL BEHANDLING
+		}
+		if(operasjonstype == 3){
+		OPPFØLGING
+		}
+		
+		if(operasjonstype == 5){
+		NOTIS
+		}
+		else {
+		AVVIST
+		}
+		-->
+          <font class="innhold_font">GODKJENT</font>
+        </td>
+		<td width="50%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.patient.ident.get(0).id</font>
+        </td>
+      </tr>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="50%">
+          <font class="ledetekst_font">Ediloggid (Referanse fra NAV elektronisk mottak)</font>
+        </td>
+		<td width="50%">
+          <font class="ledetekst_font">Msg Id (Referanse fra avsender system)</font>
+        </td>
+      </tr>
+	   <tr>
+        <td width="50%">
+          <font class="innhold_font">fellesformat.mottakenhetBlokk.ediLoggId</font>
+        </td>
+		<td width="50%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.msgId</font>
+        </td>
+      </tr>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="25%">
+          <font class="ledetekst_font">Generert</font>
+        </td>
+		<td width="25%">
+          <font class="ledetekst_font">Mottatt NAV</font>
+        </td>
+		<td width="50%">
+          <font class="ledetekst_font">Registrert i LEGEERKLAEING</font>
+        </td>
+      </tr>
+	   <tr>
+        <td width="25%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.genDate</font>
+        </td>
+		<td width="25%">
+          <font class="innhold_font">fellesformat.mottakenhetBlokk.mottattDatotid</font>
+        </td>
+		  <td width="50%">
+          <font class="innhold_font">DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())</font>
+        </td>
+      </tr>
+    </table>
+	<table class="header">
+      <tr>
+        <td width="100%" class="header">
+          <font class="ledetekst_font">Informasjon om avsender</font>
+        </td>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="50%">
+          <font class="ledetekst_font">Signatur id</font>
+        </td>
+		<td width="50%">
+          <font class="ledetekst_font">Signatur navn</font>
+        </td>
+      </tr>
+	   <tr>
+        <td width="50%">
+          <font class="innhold_font">fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur</font>
+        </td>
+		<td width="50%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName +
+		  fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName + 
+		  fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName</font>
+        </td>
+      </tr>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="25%">
+          <font class="ledetekst_font">Avsender id</font>
+        </td>
+		<td width="50%">
+          <font class="ledetekst_font">Avsender navn</font>
+        </td>
+		<td width="25%">
+          <font class="ledetekst_font">Telefon</font>
+        </td>
+      </tr>
+	   <tr>
+        <td width="25%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.get(0).id} + " (" + fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.get(0).typeId.v +")</font>
+        </td>
+		<td width="50%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName +
+		  fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName + 
+		  fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName</font>
+        </td>
+		<td width="25%">
+		<!--if(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.teleCom.get(0).teleAddress.v !=null){
+		fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.teleCom.get(0).teleAddress.v
+		}
+		else if (fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.teleCom.get(0).teleAddress.v != null){
+		fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.teleCom.get(0).teleAddress.v}
+		-->
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.teleCom.get(0).teleAddress.v</font>
+        </td>
+      </tr>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="50%">
+          <font class="ledetekst_font">Organisasjon id</font>
+        </td>
+		<td width="50%">
+          <font class="ledetekst_font">Organisasjons navn</font>
+        </td>
+      </tr>
+	   <tr>
+        <td width="50%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.ident.get(0).id + " ("+ fellesformat.msgHead.msgInfo.sender.organisation.ident.get(0).typeId.v + ")"</font>
+        </td>
+		<td width="50%">
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.organisationName</font>
+        </td>
+      </tr>
+    </table>
+	<table class="tabell">
+      <tr>
+        <td width="100%">
+          <font class="ledetekst_font">Adresse</font>
+        </td>
+      </tr>
+	   <tr>
+		<td width="100%">
+		<!--if(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.postbox != null){
+         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.postbox + "\n" +}
+		else{ fellesformat.msgHead.msgInfo.sender.organisation.address.postbox + "\n" +
+		}
+            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.streetAdr
+        if(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.streetAdr != null) {
+            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.streetAdr + "\n"}
+			else {
+			fellesformat.msgHead.msgInfo.sender.organisation.organisation.address.streetAdr + "\n"}
+			
+        if(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.postalCode != null){
+			fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.postalCode }
+			else {fellesformat.msgHead.msgInfo.sender.organisation.address.postalCode + "\n"
+			}
+            
+        if(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.city != null){
+			fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.city}
+		else {
+			fellesformat.msgHead.msgInfo.sender.organisation.address.city
+			} 
+			-->
+          <font class="innhold_font">fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.postbox + "\n" +
+									 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.streetAdr + "\n" +
+									 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.postalCode +
+									 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.address.city
+		  </font>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
