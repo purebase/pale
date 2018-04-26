@@ -1,0 +1,9 @@
+{
+    "namespace": "no.nav.legeerklaering.avro",
+    "type": "record",
+    "name": "DuplicateCheckedFellesformat",
+    "fields": [
+        { "name": "fellesformat", "type": "string" },
+        { "name": "retry_counter", "type": "int" }
+    ]
+}

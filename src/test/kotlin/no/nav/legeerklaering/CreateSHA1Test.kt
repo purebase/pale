@@ -11,8 +11,8 @@ class CreateSHA1Test {
      fun shouldCreateDuplicateHashValues() {
       val inputMeldingString = Utils.readToString("/legeerklaering.xml")
 
-      val firstMessage = LegeerklaeringApplication().createSHA1(inputMeldingString)
-      val secoundMessage = LegeerklaeringApplication().createSHA1(inputMeldingString)
+      val firstMessage = LegeerklaeringApplication().createLegeerklaeringHash(inputMeldingString)
+      val secoundMessage = LegeerklaeringApplication().createLegeerklaeringHash(inputMeldingString)
 
       assertEquals(firstMessage, secoundMessage)
      }
@@ -21,12 +21,12 @@ class CreateSHA1Test {
     fun shouldCreateUniqueHashValues() {
         val firstinputMeldingString = Utils.readToFellesformat("/legeerklaering.xml")
 
-        val firstMessage = LegeerklaeringApplication().createSHA1(firstinputMeldingString.toString())
+        val firstMessage = LegeerklaeringApplication().createLegeerklaeringHash(firstinputMeldingString.toString())
 
         for (i in 1..1000) {
             val secoundinputMeldingString = Utils.readToFellesformat("/legeerklaering.xml")
             secoundinputMeldingString.mottakenhetBlokk.ediLoggId = UUID.randomUUID().toString()
-            val secoundMessage = LegeerklaeringApplication().createSHA1(secoundinputMeldingString.toString())
+            val secoundMessage = LegeerklaeringApplication().createLegeerklaeringHash(secoundinputMeldingString.toString())
 
             assertNotEquals(firstMessage, secoundMessage)
         }

@@ -1,6 +1,6 @@
 buildscript {
     ext.ibm_mq_version = '9.0.4.0'
-    ext.kotlin_version = '1.2.31'
+    ext.kotlin_version = '1.2.40'
     ext.junit_version = '4.12'
     ext.jackson_version = '2.9.5'
     ext.jedis_version = '2.9.0'
@@ -13,6 +13,8 @@ buildscript {
     ext.pdf_box_version = '2.0.9'
     ext.$mustache_version = '0.9.5'
     ext.jaxb2SourceDir = file("$buildDir/generated-sources/jaxb2")
+    ext.avro_version = '1.8.2'
+    ext.cxf_version = '3.2.4'
 
     repositories {
         mavenCentral()
@@ -31,6 +33,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.14.0"
     }
 }
 
@@ -40,6 +43,7 @@ version '1.0-SNAPSHOT'
 apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: "com.commercehub.gradle.plugin.avro"
 
 configurations {
     generateJaxb2
@@ -131,11 +135,14 @@ dependencies {
     compile "redis.clients:jedis:$jedis_version"
     compile "ai.grakn:redis-mock:$redis_mock_version"
     compile "org.apache.pdfbox:pdfbox:$pdf_box_version"
+    compile "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
+    compile "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
 
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "io.confluent:kafka-avro-serializer:$confluent_version"
     implementation "org.apache.kafka:kafka-clients:$kafka_version"
     implementation "no.nav.tjenester:nav-journalbehandling-tjenestespesifikasjon:1.3.3:jaxws"
+    implementation "no.nav.tjeneste.tssws:nav-fim-tssws-organisasjon-v3-tjenestespesifikasjon:1.0:jaxws"
 
     testImplementation "junit:junit:$junit_version"
 }

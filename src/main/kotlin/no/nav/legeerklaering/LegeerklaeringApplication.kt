@@ -1,21 +1,33 @@
 package no.nav.legeerklaering
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
+import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
+import no.nav.legeerklaering.config.EnvironmentConfig
+import no.nav.legeerklaering.validation.OutcomeType
+import no.nav.legeerklaering.validation.extractSenderOrganisationNumber
+import no.nav.legeerklaering.validation.validatePatientRelations
+import no.nav.legeerklaering.validation.validatePersonalInformation
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.*
 import no.nav.model.msghead.*
 import no.nav.model.apprec.*
 import no.nav.model.legeerklaering.Legeerklaring
-import no.nav.tjeneste.virksomhet.person.v3.HentPerson
+import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.TsswsOrganisasjonPortType
+import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.meldinger.HentOrganisasjonRequest
+import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
+import org.apache.cxf.ext.logging.LoggingFeature
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
@@ -30,17 +42,17 @@ import redis.clients.jedis.Jedis
 import java.awt.Color
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.math.BigInteger
 import javax.xml.bind.JAXBContext
-import javax.xml.datatype.XMLGregorianCalendar
 
 
 val jaxbAnnotationModule = JaxbAnnotationModule()
 val jacksonXmlModule = JacksonXmlModule().apply {
     setDefaultUseWrapper(false)
 }
-val objectMapper: ObjectMapper = XmlMapper(jacksonXmlModule).registerModule(jaxbAnnotationModule)
-        //.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .enable(SerializationFeature.INDENT_OUTPUT)
+//val objectMapper: ObjectMapper = XmlMapper(jacksonXmlModule).registerModule(jaxbAnnotationModule)
+//        .enable(SerializationFeature.INDENT_OUTPUT)
+val objectMapper: ObjectMapper = ObjectMapper()
 val fellesformatJaxBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
 val fellesformatUnmarshaller = fellesformatJaxBContext.createUnmarshaller()
 val newInstance = DatatypeFactory.newInstance()
@@ -53,85 +65,89 @@ class LegeerklaeringApplication {
 
         val connectionFactory = connectionFactory(fasitProperties)
 
+        val environmentConfig = EnvironmentConfig()
+
         val connection = connectionFactory.createConnection()
         connection.start()
 
         connection.use {
-            val session = it.createSession()
-            val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
-            val outputQueue = session.createQueue(fasitProperties.arenaQueueName)
-            val hentPerson = HentPerson()
+            queueConnection ->
 
-            val consumer = session.createConsumer(inputQueue)
-            listen(consumer)
+            Jedis().use {
+                jedis ->
+                val session = queueConnection.createSession()
+                val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
+                val outputQueue = session.createQueue(fasitProperties.arenaQueueName)
+
+                val personV3 = JaxWsProxyFactoryBean().apply {
+                    address = environmentConfig.virksomhetPersonV3EndpointURL
+                    features.add(LoggingFeature())
+                    serviceClass = PersonV3::class.java
+                }.create() as PersonV3
+
+                val tssOrganisasjon = JaxWsProxyFactoryBean().apply {
+                    address = environmentConfig.tssWSOrganisasjonV4EndpointURL
+                    features.add(LoggingFeature())
+                    serviceClass = TsswsOrganisasjonPortType::class.java
+                } as TsswsOrganisasjonPortType
+
+
+                val consumer = session.createConsumer(inputQueue)
+                listen(consumer, jedis, personV3, tssOrganisasjon)
+            }
         }
 
     }
 
-    fun listen(consumer: MessageConsumer) = consumer.setMessageListener {
+    fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrganisasjon: TsswsOrganisasjonPortType) = consumer.setMessageListener {
         if (it is BytesMessage) {
             val bytes = ByteArray(it.bodyLength.toInt())
             it.readBytes(bytes)
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
+            val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
 
-            //val fellesformat = objectMapper.readValue<EIFellesformat>(bytes, EIFellesformat::class.java)
-
-            val hashValue = createSHA1(fellesformat.toString())
-
-            val jedis = Jedis("localhost", 6379)
-            log.debug("Connection to reids server sucessfully")
-            log.debug("Redis server is running: " + jedis.ping())
-
-            val duplicate = checkIfHashValueIsInRedis(jedis,hashValue)
-
-            if(duplicate) {
+            val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
+            if(jedis.exists(hashValue)) {
                 createApprec(fellesformat, "duplikat")
-            }
-            else
-            {
+            } else {
                 jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
             }
 
-            val legeerklaering = fellesformat.msgHead.document.get(0).refDoc.content.any as Legeerklaring
-            val outcome = validateMessage(legeerklaering)
-
-            when (outcome) {
-                is Success -> {
-                    // Send message to a internal kafka topic
-
-                    //poll it message from kafka topic
-
-                    //call TPS
-                    tpsFinnPersonData("fnr")
-
-                    //call TSS
-                    tssFinnSamhandlerData("fnr")
-                    //Run the rule controll
-
-                    //Akriver Message
-                    archiveMessage(legeerklaering,fellesformat)
-
-                    // send to Message
-                    createArenaEiaInfo(legeerklaering, fellesformat)
-                }
-
-                is ValidationError -> {
-                    createApprec(fellesformat, "avvist")
-                }
+            val duplicateCheckedFellesformat = DuplicateCheckedFellesformat().apply {
+                setFellesformat(String(bytes, Charsets.UTF_8))
+                setRetryCounter(0)
             }
+
+            val person = personV3.hentPerson(HentPersonRequest()
+                    .withAktoer(PersonIdent().withIdent(
+                            NorskIdent()
+                                    .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+                                    .withType(Personidenter().withValue("FNR")))
+                    ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
+
+            val merknader = mutableListOf<OutcomeType>()
+
+            merknader.addAll(validatePersonalInformation(fellesformat, person))
+
+            val patientRelation = validatePatientRelations(fellesformat, person)
+            if (patientRelation != null) {
+                merknader.add(patientRelation)
+            }
+
+            val organisation = tssOrganisasjon.hentOrganisasjon(HentOrganisasjonRequest().apply {
+                orgnummer = extractSenderOrganisationNumber(fellesformat)
+            }).organisasjon
+
         }
     }
 
-    fun validateMessage(legeeklaering: Legeerklaring): Outcome {
 
-        //TODO need to implement fpsak|-nare to implments rules
+    fun createSha256Hash(input: ByteArray): String {
+        val bytes = MessageDigest
+                .getInstance("SHA256")
+                .digest(input)
 
-        val pasient = legeeklaering.pasientopplysninger.pasient
-        if (!validatePersonNumber(pasient.fodselsnummer)) {
-            ValidationError("Invalid personnummer, checksum not matching")
-        }
-
-        return Success()
+        return BigInteger(bytes).toString(16)
     }
 
     fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().apply {
@@ -280,34 +296,8 @@ class LegeerklaeringApplication {
         }
     }
 
-
-    fun createSHA1(input: String): String {
-        val HEX_CHARS = "0123456789ABCDEF"
-        val bytes = MessageDigest
-                .getInstance("sha1")
-                .digest(input.toByteArray())
-        val result = StringBuilder(bytes.size * 2)
-
-        bytes.forEach {
-            val i = it.toInt()
-            result.append(HEX_CHARS[i shr 4 and 0x0f])
-            result.append(HEX_CHARS[i and 0x0f])
-        }
-
-        return result.toString()
-    }
-
-    fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean {
-
-        if (jedis.get(hashValue) == null) {
-            log.info("hashValue is not in redis")
-            return false
-        } else {
-            log.info("hashValue is  in redis")
-            return true
-
-        }
-    }
+    fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean =
+            jedis.get(hashValue) != null
 
     fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat): ArenaEiaInfo = ArenaEiaInfo().apply {
         ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
@@ -322,10 +312,10 @@ class LegeerklaeringApplication {
         }
         legeData = ArenaEiaInfo.LegeData().apply {
             navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
+                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
             fnr = getHCPFodselsnummer(fellesformat)
             tssid = "asdad" //TODO
-    }
+        }
         eiaData = ArenaEiaInfo.EiaData().apply {
             systemSvar.add(ArenaEiaInfo.EiaData.SystemSvar().apply {
                 meldingsNr = 141.toBigInteger() //TODO
@@ -364,47 +354,41 @@ class LegeerklaeringApplication {
         return ""
     }
 
-    fun archiveMessage(legeeklaering: Legeerklaring ,fellesformat: EIFellesformat):
+    fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
             LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
 
         val fagmeldingJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
-                    //Fagmelding
-                    dokumentInfo = DokumentInfo().apply {
-                        when {
-                            legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) ->
-                                begrensetPartsinnsynFraTredjePart = false
-                            else -> begrensetPartsinnsynFraTredjePart = true
-                        }
-                        fildetaljerListe.add(Fildetaljer().apply {
-                            fil = createPDFBase64Encoded(legeeklaering)
-                            filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2.pdf"
-                            filtypeKode = "PDF"
-                            variantFormatKode = "ARKIV"
-                            versjon = 1
-                        })
-                        kategoriKode = "ES"
-                        tittel = "Legeerklæring"
-                        brevkode = "900002"
-                        sensitivt = false
-                        organInternt = false
-                        versjon = 1
-                    }
-                    tilknyttetJournalpostSomKode = "HOVEDDOKUMENT"
-                    tilknyttetAvNavn =  "EIA_AUTO"
-                    versjon = 1
+            //Fagmelding
+            dokumentInfo = DokumentInfo().apply {
+                when {
+                    legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) ->
+                        begrensetPartsinnsynFraTredjePart = false
+                    else -> begrensetPartsinnsynFraTredjePart = true
                 }
+                fildetaljerListe.add(Fildetaljer().apply {
+                    fil = createPDFBase64Encoded(legeeklaering)
+                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2.pdf"
+                    filtypeKode = "PDF"
+                    variantFormatKode = "ARKIV"
+                    versjon = 1
+                })
+                kategoriKode = "ES"
+                tittel = "Legeerklæring"
+                brevkode = "900002"
+                sensitivt = false
+                organInternt = false
+                versjon = 1
+            }
+            tilknyttetJournalpostSomKode = "HOVEDDOKUMENT"
+            tilknyttetAvNavn =  "EIA_AUTO"
+            versjon = 1
+        }
 
         val behandlingsvedleggJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
             //Behandlingsvedlegg
             dokumentInfo = DokumentInfo().apply {
-                when {
-                    legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) -> {
-                        begrensetPartsinnsynFraTredjePart = false
-                    }
+                begrensetPartsinnsynFraTredjePart = legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()
 
-                    else -> begrensetPartsinnsynFraTredjePart = true
-
-                }
                 fildetaljerListe.add(Fildetaljer().apply {
                     fil = createPDFBase64Encoded(legeeklaering)
                     filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2-behandlingsvedlegg.pdf"
@@ -448,55 +432,55 @@ class LegeerklaeringApplication {
 
     }
 
-fun createPDFBase64Encoded(legeeklaering: Legeerklaring): ByteArray{
+    fun createPDFBase64Encoded(legeeklaering: Legeerklaring): ByteArray{
 
-    val document = PDDocument()
-    val blankPage = PDPage()
-    document.addPage(blankPage)
-    val font = PDType1Font.HELVETICA_BOLD;
-    val contentStream = PDPageContentStream(document, blankPage)
+        val document = PDDocument()
+        val blankPage = PDPage()
+        document.addPage(blankPage)
+        val font = PDType1Font.HELVETICA_BOLD;
+        val contentStream = PDPageContentStream(document, blankPage)
 
-    contentStream.beginText()
-    val folketrygdenxPosision = 15f
-    val folketrygdenyPosision = 750f
-    contentStream.setFont(font, 18f)
-    contentStream.newLineAtOffset(folketrygdenxPosision, folketrygdenyPosision)
-    contentStream.showText("FOLKETRYGDEN")
-    contentStream.endText()
+        contentStream.beginText()
+        val folketrygdenxPosision = 15f
+        val folketrygdenyPosision = 750f
+        contentStream.setFont(font, 18f)
+        contentStream.newLineAtOffset(folketrygdenxPosision, folketrygdenyPosision)
+        contentStream.showText("FOLKETRYGDEN")
+        contentStream.endText()
 
-    contentStream.beginText()
-    val legeerklringVedxPosision = 350f
-    val legeerklringVedyPosision = 760f
-    contentStream.setFont(font, 12f)
-    contentStream.newLineAtOffset(legeerklringVedxPosision, legeerklringVedyPosision)
-    contentStream.showText("Legeerklæring ved arbeidsuførhet")
-    contentStream.endText()
+        contentStream.beginText()
+        val legeerklringVedxPosision = 350f
+        val legeerklringVedyPosision = 760f
+        contentStream.setFont(font, 12f)
+        contentStream.newLineAtOffset(legeerklringVedxPosision, legeerklringVedyPosision)
+        contentStream.showText("Legeerklæring ved arbeidsuførhet")
+        contentStream.endText()
 
-    contentStream.beginText()
-    val legeesendeNAVKontorxPosision = 350f
-    val legeesendeNAVKontoryPosision = 740f
-    contentStream.setFont(font, 8f)
-    contentStream.newLineAtOffset(legeesendeNAVKontorxPosision, legeesendeNAVKontoryPosision)
-    contentStream.showText("Legen skal sende denne til NAV-kontoret.")
-    contentStream.endText()
+        contentStream.beginText()
+        val legeesendeNAVKontorxPosision = 350f
+        val legeesendeNAVKontoryPosision = 740f
+        contentStream.setFont(font, 8f)
+        contentStream.newLineAtOffset(legeesendeNAVKontorxPosision, legeesendeNAVKontoryPosision)
+        contentStream.showText("Legen skal sende denne til NAV-kontoret.")
+        contentStream.endText()
 
-    contentStream.beginText()
-    val erklaeringenGjelderxPosision = 15f
-    val erklaeringenGjelderyPosision = 720f
-    contentStream.setFont(font, 12f)
-    contentStream.newLineAtOffset(erklaeringenGjelderxPosision, erklaeringenGjelderyPosision)
-    contentStream.showText("0 Erklæringen gjelder")
-    contentStream.endText()
+        contentStream.beginText()
+        val erklaeringenGjelderxPosision = 15f
+        val erklaeringenGjelderyPosision = 720f
+        contentStream.setFont(font, 12f)
+        contentStream.newLineAtOffset(erklaeringenGjelderxPosision, erklaeringenGjelderyPosision)
+        contentStream.showText("0 Erklæringen gjelder")
+        contentStream.endText()
 
-    contentStream.addRect(15f, 665f, 550f, 40f)
-    contentStream.setNonStrokingColor(Color.white)
+        contentStream.addRect(15f, 665f, 550f, 40f)
+        contentStream.setNonStrokingColor(Color.white)
 
-    contentStream.close()
+        contentStream.close()
 
-    val byteArrayOutputStream = ByteArrayOutputStream()
-    document.save(byteArrayOutputStream)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        document.save(byteArrayOutputStream)
 
 
-    return Base64.getEncoder().encode(byteArrayOutputStream.toByteArray())
+        return Base64.getEncoder().encode(byteArrayOutputStream.toByteArray())
     }
 }
