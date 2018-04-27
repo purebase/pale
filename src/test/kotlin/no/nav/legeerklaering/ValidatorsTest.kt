@@ -4,34 +4,32 @@ package no.nav.legeerklaering
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import redis.clients.jedis.Jedis
-import java.util.*
 
 class ValidatorsTest {
 
     @Test
     fun shouldFailWhePersonNumberIsMoreThan11characters() {
-        assertFalse(validatePersonNumber("300631044141"))
+        assertFalse(validatePersonDNumberMod11("300631044141"))
     }
 
     @Test
     fun shouldAssertToTrueValidFNR() {
-        assertTrue(validatePersonNumber("30063104414"))
+        assertTrue(validatePersonDNumberMod11("30063104414"))
     }
 
     @Test
     fun shouldFailWhenChecksum1Fails() {
-        assertFalse(validatePersonNumber("30063104424"))
+        assertFalse(validatePersonDNumberMod11("30063104424"))
     }
 
     @Test
     fun shouldFailWhenChecksum2Fails() {
-        assertFalse(validatePersonNumber("30063104415"))
+        assertFalse(validatePersonDNumberMod11("30063104415"))
     }
 
     @Test
     fun shouldFailWhenChecksum1FinalIs10() {
-        assertFalse(validatePersonNumber("30083104414"))
+        assertFalse(validatePersonDNumberMod11("30083104414"))
     }
 
 }

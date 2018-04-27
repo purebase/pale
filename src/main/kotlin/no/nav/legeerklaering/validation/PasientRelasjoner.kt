@@ -5,7 +5,7 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 
 fun validatePatientRelations(fellesformat: EIFellesformat, person: Person): OutcomeType? {
-    val doctorPersonnumber = extractDoctorPersonNumber(fellesformat)
+    val doctorPersonnumber = extractDoctorPersonNumberFromSender(fellesformat)
     val relations = findDoctorInRelations(person, doctorPersonnumber) ?: return null
 
     return when (RelationType.fromKodeverkValue(relations.tilRolle.value)) {

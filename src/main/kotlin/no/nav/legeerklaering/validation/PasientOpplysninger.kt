@@ -1,17 +1,16 @@
 package no.nav.legeerklaering.validation
 
 import no.nav.model.fellesformat.EIFellesformat
-import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import java.time.LocalDate
 
 fun validatePersonalInformation(fellesformat: EIFellesformat, person: Person): List<OutcomeType> {
     val outcome = mutableListOf<OutcomeType>()
 
-    val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
+    val legeerklaering = extractLegeerklaering(fellesformat)
 
     val patientPersonNumber = extractPersonNumber(legeerklaering)
-    val doctorPersonNumber = extractDoctorPersonNumber(fellesformat)
+    val doctorPersonNumber = extractDoctorPersonNumberFromSender(fellesformat)
     val patientBornDate = extractBornDate(patientPersonNumber)
 
     if (doctorPersonNumber == patientPersonNumber) {

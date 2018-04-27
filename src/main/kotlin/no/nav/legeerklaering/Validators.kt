@@ -3,7 +3,7 @@ package no.nav.legeerklaering
 val lookup1: IntArray = intArrayOf(3, 7, 6, 1, 8, 9, 4, 5, 2, 0)
 val lookup2: IntArray = intArrayOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
 
-fun validatePersonNumber(personNumber: String): Boolean {
+private fun validatePersonDNumberMod11(personNumber: String): Boolean {
     if (personNumber.length != 11)
         return false
 
@@ -27,3 +27,10 @@ fun validatePersonNumber(personNumber: String): Boolean {
 
     return personNumber[9]-'0' == checksum1Final && personNumber[10]-'0' == checksum2Final
 }
+
+private fun validatePersonDNumberRange(personNumber: String): Boolean {
+    throw RuntimeException("Not implemented")
+}
+
+fun validatePersonAndDNumber(personNumber: String): Boolean =
+        validatePersonDNumberMod11(personNumber) && validatePersonDNumberRange(personNumber)

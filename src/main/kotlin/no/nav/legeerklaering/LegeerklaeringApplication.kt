@@ -19,9 +19,12 @@ import no.nav.model.apprec.*
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.TsswsOrganisasjonPortType
 import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.meldinger.HentOrganisasjonRequest
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
@@ -118,27 +121,44 @@ class LegeerklaeringApplication {
                 setRetryCounter(0)
             }
 
-            val person = personV3.hentPerson(HentPersonRequest()
+            val outcomes = validateMessage(fellesformat, legeerklaering, personV3)
+
+            val organisation = tssOrganisasjon.hentOrganisasjon(HentOrganisasjonRequest().apply {
+                orgnummer = extractSenderOrganisationNumber(fellesformat)
+            }).organisasjon
+        }
+    }
+
+    fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3): List<OutcomeType> {
+        val outcomes = mutableListOf<OutcomeType>()
+
+        val person = try {
+            personV3.hentPerson(HentPersonRequest()
                     .withAktoer(PersonIdent().withIdent(
                             NorskIdent()
                                     .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
                                     .withType(Personidenter().withValue("FNR")))
                     ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
-
-            val merknader = mutableListOf<OutcomeType>()
-
-            merknader.addAll(validatePersonalInformation(fellesformat, person))
-
-            val patientRelation = validatePatientRelations(fellesformat, person)
-            if (patientRelation != null) {
-                merknader.add(patientRelation)
-            }
-
-            val organisation = tssOrganisasjon.hentOrganisasjon(HentOrganisasjonRequest().apply {
-                orgnummer = extractSenderOrganisationNumber(fellesformat)
-            }).organisasjon
-
+        } catch (e: HentPersonPersonIkkeFunnet) {
+            outcomes.add(OutcomeType.PATIENT_NOT_FOUND_IN_TPS)
+            return outcomes
+        } catch (e: HentPersonSikkerhetsbegrensning) {
+            outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {
+                "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
+                "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
+                else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
+            })
+            return outcomes
         }
+
+        outcomes.addAll(validatePersonalInformation(fellesformat, person))
+
+        val patientRelation = validatePatientRelations(fellesformat, person)
+        if (patientRelation != null) {
+            outcomes.add(patientRelation)
+        }
+
+        return outcomes
     }
 
 
