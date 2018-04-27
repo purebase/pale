@@ -164,7 +164,7 @@ class LegeerklaeringApplication {
 
     fun createSha256Hash(input: ByteArray): String {
         val bytes = MessageDigest
-                .getInstance("SHA256")
+                .getInstance("SHA1")
                 .digest(input)
 
         return BigInteger(bytes).toString(16)

@@ -1,6 +1,7 @@
 package no.nav.legeerklaering.validation
 
 import no.nav.legeerklaering.validatePersonAndDNumber
+import no.nav.legeerklaering.validatePersonAndDNumber11Digits
 import no.nav.model.fellesformat.EIFellesformat
 import java.time.LocalDateTime
 
@@ -12,6 +13,14 @@ fun doValidatePersonAndDNumber(fellesformat: EIFellesformat): List<OutcomeType> 
 
     if (patientPersonNumber.trim().isEmpty()) {
         outcomes.add(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND)
+    }
+
+    if (patientPersonNumber.trim().isEmpty() or doctorPersonNumber.trim().isEmpty() ) {
+        outcomes.add(OutcomeType.PERSON_NUMBER_NOT_FOUND)
+    }
+
+    if (!validatePersonAndDNumber11Digits(patientPersonNumber) or !validatePersonAndDNumber11Digits(doctorPersonNumber)) {
+        outcomes.add(OutcomeType. PERSON_NUMBER_NOT_11_DIGITS)
     }
 
     if (!validatePersonAndDNumber(patientPersonNumber)) {

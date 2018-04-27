@@ -2,9 +2,11 @@ package no.nav.legeerklaering.validation
 
 enum class OutcomeType(val messageNumber: Int, val messageText: String, val messagePriority: Priority, val messageType: Type) {
     PATIENT_PERSON_NUMBER_NOT_FOUND(13, "Pasientens fødselsnummer finnes ikke i skjema", Priority.RETUR, Type.FAGLIG),
+    PERSON_NUMBER_NOT_FOUND(30,"Fødselsnummeret eller D-nummeret til \"%s\" finnes ikke i skjemaet.", Priority.RETUR, Type.FAGLIG),
     INVALID_PERSON_D_NUMBER(31, "Fødselsnummeret eller D-nummeret \"%s\" til %s er feil.", Priority.RETUR, Type.FAGLIG),
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PATIENT_FIRST_NAME_NOT_FOUND(34, "Pasientens fornavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
+    PERSON_NUMBER_NOT_11_DIGITS(47,"\"%s\" sitt fødselsnummer eller D-nummer \"%s\" er ikke 11 tegn. Det er \"%s\" tegn langt.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_IN_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
 
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't

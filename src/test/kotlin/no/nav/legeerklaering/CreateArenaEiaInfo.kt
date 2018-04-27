@@ -14,6 +14,8 @@ class CreateArenaEiaInfo{
 
         LegeerklaeringApplication().createArenaEiaInfo(legeerklaring, fellesformat)
 
+        validatePersonAndDNumber11Digits("12128913767")
+
     }
 
 }
