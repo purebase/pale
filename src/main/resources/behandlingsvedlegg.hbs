@@ -3,24 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        h1 {
-            font-weight: bold;
-            font-style: normal;
-            font-size: 1em;
-            font-family: Arial, sans-serif;
-        }
-
-        h2 {
+        h1, h2, h3{
             font-weight: normal;
             font-style: normal;
-            font-size: 0.9em;
+            font-size: 1.4em;
             font-family: Arial, sans-serif;
         }
-
-        table, tbody, tr, td {
-            margin: 0;
-            padding: 0;
-            width: 100%;
+        h2 {
+            font-size: 1.2em;
+        }
+        h3 {
+            font-size: 1em;
         }
 
         .col50 {
@@ -31,46 +24,12 @@
         .right_solid {
             border-right: black 1px solid;
         }
-        .left_solid {
-            border-left: black 1px solid;
-        }
-        .top_solid {
-            border-top: black 1px solid;
-        }
-        .bottom_dashed {
-            border-bottom: black 1px dashed;
-        }
         .frame_solid {
             border: black 1px solid;
-        }
-        .col5 {
-            margin: 0;
-            width: 5%;
-            display: inline-block;
-        }
-        .col10 {
-            margin: 0;
-            width: 10%;
-            display: inline-block;
-        }
-        .col20 {
-            margin: 0;
-            width: 20%;
-            display: inline-block;
         }
         .col25 {
             margin: 0;
             width: 25%;
-            display: inline-block;
-        }
-        .col30 {
-            margin: 0;
-            width: 30%;
-            display: inline-block;
-        }
-        .col40 {
-            margin: 0;
-            width: 40%;
             display: inline-block;
         }
         .col75 {
@@ -82,66 +41,6 @@
             margin: 0;
             width: 100%;
             display: inline-block;
-        }
-        .checkbox {
-            border: 1px black solid;
-            width: 15px;
-            height: 15px;
-            font-size: 0.8em;
-            font-weight: bold;
-            font-family: Arial, sans-serif;
-            vertical-align: center;
-            text-align: center;
-        }
-        .left_bottom {
-            position: absolute;
-            left: 0;
-            bottom: 0;
-        }
-        h5 {
-            margin: 2px;
-        }
-        td {
-            vertical-align: top;
-        }
-        td tr {
-            border: 1px black solid;
-        }
-        .height20 {
-            height: 20px;
-        }
-        .height30 {
-            height: 30px;
-        }
-        .height40 {
-            height: 40px;
-        }
-        .height50 {
-            height: 50px;
-        }
-        .height70 {
-            height: 70px;
-        }
-        .height80 {
-            height: 80px;
-        }
-        .height100 {
-            height: 100px;
-        }
-        .height120 {
-            height: 120px;
-        }
-        .height160 {
-            height: 160px;
-        }
-        .height200 {
-            height: 200px;
-        }
-        .height450 {
-            height: 450px;
-        }
-        .height500 {
-            height: 500px;
         }
         .bottom_solid {
             border-bottom: black solid 1px;
@@ -163,642 +62,108 @@
             width: 100%;
             font-size: 0;
         }
-        #erklaering_gjelder {
-            position: relative;
-        }
-
-        #erklaering_gjelder .checkbox {
-            left: 0;
-            bottom: 0;
-            width: 13px;
-            height: 13px;
-            position: absolute;
-        }
-        .kodetype {
-            display: block;
-        }
-        .kodetype h5, .kodetype .checkbox {
-            display: table-cell;
-        }
-        .checkbox_title {
+        .centered_title {
             width: 100%;
-            display: table;
-        }
-        .checkbox_number {
-            display: table-cell;
-        }
-        .checkbox_text {
-            display: table-cell;
-        }
-        @media print {
-            .new_page {
-                page-break-after: always;
-            }
-        }
-        @media not print {
-            .new_page {
-                margin-top: 50px;
-            }
-        }
-        .text_break {
-            position: relative;
-            float: left;
-            margin-right: 0.5em;
-        }
-        .text_wrap {
-            display: inline;
-        }
-        .inline {
-            display: inline-block;
-            float: left;
-            margin-left: 0.5em;
-        }
-        .text_top_left_line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            margin: 0;
-        }
-        .row_title {
-            vertical-align: middle;
-        }
-        .row_title h5 {
-            padding: 0;
-            margin: 0;
-        }
-        .titled_checkbox_block {
-            margin-left: 30px;
-            display: inline-block;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-<h1>FOLKETRYGDEN</h1>
-<br>
-<h2>0 Erklæringen gjelder</h2>
+<h1 class="centered_title">Behandlingsvedlegg</h1>
+<h3>Behandlingsvedlegget viser informasjon fra automatisk kontroll av dokumentet</h3>
+<h2>Oppfølgingsmelding er sendt til Arena.</h2>
+<h3>Informasjon om dokumentet</h3>
 <div class="table frame_solid">
-    <div id="erklaering_gjelder" class="row height40">
-        <div class="cell col25">
-            <div class="checkbox_title">
-                <h5 class="checkbox_number">0.1</h5>
-                <h5 class="checkbox_text">Arbeidsvurdering ved sykefravær</h5>
-            </div>
-            <div class="checkbox left_bottom">X</div>
+    <div class="row bottom_solid">
+        <div class="cell col25 right_solid">
+            <div class="title">Type</div>
+            <div class="value">{{ type }}</div>
+        </div>
+        <div class="cell col25 right_solid">
+            <div class="title">Status</div>
+            <div class="value">{{ status }}</div>
+        </div>
+        <div class="cell col25 right_solid">
+            <div class="title"></div>
+            <div class="value"></div>
         </div>
         <div class="cell col25">
-            <div class="checkbox_title">
-                <h5 class="checkbox_number">0.2</h5>
-                <h5 class="checkbox_text">Arbeidsavklaringspenger</h5>
-            </div>
-            <div class="checkbox left_bottom"></div>
-        </div>
-        <div class="cell col25">
-            <div class="checkbox_title">
-                <h5 class="checkbox_number">0.3</h5>
-            </div>
-            <div class="checkbox left_bottom"></div>
-        </div>
-        <div class="cell col25">
-            <div class="checkbox_title">
-                <h5 class="checkbox_number">0.4</h5>
-                <h5 class="checkbox_text">Uførepensjon</h5>
-            </div>
-            <div class="checkbox left_bottom">X</div>
-        </div>
-    </div>
-</div>
-<h2>1 Opplysninger om pasienten og om arbeidsforhold</h2>
-<div class="table frame_solid">
-    <div class="row height40">
-        <div class="col50 cell bottom_solid right_solid">
-            <h5>1.1 Etternavn, fornavn</h5>
-            <div class="field_value">{{ etternavn }}, {{ fornavn }}</div>
-        </div>
-        <div class="col25 cell bottom_solid right_solid">
-            <h5>1.2 Fødselsnummer (11 siffer)</h5>
-            <div class="field_value">{{ foedselsnummer }}</div>
-        </div>
-        <div class="col25 cell bottom_solid">
-            <h5>1.3 NAV-kontoret</h5>
-            <div class="field_value">{{ pasient.navKontor }}</div>
-        </div>
-    </div>
-    <div class="row height70">
-        <div class="col75 cell bottom_solid right_solid">
-            <h5>1.4 Adresse, postnummer og poststed</h5>
-            <div class="field_value">{{ adresse }}</div>
-            <div class="field_value">{{ postnummer }} {{ poststed }}</div>
-        </div>
-        <div class="col25 cell bottom_solid">
-            <h5>1.5 Yrke</h5>
-            <div class="field_value">{{ pasient.yrke }}</div>
-        </div>
-    </div>
-    <div class="row height70">
-        <div class="cell col100">
-            <h5>1.6 Arbeidsgiverens navn og addresse</h5>
-            <div class="field_value">{{ arbeidsgiver.name }}</div>
-        </div>
-    </div>
-</div>
-<h2>2 Diagnose og sykdomsopplysninger</h2>
-<div class="table frame_solid">
-    <div class="row height80">
-        <div class="cell col50 bottom_dashed right_solid">
-            <h5>2.1 Hoveddiagnose</h5>
-        </div>
-        <div class="cell col25 bottom_dashed right_solid">
-            <h5>2.1.1 Kode(r)</h5>
-        </div>
-        <div class="cell col25 bottom_solid">
-            <h5>2.3 Kodesystem</h5>
-            <div class="kodetype">
-                <div class="checkbox">X</div>
-                <h5>ICPC = 1</h5>
-            </div>
-            <div class="kodetype">
-                <div class="checkbox"></div>
-                <h5>ICD-9 = 2</h5>
-            </div>
-            <div class="kodetype">
-                <div class="checkbox"></div>
-                <h5>ICD-10 = 3</h5>
-            </div>
-        </div>
-    </div>
-    <div class="row height80">
-        <div class="cell col50 right_solid bottom_solid">
-            <h5>2.2 Bidiagnose(r)</h5>
-        </div>
-        <div class="cell col25 right_solid bottom_solid">
-            <h5>2.2.1 Kode(r)</h5>
-        </div>
-        <div class="cell col25 bottom_solid">
-            <h5>2.4 Helt arbeidsufør f.o.m.</h5>
-            <div class="field_value">{{ pasient.arbeidsufoerFra }}</div>
-        </div>
-    </div>
-    <div class="row height200">
-        <div class="cell col100 bottom_solid">
-            <h5>2.5 Sykehistorie med symptomer og behandling</h5>
-        </div>
-    </div>
-    <div class="row height500">
-        <div class="cell col100 bottom_solid">
-            <h5>Status presens (angi dato). Resultat av relevante undersøkelser.</h5>
-        </div>
-    </div>
-    <div class="row height50">
-        <div class="cell col25">
-            <h5>2.7 Bør NAV-kontoret vurdere om det er en:</h5>
-        </div>
-        <div class="cell col25">
-            <h5>2.7.1 Yrkesskade/Yrkessykdom</h5>
-        </div>
-        <div class="cell col25">
-            <div class="cell col50 height50">
-                <h5>Ja</h5>
-                <div class="checkbox left_bottom"></div>
-            </div>
-            <div class="cell col25 height50">
-                <h5>Nei</h5>
-                <div class="checkbox left_bottom"></div>
-            </div>
-        </div>
-        <div class="cell col25">
-            <h5 class="left_solid text_top_left_line">2.7.2 Ev. skadedato</h5>
-        </div>
-    </div>
-</div>
-
-<div class="new_page"></div>
-<!-- Page 2 -->
-<div class="table frame_solid">
-    <div class="row height40">
-        <div class="cell col75 right_solid">
-            <h5>Etternavn, fornavn</h5>
-        </div>
-        <div class="cell col25">
-            <h5>Fødselsnummer (11 siffer)</h5>
-        </div>
-    </div>
-</div>
-<h2>3 Plan for medisinsk utreding og behandling</h2>
-<div class="table frame_solid">
-    <div class="row height40">
-        <div class="cell col20 right_solid">
-            <div class="row">
-                <div class="cell col50">
-                    <h5>Er pasienten henvist til</h5>
-                </div>
-                <div class="cell col50">
-                    <h5>Utreding</h5>
-                    <div class="checkbox"></div>
-                </div>
-            </div>
-        </div>
-        <div class="cell col40 right_solid bottom_solid">
-            <h5>Spesifiser</h5>
-        </div>
-        <div class="cell col20 right_solid bottom_solid">
-            <h5>3.1.1 Dato for henvisning</h5>
-        </div>
-        <div class="cell col20 bottom_solid">
-            <h5>3.1.2 Antatt ventetid (uker)</h5>
-        </div>
-    </div>
-    <div class="row height40 bottom_solid">
-        <div class="cell col20 right_solid">
-            <div class="row">
-                <div class="cell col50">
-                    <h5>Er pasienten henvist til</h5>
-                </div>
-                <div class="cell col50">
-                    <h5>Utreding</h5>
-                    <div class="checkbox"></div>
-                </div>
-            </div>
-        </div>
-        <div class="cell col40 right_solid">
-            <h5>Spesifiser</h5>
-        </div>
-        <div class="cell col20 right_solid">
-            <h5>3.1.3 Dato for henvisning</h5>
-        </div>
-        <div class="cell col20">
-            <h5>3.1.4 Antatt ventetid (uker)</h5>
-        </div>
-    </div>
-    <div class="row height80 bottom_solid">
-        <div class="cell col100">
-            <h5>3.2 Utredningsplan. Oppgi planlagte undersøkelser og tidspunkt/varighet</h5>
-        </div>
-    </div>
-    <div class="row height80 bottom_solid">
-        <div class="cell col100">
-            <h5>3.3 Behandlingsplan. Oppgi planlagt behandling og tidspunkt/varighet</h5>
-        </div>
-    </div>
-    <div class="row height70 bottom_solid">
-        <div class="cell col100">
-            <h5>3.4 Ny vurdering av tidligere utrednings-/behandlingsplan</h5>
-        </div>
-    </div>
-    <div class="row height40 bottom_solid">
-        <div class="cell col100">
-            <h5>3.5 Når er det hensiktsmessig, i henhold til utrednings og behandlingsopplegget at NAV-kontoret ber om nye legeopplysninger?</h5>
-        </div>
-    </div>
-    <div class="row height80">
-        <div class="cell col100">
-            <h5>3.6 Hvis videre behandling ikke er aktuell, gi begrunnelse</h5>
-        </div>
-    </div>
-</div>
-<h2>4 Forslag til tiltak utover medisinsk behandling</h2>
-<div class="table frame_solid">
-    <div class="row">
-        <div class="cell right_solid bottom_dashed">
-            <div class="table">
-                <div class="row height30 bottom_dashed">
-                    <div class="cell col50">
-                        <h5>Er det ut fra en medisinsk vurdering aktuelt med noen av følgende tiltak nå?</h5>
-                    </div>
-                    <div class="cell">
-                        <div>
-                            <div class="titled_checkbox_block">
-                                <h5>Ja</h5>
-                                <div class="checkbox"></div>
-                            </div>
-                            <div class="titled_checkbox_block">
-                                <h5>Nei</h5>
-                                <div class="checkbox"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cell col25">
-                        <h5>Hvis Ja, hvilke?</h5>
-                    </div>
-                </div>
-                <div class="row height40">
-                    <div class="cell">
-                        <h5 class="text_wrap">a. Kjøp av helese-tjenester</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                    <div class="cell">
-                        <h5 class="text_wrap">b. Reisetilskott i stedet for sykepenger/ arbeidsavklaringspenger</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                    <div class="cell">
-                        <h5 class="text_wrap">c. Aktiv syk-melding</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                    <div class="cell">
-                        <h5 class="text_wrap">d. Hjelpemidler på arb.plassen</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                </div>
-                <div class="row height40 bottom_dashed">
-                    <div class="cell">
-                        <h5 class="text_wrap">e. Arbeidsavklarings-penger</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                    <div class="cell">
-                        <h5 class="text_wrap">f. Friskemelding til arbeidsformidling</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                    <div class="cell">
-                        <h5 class="text_wrap">g. Andre (hvilke?)</h5>
-                        <div class="checkbox text_break"></div>
-                    </div>
-                    <div class="cell left_solid top_solid" style="width: 30%">
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="cell bottom_dashed" style="width: 33%;">
-            <h5>Evt. nærmere opplysninger</h5>
-        </div>
-    </div>
-    <div class="row height160">
-        <div class="cell col100">
-            <h5>Hvis ja, oppgi ev. begrensninger i forhold til tiltak. Hvis nei, gi begrunnelse</h5>
-        </div>
-    </div>
-</div>
-<h2>5 Medisinsk begrunnet vurdering av funksjons- og arbeidsevne</h2>
-<div class="table frame_solid">
-    <div class="row height80 bottom_solid">
-        <div class="cell col100">
-            <h5>5.1 Beskriv hvordan funksjonsevnen generelt er nedsatt på grunn av sykdom</h5>
-        </div>
-    </div>
-    <div class="row height30 bottom_dashed">
-        <div class="cell" style="vertical-align: bottom">
-            <h5 class="inline">5.2 Er pasienten: </h5>
-            <div class="checkbox inline">X</div>
-            <h5 class="inline">i intektsgivende arbeid</h5>
-            <div class="checkbox inline"></div>
-            <h5 class="inline">hjemmearbeidende</h5>
-            <div class="checkbox inline">X</div>
-            <h5 class="inline">student</h5>
-            <div class="checkbox inline"></div>
-            <h5 class="inline">annet</h5>
-        </div>
-        <div class="cell col30">
-            <h5 class="left_solid text_top_left_line">Oppgi hva</h5>
-        </div>
-    </div>
-    <div class="row height80 bottom_solid">
-        <div class="cell col100">
-            <h5>Beskriv kort type arbeid og hvilke krav som stilles</h5>
+            <div class="title">Pasient Id</div>
+            <div class="value">{{ pasientId }}</div>
         </div>
     </div>
     <div class="row bottom_solid">
-        <div class="cell">
-            <div class="table">
-                <div class="row">
-                    <div class="cell">
-                        <h5>5.3 Vurdering av arbeidsevnen</h5>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="cell col40">
-                        <h5>Vil pasienten kunne</h5>
-                    </div>
-                    <div class="cell col5">
-                        <h5>Nei</h5>
-                    </div>
-                    <div class="cell col10">
-                        <h5>Ja</h5>
-                    </div>
-                    <div class="cell col20">
-                        <h5>Hvis ja</h5>
-                    </div>
-                    <div class="cell col5">
-                        <h5>Nå</h5>
-                    </div>
-                    <div class="cell col20">
-                        <h5>Etter behandling/tiltak</h5>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="cell col40 row_title">
-                        <h5>a) gjenoppta det tidligere arbeidet</h5>
-                    </div>
-                    <div class="cell col5">
-                        <div class="checkbox"></div>
-                    </div>
-                    <div class="cell col10">
-                        <div class="checkbox"></div>
-                    </div>
-                    <div class="cell col20">
-
-                    </div>
-                    <div class="cell col5">
-                        <div class="checkbox"></div>
-                    </div>
-                    <div class="cell col20">
-                        <div class="checkbox"></div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="cell col40 row_title">
-                        <h5>b) ta annet arbeid</h5>
-                    </div>
-                    <div class="cell col5">
-                        <div class="checkbox"></div>
-                    </div>
-                    <div class="cell col10">
-                        <div class="checkbox"></div>
-                    </div>
-                    <div class="cell col20">
-
-                    </div>
-                    <div class="cell col5">
-                        <div class="checkbox"></div>
-                    </div>
-                    <div class="cell col20">
-                        <div class="checkbox"></div>
-                    </div>
-                </div>
-            </div>
+        <div class="cell col50 right_solid">
+            <div class="title">Ediloggid (Referanse fra NAV elektronisk mottak)</div>
+            <div class="value">{{ ediLoggId }}</div>
+        </div>
+        <div class="cell col50">
+            <div class="title">Msg Id (Referanse fra avsender system)</div>
+            <div class="value">{{ msgId }}</div>
         </div>
     </div>
-    <div class="row height80">
-        <div class="cell col100">
-            <div class="inline" style="width: 1em; min-height: 1px;"><h5>5.4</h5></div>
-            <h5 class="inline">a) Hva kan pasienten ikke gjøre i det nåværende arbeidet?</h5>
+    <div class="row">
+        <div class="cell col25 right_solid">
+            <div class="title">Generert</div>
+            <div class="value">{{ generertDato }}</div>
+        </div>
+        <div class="cell col25 right_solid">
+            <div class="title">Motatt NAV</div>
+            <div class="value">{{ motattNavDato }}</div>
+        </div>
+        <div class="cell col25 right_solid">
+            <div class="title">Registrert i legeerklæring</div>
+            <div class="value">{{ registrertAutomatiskBehandlingDato }}</div>
+        </div>
+        <div class="cell col25">
+            <div class="title"></div>
+            <div class="value"></div>
         </div>
     </div>
-    <div class="row height80">
+</div>
+<h3>Informasjon om avsender</h3>
+<div class="table frame_solid">
+    <div class="row bottom_solid">
+        <div class="cell col25 right_solid">
+            <div class="title">Signatur id</div>
+            <div class="value">{{ sender.signatureId }}</div>
+        </div>
+        <div class="cell col75">
+            <div class="title">Signatur navn</div>
+            <div class="value">{{ sender.signatureName }}</div>
+        </div>
+    </div>
+    <div class="row bottom_solid">
+        <div class="cell col25 right_solid">
+            <div class="title">Avsender id</div>
+            <div class="value">{{ sender.id }} (FNR)</div>
+        </div>
+        <div class="cell col50 right_solid">
+            <div class="title">Avsender navn</div>
+            <div class="value">{{ sender.name }}</div>
+        </div>
+        <div class="cell col25">
+            <div class="title">Telefon</div>
+            <div class="value">{{ sender.tlfNummer }}</div>
+        </div>
+    </div>
+    <div class="row bottom_solid">
+        <div class="cell col25 right_solid">
+            <div class="title">Organisasjon id</div>
+            <div class="value">{{ sender.organisasjonsId }} (ENH)</div>
+        </div>
+        <div class="cell col75">
+            <div class="title">Organisasjons navn</div>
+            <div class="value">{{ sender.organisasjonsNavn }}</div>
+        </div>
+    </div>
+    <div class="row">
         <div class="cell col100">
-            <div class="inline" style="width: 1em; min-height: 1px;"> </div>
-            <h5 class="inline">b) Hvilke andre hensyn må eventuelt tas ved valg av annet yrke/arbeid?</h5>
+            <div class="title">Adresse</div>
+            <div class="value">{{ sender.adresse }}</div>
+            <div class="value">{{ sender.poststed }} {{ sender.postnummer }}</div>
         </div>
     </div>
 </div>
 </body>
 </html>
-
-<div class="new_page"></div>
-<!-- Page 3 -->
-<div class="table frame_solid">
-    <div class="row height40">
-        <div class="cell col75 right_solid">
-            <h5>Etternavn, fornavn</h5>
-        </div>
-        <div class="cell col25">
-            <h5>Fødselsnummer (11 siffer)</h5>
-        </div>
-    </div>
-</div>
-
-<h2>6 Prognose</h2>
-<div class="table frame_solid">
-    <div class="row">
-        <div class="cell col50">
-            <h5>a) Antas behandlingen å føre til bedring av arbeidsevnen?</h5>
-        </div>
-        <div class="cell col50">
-            <div class="titled_checkbox_block">
-                <h5>Ja</h5>
-                <div class="checkbox"></div>
-            </div>
-            <div class="titled_checkbox_block">
-                <h5>Nei</h5>
-                <div class="checkbox"></div>
-            </div>
-        </div>
-    </div>
-    <div class="row height80">
-        <div class="cell col100">
-            <h5>b) Anslå varigheten av sykdom/skade (evt. lyte)</h5>
-        </div>
-    </div>
-    <div class="row height80">
-        <div class="cell col100">
-            <h5>c) Anslå varigheten av funksjonsnedsettelsen</h5>
-        </div>
-    </div>
-    <div class="row height80 col100">
-        <div class="cell">
-            <h5>d) Anslå varigheten av den nedsatte arbeidsevnen</h5>
-        </div>
-    </div>
-</div>
-
-<h2>7 Årsaksammenheng</h2>
-<div class="table frame_solid">
-    <div class="row height120">
-        <div class="cell">
-            <h5>Anslå hvor stor betydning funksjonsnedsettelsen har for at arbeidsevnen er nedsatt</h5>
-        </div>
-    </div>
-</div>
-
-<h2>8 Andre opplysninger</h2>
-<div class="table frame_solid">
-    <div class="row height450">
-        <div class="cell col100">
-
-        </div>
-    </div>
-</div>
-
-<h2>9 Samarbeid/kontakt (9.1 Kryss av for den du ønsker NAV-kontoret skal ta kontakt med)</h2>
-<div class="table frame_solid">
-    <div class="row height30">
-        <div class="cell col10">
-            <h5 class="text_wrap">Behandl.lege</h5>
-            <div class="checkbox text_break"></div>
-        </div>
-        <div class="cell col10">
-            <h5 class="text_wrap">Arbeidsgiver</h5>
-            <div class="checkbox text_break"></div>
-        </div>
-        <div class="cell col10">
-            <h5 class="text_wrap">Basisgruppe</h5>
-            <div class="checkbox text_break"></div>
-        </div>
-        <div class="cell" style="width: 12%">
-            <h5 class="text_wrap">Annen instans (hvilken?)</h5>
-            <div class="checkbox text_break"></div>
-        </div>
-        <div class="cell" style="width: 35%">
-
-        </div>
-        <div class="cell" style="width: 13%;">
-            <h5>9.2 Ønsker du kopi av vedtaket?</h5>
-        </div>
-        <div class="cell col10">
-            <div class="left_bottom">
-                <div class="checkbox inline"></div>
-                <h5 class="inline">Ja</h5>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="table">
-    <div class="row">
-        <div class="cell col50">
-            <h2>10 Forbehold</h2>
-            <div class="table frame_solid">
-                <div class="row bottom_solid height40">
-                    <div class="cell col75">
-                        <h5>10.1 Er det noe i legeerklæringen som pasienten ikke bør få vite av medisinske grunner?</h5>
-                    </div>
-                    <div class="cell col25">
-                        <div class="titled_checkbox_block">
-                            <h5>Ja</h5>
-                            <div class="checkbox"></div>
-                        </div>
-                        <div class="titled_checkbox_block">
-                            <h5>Nei</h5>
-                            <div class="checkbox"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row height120">
-                    <div class="cell col100">
-                        <h5>Hvis Ja, oppgi hva pasienten ikke bør vite</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="cell col50">
-            <div style="margin-left: 20px; margin-right: 2px;">
-                <h2>Legens underskrift mv.</h2>
-                <div class="table frame_solid">
-                    <div class="row height20">
-                        <div class="cell col100">
-                            <h5>11.1 Dato, legens navn og adresse</h5>
-                        </div>
-                    </div>
-                    <div class="row bottom_solid height70">
-                        <div class="cell col50">
-                            {{ signatur.dato }}
-                        </div>
-                        <div class="cell col50">
-                            <div>{{ signatur.navn }}</div>
-                            <div>{{ signatur.addresse }}</div>
-                            <div>{{ signatur.postnummer }} {{ signatur.poststed }}</div>
-                        </div>
-                    </div>
-                    <div class="row height70">
-                        <div class="cell col75 right_solid">
-                            <h5>11.2 Legens underskrift</h5>
-                            <div>{{ signatur.signatur }}</div>
-                        </div>
-                        <div class="cell col25">
-                            <h5>11.3 Telefonnr.</h5>
-                            <div>{{signatur.tlfNummer }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>

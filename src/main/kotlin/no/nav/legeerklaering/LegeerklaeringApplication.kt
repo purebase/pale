@@ -405,7 +405,7 @@ class LegeerklaeringApplication {
         }
 
         val behandlingsvedleggJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
-            //Behandlingsvedlegg
+            //Fagmelding
             dokumentInfo = DokumentInfo().apply {
                 begrensetPartsinnsynFraTredjePart = legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()
 
