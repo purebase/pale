@@ -10,7 +10,6 @@ buildscript {
     ext.logback_version = '1.2.3'
     ext.kafka_version = '1.0.0'
     ext.confluent_version = '4.0.0'
-    ext.pdf_box_version = '2.0.9'
     ext.$mustache_version = '0.9.5'
     ext.jaxb2SourceDir = file("$buildDir/generated-sources/jaxb2")
     ext.avro_version = '1.8.2'
@@ -134,7 +133,6 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "redis.clients:jedis:$jedis_version"
     compile "ai.grakn:redis-mock:$redis_mock_version"
-    compile "org.apache.pdfbox:pdfbox:$pdf_box_version"
     compile "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
     compile "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
 

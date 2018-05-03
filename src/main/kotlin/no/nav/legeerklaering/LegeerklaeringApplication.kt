@@ -24,17 +24,12 @@ import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensn
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
-import org.apache.pdfbox.pdmodel.PDDocument
-import org.apache.pdfbox.pdmodel.PDPage
-import org.apache.pdfbox.pdmodel.PDPageContentStream
-import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.slf4j.LoggerFactory
 import java.util.*
 import javax.jms.BytesMessage
@@ -42,9 +37,7 @@ import javax.jms.MessageConsumer
 import javax.xml.datatype.DatatypeFactory
 import java.security.MessageDigest
 import redis.clients.jedis.Jedis
-import java.awt.Color
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import javax.xml.bind.JAXBContext
 
@@ -386,8 +379,8 @@ class LegeerklaeringApplication {
                     else -> begrensetPartsinnsynFraTredjePart = true
                 }
                 fildetaljerListe.add(Fildetaljer().apply {
-                    fil = createPDFBase64Encoded(legeeklaering)
-                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2.pdf"
+                    //TODO fil = createPDFBase64Encoded(legeeklaering)
+                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+".pdf"
                     filtypeKode = "PDF"
                     variantFormatKode = "ARKIV"
                     versjon = 1
@@ -410,8 +403,8 @@ class LegeerklaeringApplication {
                 begrensetPartsinnsynFraTredjePart = legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()
 
                 fildetaljerListe.add(Fildetaljer().apply {
-                    fil = createPDFBase64Encoded(legeeklaering)
-                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"LE-EIA-113-2-behandlingsvedlegg.pdf"
+                    //TODO = createPDFBase64Encoded(legeeklaering)
+                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"-behandlingsvedlegg.pdf"
                     filtypeKode = "PDF"
                     variantFormatKode = "ARKIV"
                     versjon = 1
@@ -432,7 +425,7 @@ class LegeerklaeringApplication {
         journalpostDokumentInfoRelasjonListe.add(behandlingsvedleggJournalpostDokumentInfoRelasjon)
 
         gjelderListe.add(Bruker().apply {
-            brukerId = "04030350265"
+            brukerId = fellesformat.msgHead.msgInfo.patient.ident.get(0).id
             brukertypeKode = "PERSON"
         })
         merknad = "Legeerklæring"
@@ -452,55 +445,4 @@ class LegeerklaeringApplication {
 
     }
 
-    fun createPDFBase64Encoded(legeeklaering: Legeerklaring): ByteArray{
-
-        val document = PDDocument()
-        val blankPage = PDPage()
-        document.addPage(blankPage)
-        val font = PDType1Font.HELVETICA_BOLD;
-        val contentStream = PDPageContentStream(document, blankPage)
-
-        contentStream.beginText()
-        val folketrygdenxPosision = 15f
-        val folketrygdenyPosision = 750f
-        contentStream.setFont(font, 18f)
-        contentStream.newLineAtOffset(folketrygdenxPosision, folketrygdenyPosision)
-        contentStream.showText("FOLKETRYGDEN")
-        contentStream.endText()
-
-        contentStream.beginText()
-        val legeerklringVedxPosision = 350f
-        val legeerklringVedyPosision = 760f
-        contentStream.setFont(font, 12f)
-        contentStream.newLineAtOffset(legeerklringVedxPosision, legeerklringVedyPosision)
-        contentStream.showText("Legeerklæring ved arbeidsuførhet")
-        contentStream.endText()
-
-        contentStream.beginText()
-        val legeesendeNAVKontorxPosision = 350f
-        val legeesendeNAVKontoryPosision = 740f
-        contentStream.setFont(font, 8f)
-        contentStream.newLineAtOffset(legeesendeNAVKontorxPosision, legeesendeNAVKontoryPosision)
-        contentStream.showText("Legen skal sende denne til NAV-kontoret.")
-        contentStream.endText()
-
-        contentStream.beginText()
-        val erklaeringenGjelderxPosision = 15f
-        val erklaeringenGjelderyPosision = 720f
-        contentStream.setFont(font, 12f)
-        contentStream.newLineAtOffset(erklaeringenGjelderxPosision, erklaeringenGjelderyPosision)
-        contentStream.showText("0 Erklæringen gjelder")
-        contentStream.endText()
-
-        contentStream.addRect(15f, 665f, 550f, 40f)
-        contentStream.setNonStrokingColor(Color.white)
-
-        contentStream.close()
-
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        document.save(byteArrayOutputStream)
-
-
-        return Base64.getEncoder().encode(byteArrayOutputStream.toByteArray())
-    }
 }
