@@ -35,6 +35,10 @@ data class Fagmelding(
         val plan: Plan,
         val sykdomsOpplysninger: SykdomsOpplysninger,
         val funksjonsOgArbeidsevne: FunksjonsOgArbeidsevne,
+        val prognose: Prognose,
+        val aarsaksSammenheng: String,
+        val andreOpplysninger: String,
+        val forbehold: Forbehold,
         val merknadAvvist: List<Merknad>,
         val merknadManuellBehandling: List<Merknad>,
         val merknadOppfoelging: List<Merknad>,
@@ -54,12 +58,12 @@ data class Pasient(
 )
 
 data class SykdomsOpplysninger (
-    val hoveddiagnose: Diagnose,
-    val bidiagnose: List<Diagnose>,
-    val arbeidsufoerFra: String,
-    val sykdomsHistorie: String,
-    val statusPresens: String,
-    val boerNavKontoretVurdereOmDetErEnYrkesskade: Boolean
+        val hoveddiagnose: Diagnose,
+        val bidiagnose: List<Diagnose>,
+        val arbeidsufoerFra: String,
+        val sykdomsHistorie: String,
+        val statusPresens: String,
+        val boerNavKontoretVurdereOmDetErEnYrkesskade: Boolean
 )
 
 data class Diagnose(
@@ -93,7 +97,35 @@ data class FunksjonsOgArbeidsevne(
         val friskemeldingTilArbeidsformidling: Boolean,
         val andreTiltak: String,
         val naermereOpplysninger: String,
-        val tekst: String
+        val tekst: String,
+        val iIntektsgivendeArbeid: Boolean,
+        val hjemmearbeidende: Boolean,
+        val student: Boolean,
+        val annetArbeid: String,
+        val kravTilArbeid: String,
+        val kanGjenopptaTidligereArbeid: Boolean,
+        val kanGjenopptaTidligereArbeidNaa: Boolean,
+        val kanGjenopptaTidligereArbeidEtterBehandling: Boolean,
+        val kanIkkeINaaverendeArbeid: String,
+        val kanTaAnnetArbeid: Boolean,
+        val kanTaAnnetArbeidNaa: Boolean,
+        val kanTaAnnetArbeidEtterBehandling: Boolean,
+        val kanIkkeIAnnetArbeid: String
+)
+
+data class Prognose(
+        val vilForbedreArbeidsevne: Boolean,
+        val anslaatVarighetSykdom: String,
+        val anslaatVarighetFunksjonsNedsetting: String,
+        val anslaatVarighetNedsattArbeidsevne: String
+)
+
+data class Forbehold(
+        val skalKontakteBehandlendeLege: Boolean,
+        val skalKontakteArbeidsgiver: Boolean,
+        val skalKontakteBasisgruppe: Boolean,
+        val kontakteAnnenInstans: String,
+        val oenskesKopiAvVedtak: Boolean
 )
 
 data class Merknad(
