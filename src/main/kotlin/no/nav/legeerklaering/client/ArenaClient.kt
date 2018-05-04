@@ -12,10 +12,10 @@ import java.util.*
 class ArenaClient{
     fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, spesregInt: Int, outcomeTypeList: List<OutcomeType>, tssidString: String): ArenaEiaInfo = ArenaEiaInfo().apply {
         ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
-        hendelseStatus = "TIL_VURDERING"
+        hendelseStatus = LegeerklaeringConstant.tilvurdering.string
         version = "2.0"
         skjemaType = LegeerklaeringConstant.LE.string
-        mappeType = "RP"
+        mappeType = LegeerklaeringConstant.mappetypeRP.string
         pasientData = ArenaEiaInfo.PasientData().apply {
             fnr = legeeklaering.pasientopplysninger.pasient.fodselsnummer
             isSperret = false

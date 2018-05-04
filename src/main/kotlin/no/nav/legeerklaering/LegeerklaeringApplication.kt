@@ -36,12 +36,6 @@ import java.math.BigInteger
 import javax.xml.bind.JAXBContext
 
 
-val jaxbAnnotationModule = JaxbAnnotationModule()
-val jacksonXmlModule = JacksonXmlModule().apply {
-    setDefaultUseWrapper(false)
-}
-//val objectMapper: ObjectMapper = XmlMapper(jacksonXmlModule).registerModule(jaxbAnnotationModule)
-//        .enable(SerializationFeature.INDENT_OUTPUT)
 val objectMapper: ObjectMapper = ObjectMapper()
 val fellesformatJaxBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
 val fellesformatUnmarshaller = fellesformatJaxBContext.createUnmarshaller()
@@ -127,7 +121,7 @@ class LegeerklaeringApplication {
                                     .withType(Personidenter().withValue("FNR")))
                     ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
         } catch (e: HentPersonPersonIkkeFunnet) {
-            outcomes.add(OutcomeType.PATIENT_NOT_FOUND_IN_TPS)
+            outcomes.add(OutcomeType.PATIENT_NOT_FOUND_TPS)
             return outcomes
         } catch (e: HentPersonSikkerhetsbegrensning) {
             outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {
