@@ -6,6 +6,8 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
+import no.nav.legeerklaering.apprec.mapper.ApprecMapper
+import no.nav.legeerklaering.apprec.mapper.ApprecStatus
 import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
 import no.nav.legeerklaering.config.EnvironmentConfig
 import no.nav.legeerklaering.validation.OutcomeType
@@ -27,11 +29,9 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
-import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.slf4j.LoggerFactory
-import java.util.*
 import javax.jms.BytesMessage
 import javax.jms.MessageConsumer
 import javax.xml.datatype.DatatypeFactory
@@ -104,7 +104,7 @@ class LegeerklaeringApplication {
 
             val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
             if(jedis.exists(hashValue)) {
-                createApprec(fellesformat, "duplikat")
+                ApprecMapper().createApprec(fellesformat, ApprecStatus.ok, "")
             } else {
                 jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
             }
@@ -173,175 +173,8 @@ class LegeerklaeringApplication {
         setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
     }
 
-    fun createApprec(fellesformat: EIFellesformat, apprecStatus: String): EIFellesformat {
-
-        val fellesformatApprec = EIFellesformat().apply {
-            mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
-                ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-                ebRole = LegeerklaeringConstant.ebRoleNav.string
-                ebService = LegeerklaeringConstant.ebServiceLegemelding.string
-                ebAction = LegeerklaeringConstant.ebActionSvarmelding.string
-            }
-            appRec = AppRec().apply {
-                msgType = AppRecCS().apply {
-                    v = LegeerklaeringConstant.APPREC.string
-                }
-                miGversion = LegeerklaeringConstant.APPRECVersionV1_0.string
-                genDate = newInstance.newXMLGregorianCalendar(GregorianCalendar())
-                id = fellesformat.mottakenhetBlokk.ediLoggId
-
-
-                sender = AppRec.Sender().apply {
-                    hcp = HCP().apply {
-                        inst = Inst().apply {
-                            name = fellesformat.msgHead.msgInfo.receiver.organisation.organisationName
-
-                            for (i in fellesformat.msgHead.msgInfo.receiver.organisation.ident.indices) {
-                                id = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).id
-                                typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).typeId
-
-                                val additionalIds = fellesformat.msgHead.msgInfo.receiver.organisation.ident.drop(1)
-                                        .map { mapIdentToAdditionalId(it) }
-
-                                additionalId.addAll(additionalIds)
-                            }
-                        }
-                    }
-                }
-
-                receiver = AppRec.Receiver().apply {
-                    hcp = HCP().apply {
-                        inst = Inst().apply {
-                            name = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
-
-                            for (i in fellesformat.msgHead.msgInfo.sender.organisation.ident.indices) {
-                                id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).id
-                                typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).typeId
-
-                                val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.ident.drop(1)
-                                        .map { mapIdentToAdditionalId(it) }
-
-                                additionalId.addAll(additionalIds)
-                            }
-
-                            hcPerson.add(HCPerson().apply {
-                                name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                                        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
-
-                                for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
-                                    id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).id
-                                    typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).typeId
-
-                                    val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.drop(1)
-                                            .map { mapIdentToAdditionalId(it) }
-
-                                    additionalId.addAll(additionalIds)
-                                }
-                            }
-                            )
-                        }
-                    }
-
-                }
-
-                when {
-                    apprecStatus.equals("avvist") -> {
-                        status = createApprecStatus(2)
-                        error.add(AppRecCV().apply {
-                            //@TODO change dn(Get the rule description thas denies the message) and the correct v
-                            dn = "LegeErklæringen valideringen misslyktes"
-                            v = "47"
-                            s = "2.16.578.1.12.4.1.1.8222"
-                        })
-                    }
-
-                    apprecStatus.equals("duplikat") -> {
-                        status = createApprecStatus(2)
-                        error.add(AppRecCV().apply {
-                            dn = "Duplikat! - Denne meldingen er mottatt tidligere. Skal ikke sendes på nytt."
-                            v = "801"
-                            s = "2.16.578.1.12.4.1.1.8222"
-                        })
-                    }
-
-
-                    apprecStatus.equals("ok") ->
-                        status = createApprecStatus(1)
-
-                }
-
-                originalMsgId = OriginalMsgId().apply {
-                    msgType = AppRecCS().apply {
-                        v = LegeerklaeringConstant.LE.string
-                        dn = LegeerklaeringConstant.Legeerklæring.string
-                    }
-                    issueDate = fellesformat.msgHead.msgInfo.genDate
-                    id = fellesformat.msgHead.msgInfo.msgId
-                }
-            }
-        }
-        return fellesformatApprec
-    }
-
-    fun mapIdentToAdditionalId(ident: Ident): AdditionalId = AdditionalId().apply {
-        id = ident.id
-        type = AppRecCS().apply {
-            dn = ident.typeId.dn
-            v = ident.typeId.v
-        }
-    }
-
-    fun mapIdentToInst(ident: Ident): Inst = Inst().apply {
-        id = ident.id
-        typeId = AppRecCS().apply {
-            dn = ident.typeId.dn
-            v = ident.typeId.v
-        }
-    }
-
-    fun createApprecStatus(status: Int): AppRecCS = AppRecCS().apply {
-        if (status == 2) {
-            v = "2"
-            dn = "Avvist"
-        } else {
-            v = "1"
-            dn = "OK"
-        }
-    }
-
     fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean =
             jedis.get(hashValue) != null
-
-    fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat): ArenaEiaInfo = ArenaEiaInfo().apply {
-        ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
-        hendelseStatus = "TIL_VURDERING" //TODO
-        version = "2.0"
-        skjemaType = LegeerklaeringConstant.LE.string
-        mappeType = "UP"
-        pasientData = ArenaEiaInfo.PasientData().apply {
-            fnr = legeeklaering.pasientopplysninger.pasient.fodselsnummer
-            isSperret = false //TODO
-            tkNummer = "" //TODO
-        }
-        legeData = ArenaEiaInfo.LegeData().apply {
-            navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
-            fnr = getHCPFodselsnummer(fellesformat)
-            tssid = "asdad" //TODO
-        }
-        eiaData = ArenaEiaInfo.EiaData().apply {
-            systemSvar.add(ArenaEiaInfo.EiaData.SystemSvar().apply {
-                meldingsNr = 141.toBigInteger() //TODO
-                meldingsTekst = "Usikkert svar fra TSS,  lav sannsynlighet (55,8%) for identifikasjon av  samhandler.  Bør verifiseres." //TODO
-                meldingsPrioritet = 4.toBigInteger() //TODO
-                meldingsType = "2" //TODO
-            })
-            signaturDato = newInstance.newXMLGregorianCalendar(GregorianCalendar().apply {
-                set(fellesformat.msgHead.msgInfo.genDate.year, fellesformat.msgHead.msgInfo.genDate.month,fellesformat.msgHead.msgInfo.genDate.day)
-            })
-
-        }
-    }
 
 
     fun getHCPFodselsnummer(fellesformat: EIFellesformat): String {
@@ -356,92 +189,6 @@ class LegeerklaeringApplication {
         }
 
         return ""
-
-    }
-
-    fun tssFinnSamhandlerData(fnr: String): String {
-        return ""
-    }
-
-    fun tpsFinnPersonData(fnr: String): String {
-        return ""
-    }
-
-    fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
-            LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
-
-        val fagmeldingJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
-            //Fagmelding
-            dokumentInfo = DokumentInfo().apply {
-                when {
-                    legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold.equals(2.toBigInteger()) ->
-                        begrensetPartsinnsynFraTredjePart = false
-                    else -> begrensetPartsinnsynFraTredjePart = true
-                }
-                fildetaljerListe.add(Fildetaljer().apply {
-                    //TODO fil = createPDFBase64Encoded(legeeklaering)
-                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+".pdf"
-                    filtypeKode = "PDF"
-                    variantFormatKode = "ARKIV"
-                    versjon = 1
-                })
-                kategoriKode = "ES"
-                tittel = "Legeerklæring"
-                brevkode = "900002"
-                sensitivt = false
-                organInternt = false
-                versjon = 1
-            }
-            tilknyttetJournalpostSomKode = "HOVEDDOKUMENT"
-            tilknyttetAvNavn =  "EIA_AUTO"
-            versjon = 1
-        }
-
-        val behandlingsvedleggJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
-            //Fagmelding
-            dokumentInfo = DokumentInfo().apply {
-                begrensetPartsinnsynFraTredjePart = legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()
-
-                fildetaljerListe.add(Fildetaljer().apply {
-                    //TODO = createPDFBase64Encoded(legeeklaering)
-                    filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"-behandlingsvedlegg.pdf"
-                    filtypeKode = "PDF"
-                    variantFormatKode = "ARKIV"
-                    versjon = 1
-                })
-                kategoriKode = "ES"
-                tittel = "Legeerklæring-behandlingsvedlegg"
-                brevkode = "900002"
-                sensitivt = false
-                organInternt = true
-                versjon = 1
-            }
-            tilknyttetJournalpostSomKode = "VEDLEGG"
-            tilknyttetAvNavn =  "EIA_AUTO"
-            versjon = 1
-        }
-
-        journalpostDokumentInfoRelasjonListe.add(fagmeldingJournalpostDokumentInfoRelasjon)
-        journalpostDokumentInfoRelasjonListe.add(behandlingsvedleggJournalpostDokumentInfoRelasjon)
-
-        gjelderListe.add(Bruker().apply {
-            brukerId = fellesformat.msgHead.msgInfo.patient.ident.get(0).id
-            brukertypeKode = "PERSON"
-        })
-        merknad = "Legeerklæring"
-        mottakskanalKode = "EIA"
-        mottattDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
-        innhold = "Legeerklæring"
-        journalForendeEnhetId = ""
-        journalposttypeKode = "1"
-        journalstatusKode = "MO"
-        dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
-        fagomradeKode = "OPP"
-        fordeling = "EIA_OK"
-        avsenderMottaker = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
-        avsenderMottakerId = getHCPFodselsnummer(fellesformat)
-        opprettetAvNavn = "EIA_AUTO"
 
     }
 

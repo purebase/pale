@@ -17,6 +17,5 @@ object Utils {
     @Throws(IOException::class, URISyntaxException::class)
     fun readToFellesformat(resource: String): EIFellesformat {
         return fellesformatUnmarshaller.unmarshal(StreamSource(Utils::class.java.getResourceAsStream(resource)), EIFellesformat::class.java).value
-        //return objectMapper.readValue<EIFellesformat>(Files.readAllBytes(Paths.get(Utils::class.java.getResource(resource).toURI())), EIFellesformat::class.java)
     }
 }
