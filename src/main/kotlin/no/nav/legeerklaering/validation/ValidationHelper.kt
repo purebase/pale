@@ -1,5 +1,6 @@
 package no.nav.legeerklaering.validation
 
+import io.reactivex.Single
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
@@ -9,6 +10,26 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
+
+data class RuleExecutionInfo(
+        val fellesformat: EIFellesformat,
+        val legeerklaering: Legeerklaring,
+        val patientPersonNumber: String?,
+        val doctorPersonNumber: String?,
+        val outcome: MutableList<OutcomeType>
+)
+
+fun initFlow(fellesformat: EIFellesformat): Single<RuleExecutionInfo> =
+        Single.fromCallable {
+            val legeerklaering = extractLegeerklaering(fellesformat)
+            RuleExecutionInfo(
+                    fellesformat = fellesformat,
+                    legeerklaering = legeerklaering,
+                    patientPersonNumber = extractPersonNumber(legeerklaering),
+                    doctorPersonNumber = extractDoctorPersonNumberFromSender(fellesformat),
+                    outcome = mutableListOf()
+            )
+        }
 
 fun extractDoctorPersonNumberFromSender(fellesformat: EIFellesformat): String =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {

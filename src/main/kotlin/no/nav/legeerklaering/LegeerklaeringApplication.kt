@@ -10,14 +10,8 @@ import no.nav.legeerklaering.apprec.mapper.ApprecMapper
 import no.nav.legeerklaering.apprec.mapper.ApprecStatus
 import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
 import no.nav.legeerklaering.config.EnvironmentConfig
-import no.nav.legeerklaering.validation.OutcomeType
-import no.nav.legeerklaering.validation.extractSenderOrganisationNumber
-import no.nav.legeerklaering.validation.validatePatientRelations
-import no.nav.legeerklaering.validation.validatePersonalInformation
-import no.nav.model.arenainfo.ArenaEiaInfo
+import no.nav.legeerklaering.validation.*
 import no.nav.model.fellesformat.*
-import no.nav.model.msghead.*
-import no.nav.model.apprec.*
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.TsswsOrganisasjonPortType
 import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.meldinger.HentOrganisasjonRequest
@@ -144,11 +138,12 @@ class LegeerklaeringApplication {
             return outcomes
         }
 
-        outcomes.addAll(validatePersonalInformation(fellesformat, person))
+        outcomes.addAll(validationFlow(fellesformat))
 
-        val patientRelation = validatePatientRelations(fellesformat, person)
-        if (patientRelation != null) {
-            outcomes.add(patientRelation)
+        outcomes.addAll(preTSSFlow(fellesformat))
+
+        if (outcomes.none { true }) {
+            outcomes.addAll(postTSSFlow(fellesformat, person))
         }
 
         return outcomes

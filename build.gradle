@@ -136,6 +136,7 @@ dependencies {
     compile "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
     compile "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
 
+    implementation "io.reactivex.rxjava2:rxkotlin:2.2.0"
     implementation "ch.qos.logback:logback-classic:$logback_version"
     implementation "io.confluent:kafka-avro-serializer:$confluent_version"
     implementation "org.apache.kafka:kafka-clients:$kafka_version"
