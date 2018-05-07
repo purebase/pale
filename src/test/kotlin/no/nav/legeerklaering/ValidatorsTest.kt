@@ -18,6 +18,11 @@ class ValidatorsTest {
     }
 
     @Test
+    fun shouldAssertToTrueValidDNR() {
+        assertTrue(validatePersonAndDNumber("45069800525"))
+    }
+
+    @Test
     fun shouldFailWhenChecksum1Fails() {
         assertFalse(validatePersonAndDNumber("30063104424"))
     }

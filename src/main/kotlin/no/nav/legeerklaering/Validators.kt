@@ -28,12 +28,30 @@ private fun validatePersonDNumberMod11(personNumber: String): Boolean {
     return personNumber[9]-'0' == checksum1Final && personNumber[10]-'0' == checksum2Final
 }
 
-private fun validatePersonDNumberRange(personNumber: String): Boolean {
-    throw RuntimeException("Not implemented")
-}
+private fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
+  val personNumberFirstAndSecoundChar = personNumber.substring(0,2)
+    if(validatePersonNumberRange(personNumberFirstAndSecoundChar)){
+        return true
+    }
+    else {
+        if (validatePersonDNumberRange(personNumberFirstAndSecoundChar)) {
+            return true
+        }
+    }
+    return false
+    }
 
 fun validatePersonAndDNumber(personNumber: String): Boolean =
-        validatePersonDNumberMod11(personNumber)  && validatePersonDNumberRange(personNumber)
+        validatePersonDNumberMod11(personNumber) && validatePersonAndPersonDNumberRange(personNumber)
+
 
 fun validatePersonAndDNumber11Digits(personNumber: String): Boolean =
         personNumber.length == 11
+
+fun validatePersonNumberRange(personNumberFirstAndSecoundChar: String): Boolean {
+    return personNumberFirstAndSecoundChar.toInt() in 1..31
+}
+
+fun validatePersonDNumberRange(personNumberFirstAndSecoundChar: String): Boolean {
+    return personNumberFirstAndSecoundChar.toInt() in 41..71
+}
