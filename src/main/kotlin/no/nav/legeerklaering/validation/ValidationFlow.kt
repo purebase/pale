@@ -19,8 +19,8 @@ fun validationFlow(fellesformat: EIFellesformat): List<OutcomeType> =
                 }
                 .map {
                     if (it.patientPersonNumber == null || it.patientPersonNumber.trim().isEmpty()) {
-                        it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_FOUND)
-                    } else if (validatePersonAndDNumber11Digits(it.patientPersonNumber)) {
+                        it.outcome.add(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND)
+                    } else if (!validatePersonAndDNumber11Digits(it.patientPersonNumber)) {
                         it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_11_DIGITS)
                     } else if (!validatePersonAndDNumber(it.patientPersonNumber)) {
                         it.outcome.add(OutcomeType.INVALID_PERSON_D_NUMBER)
@@ -30,7 +30,7 @@ fun validationFlow(fellesformat: EIFellesformat): List<OutcomeType> =
                 .map {
                     if (it.doctorPersonNumber == null || it.doctorPersonNumber.trim().isEmpty()) {
                         it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_FOUND)
-                    } else if (validatePersonAndDNumber11Digits(it.doctorPersonNumber)) {
+                    } else if (!validatePersonAndDNumber11Digits(it.doctorPersonNumber)) {
                         it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_11_DIGITS)
                     } else if (!validatePersonAndDNumber(it.doctorPersonNumber)) {
                         it.outcome.add(OutcomeType.INVALID_PERSON_D_NUMBER)

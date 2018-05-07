@@ -4,6 +4,7 @@ import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.Utils
 import no.nav.legeerklaering.newInstance
+import no.nav.legeerklaering.validation.Outcome
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.model.legeerklaering.Legeerklaring
 import org.junit.Assert
@@ -19,6 +20,19 @@ class ArenaClientTest{
     val outcomeTypes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND, OutcomeType.BARN_AV_PASIENT)
     val tssid = "12454"
     val request = ArenaClient().createArenaEiaInfo(legeerklaring, fellesformat,0,outcomeTypes, tssid)
+
+
+    @Test
+    fun shouldDOT() {
+        val fnr = "12454"
+        val outcome = Outcome(OutcomeType.PERSON_NUMBER_NOT_FOUND, arrayOf(fnr))
+
+        val merknadsTekst = String.format(outcome.outcomeType.messageText, outcome.args)
+
+        System.out.println(merknadsTekst)
+       // Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId, request.ediloggId)
+    }
+
 
     @Test
     fun shouldSetEdiloggId() {

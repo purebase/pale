@@ -1,9 +1,11 @@
 package no.nav.legeerklaering.validation
 
+data class Outcome(val outcomeType: OutcomeType, val args: Array<Any>)
+
 enum class OutcomeType(val messageNumber: Int, val messageText: String, val messagePriority: Priority, val messageType: Type) {
     PATIENT_PERSON_NUMBER_NOT_FOUND(13, "Pasientens fødselsnummer finnes ikke i skjema", Priority.RETUR, Type.FAGLIG),
     BEHANDLER_NOT_TSS(18,"Behandler er ikke registrert i TSS.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
-    PERSON_NUMBER_NOT_FOUND(30,"Fødselsnummeret eller D-nummeret til \"%s\" finnes ikke i skjemaet.", Priority.RETUR, Type.FAGLIG),
+    PERSON_NUMBER_NOT_FOUND(30,"Fødselsnummeret eller D-nummeret til %s" + " finnes ikke i skjemaet.", Priority.RETUR, Type.FAGLIG),
     INVALID_PERSON_D_NUMBER(31, "Fødselsnummeret eller D-nummeret \"%s\" til %s er feil.", Priority.RETUR, Type.FAGLIG),
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PATIENT_FIRST_NAME_NOT_FOUND(34, "Pasientens fornavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
@@ -11,7 +13,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PERSON_HAS_NO_NAV_KONTOR(50,"Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i   Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.",  Priority.MANUAL_PROCESSING, Type.FAGLIG),
-    ADRESS_MISSING__TSS(77,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
+    ADRESS_MISSING__TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
     NO_VALID_TSSID_PRACTICE_TYPE_TSS(77,"Finner ingen gyldig praksistype i TSS.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78,"Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't
