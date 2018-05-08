@@ -20,17 +20,8 @@ class JoarkClientTest {
     @Test
     fun shouldSetbegrensetPartsinnsynFraTredjePartOnFagmelding() {
 
-        Assert.assertEquals(legeerklaring.forbeholdLegeerklaring.tilbakeholdInnhold !=
-                2.toBigInteger(),
+        Assert.assertEquals(null,
                 request.journalpostDokumentInfoRelasjonListe[0].dokumentInfo.begrensetPartsinnsynFraTredjePart)
-    }
-
-    @Test
-    fun shouldSetbegrensetPartsinnsynFraTredjePartOnBehandlingsvedlegg() {
-
-        Assert.assertEquals(legeerklaring.forbeholdLegeerklaring.tilbakeholdInnhold !=
-                2.toBigInteger(),
-                request.journalpostDokumentInfoRelasjonListe[1].dokumentInfo.begrensetPartsinnsynFraTredjePart)
     }
 
     @Test
@@ -249,8 +240,9 @@ class JoarkClientTest {
     @Test
     fun shouldSetavsenderMottaker() {
 
-        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName, request.avsenderMottaker)
+        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
+                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
+                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase(), request.avsenderMottaker)
     }
 
     @Test

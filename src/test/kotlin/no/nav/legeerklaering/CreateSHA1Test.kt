@@ -7,26 +7,27 @@ import java.util.*
 
 class CreateSHA1Test {
 
+    val fellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+
   @Test
      fun shouldCreateDuplicateHashValues() {
-      val inputMeldingString = Utils.readToString("/legeerklaering.xml")
 
-      val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes((inputMeldingString)))
-      val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes((inputMeldingString)))
+
+      val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
+      val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
 
       assertEquals(firstMessage, secoundMessage)
      }
 
     @Test
     fun shouldCreateUniqueHashValues() {
-        val firstinputMeldingString = Utils.readToFellesformat("/legeerklaering.xml")
 
-        val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(firstinputMeldingString.toString()))
+        val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(fellesformat.toString()))
 
         for (i in 1..1000) {
-            val secoundinputMeldingString = Utils.readToFellesformat("/legeerklaering.xml")
-            secoundinputMeldingString.mottakenhetBlokk.ediLoggId = UUID.randomUUID().toString()
-            val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(secoundinputMeldingString.toString()))
+            val secoundFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+            secoundFellesformat.mottakenhetBlokk.ediLoggId = UUID.randomUUID().toString()
+            val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(secoundFellesformat.toString()))
 
             assertNotEquals(firstMessage, secoundMessage)
         }

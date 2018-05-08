@@ -63,8 +63,9 @@ class ArenaClientTest{
 
     @Test
     fun shouldSetLegeDataNavn() {
-        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName, request.legeData.navn)
+        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
+                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
+                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase(), request.legeData.navn)
     }
 
     @Test

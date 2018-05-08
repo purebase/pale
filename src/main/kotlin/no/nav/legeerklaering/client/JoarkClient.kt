@@ -15,8 +15,9 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
 
     val fagmeldingJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
         dokumentInfo = DokumentInfo().apply {
-            begrensetPartsinnsynFraTredjePart = legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold !=
-                    2.toBigInteger()
+
+            if (legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()) {
+                begrensetPartsinnsynFraTredjePart = true}
 
             fildetaljerListe.add(Fildetaljer().apply {
                 //TODO fil = createPDFBase64Encoded(legeeklaering)
@@ -39,8 +40,6 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
 
     val behandlingsvedleggJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
         dokumentInfo = DokumentInfo().apply {
-            begrensetPartsinnsynFraTredjePart = legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold !=
-                    2.toBigInteger()
 
             fildetaljerListe.add(Fildetaljer().apply {
                 //TODO = createPDFBase64Encoded(legeeklaering)
@@ -79,8 +78,9 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
     dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     fagomradeKode = LegeerklaeringConstant.opp.string
     fordeling = LegeerklaeringConstant.eiaOk.string
-    avsenderMottaker = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
+    avsenderMottaker = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
+            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
+            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase()
     avsenderMottakerId = LegeerklaeringApplication().getHCPFodselsnummer(fellesformat)
     opprettetAvNavn = LegeerklaeringConstant.eiaAuto.string
     }

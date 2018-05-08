@@ -1,5 +1,6 @@
 package no.nav.legeerklaering.apprec.mapper
 
+import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.Utils
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -10,66 +11,54 @@ import javax.xml.datatype.DatatypeFactory
 class ApprecMapperTest {
 
     val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
-    val expectedApprecFellesformatOK = Utils.readToFellesformat("/apprec/legeerklaeringApprecOK.xml")
-    val expectedApprecFellesformatDuplikat = Utils.readToFellesformat(
-            "/apprec/legeerklaeringApprecDuplikat.xml")
-    val expectedApprecFellesformatAvist = Utils.readToFellesformat(
-            "/apprec/legeerklaeringApprecAvist.xml")
     val apprecStatusOK =  ApprecStatus.ok
     val apprecStatusAvvist =  ApprecStatus.avvist
     val apprecFellesformatOK = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusOK)
     val apprecFellesformatDuplikat = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
-    val apprecFellesformatAvist = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
+    val apprecFellesformaBehanderlPersonNumberNotValid = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
     @Before
     fun setup(){
         apprecFellesformatDuplikat.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-        apprecFellesformatAvist.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
-    }
-
-    @Test
-    fun shouldCreateApprecOKWithMottakenhetBlokkAvsender() {
-
-        assertEquals(expectedApprecFellesformatOK.mottakenhetBlokk.avsender, apprecFellesformatOK.mottakenhetBlokk.avsender)
+        apprecFellesformaBehanderlPersonNumberNotValid.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
     }
 
 
     @Test
-    fun shouldCreateApprecOKWithMottakenhetBlokkEdiLoggId() {
+    fun shouldCreateApprecWithMottakenhetBlokkEdiLoggId() {
 
-        assertEquals(expectedApprecFellesformatOK.mottakenhetBlokk.ediLoggId, apprecFellesformatOK.mottakenhetBlokk.ediLoggId)
+        assertEquals(inputMeldingFellesformat.mottakenhetBlokk.ediLoggId, apprecFellesformatOK.mottakenhetBlokk.ediLoggId)
     }
 
     @Test
-    fun shouldCreateApprecOKWithMottakenhetBlokkEbRole() {
+    fun shouldCreateApprecWithMottakenhetBlokkEbRole() {
 
-        assertEquals(expectedApprecFellesformatOK.mottakenhetBlokk.ebRole, apprecFellesformatOK.mottakenhetBlokk.ebRole)
+        assertEquals(LegeerklaeringConstant.ebRoleNav.string, apprecFellesformatOK.mottakenhetBlokk.ebRole)
     }
 
     @Test
-    fun shouldCreateApprecOKWithMottakenhetBlokkEbService() {
+    fun shouldCreateApprecWithMottakenhetBlokkEbService() {
 
-        assertEquals(expectedApprecFellesformatOK.mottakenhetBlokk.ebService, apprecFellesformatOK.mottakenhetBlokk.ebService)
+        assertEquals(LegeerklaeringConstant.ebServiceLegemelding.string, apprecFellesformatOK.mottakenhetBlokk.ebService)
     }
 
     @Test
-    fun shouldCreateApprecOKWithMottakenhetBlokkEbAction() {
+    fun shouldCreateApprecWithMottakenhetBlokkEbAction() {
 
-        assertEquals(expectedApprecFellesformatOK.mottakenhetBlokk.ebAction, apprecFellesformatOK.mottakenhetBlokk.ebAction)
+        assertEquals(LegeerklaeringConstant.ebActionSvarmelding.string, apprecFellesformatOK.mottakenhetBlokk.ebAction)
     }
 
     @Test
-    fun shouldCreateApprecOKWithMsgTypeDn() {
+    fun shouldCreateApprecWithMsgTypeV() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.msgType.dn, apprecFellesformatOK.appRec.msgType.dn)
+        assertEquals(LegeerklaeringConstant.APPREC.string, apprecFellesformatOK.appRec.msgType.v)
     }
 
     @Test
-    fun shouldCreateApprecOKWithMIGversion() {
+    fun shouldCreateApprecWithMIGversion() {
 
-
-        assertEquals(expectedApprecFellesformatOK.appRec.miGversion, apprecFellesformatOK.appRec.miGversion)
+        assertEquals(LegeerklaeringConstant.APPRECVersionV1_0.string, apprecFellesformatOK.appRec.miGversion)
     }
 
 
@@ -84,168 +73,159 @@ class ApprecMapperTest {
     @Test
     fun shouldCreateApprecOKWithApprecId() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.id, apprecFellesformatOK.appRec.id)
+        assertEquals(inputMeldingFellesformat.mottakenhetBlokk.ediLoggId, apprecFellesformatOK.appRec.id)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstName() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.name, apprecFellesformatOK.appRec.sender.hcp.inst.name)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.organisationName, apprecFellesformatOK.appRec.sender.hcp.inst.name)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstId() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.id, apprecFellesformatOK.appRec.sender.hcp.inst.id)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[0].id, apprecFellesformatOK.appRec.sender.hcp.inst.id)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstTypeIdDn() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.typeId.dn, apprecFellesformatOK.appRec.sender.hcp.inst.typeId.dn)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[0].typeId.dn, apprecFellesformatOK.appRec.sender.hcp.inst.typeId.dn)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstTypeIdV() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.typeId.v, apprecFellesformatOK.appRec.sender.hcp.inst.typeId.v)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[0].typeId.v, apprecFellesformatOK.appRec.sender.hcp.inst.typeId.v)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstId() {
 
-         assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].id, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].id)
+         assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[1].id, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].id)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstTypeDn() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].type.dn, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].type.dn)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[1].typeId.dn, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].type.dn)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstTypeV() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].type.v, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].type.v)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.ident[0].typeId.v, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].type.v)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstName() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.receiver.hcp.inst.name, apprecFellesformatOK.appRec.receiver.hcp.inst.name)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.organisationName, apprecFellesformatOK.appRec.receiver.hcp.inst.name)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstId() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.receiver.hcp.inst.id, apprecFellesformatOK.appRec.receiver.hcp.inst.id)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.ident[0].id, apprecFellesformatOK.appRec.receiver.hcp.inst.id)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstTypeIdDn() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.receiver.hcp.inst.typeId.dn, apprecFellesformatOK.appRec.receiver.hcp.inst.typeId.dn)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.ident[0].typeId.dn, apprecFellesformatOK.appRec.receiver.hcp.inst.typeId.dn)
     }
 
     @Test
     fun shouldCreateApprecOKWithApprecReceiverHCPInstTypeIdVIs1() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.receiver.hcp.inst.typeId.v, apprecFellesformatOK.appRec.receiver.hcp.inst.typeId.v)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.ident[0].typeId.v, apprecFellesformatOK.appRec.receiver.hcp.inst.typeId.v)
+    }
+
+    @Test
+    fun shouldCreateApprecOKWithApprecReceiverHCPInstHCPersonName() {
+
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName + " " +
+                inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName + " " +
+                inputMeldingFellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName, apprecFellesformatOK.appRec.receiver.hcp.inst.hcPerson[0].name)
     }
 
     @Test
     fun shouldCreateApprecOKWithStatusDnIsOK() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.status.dn, apprecFellesformatOK.appRec.status.dn)
+        assertEquals(apprecStatusOK.dn, apprecFellesformatOK.appRec.status.dn)
     }
 
-    @Test
-    fun shouldCreateApprecDuplikatWithApprecReceiverHCPInstTypeIdVIs2() {
-
-        assertEquals(expectedApprecFellesformatDuplikat.appRec.receiver.hcp.inst.typeId.v, apprecFellesformatDuplikat.appRec.receiver.hcp.inst.typeId.v)
-    }
 
     @Test
     fun shouldCreateApprecDuplikatWithStatusDnIsAvist() {
 
-        assertEquals(expectedApprecFellesformatDuplikat.appRec.status.dn, apprecFellesformatDuplikat.appRec.status.dn)
+        assertEquals(apprecStatusAvvist.dn, apprecFellesformatDuplikat.appRec.status.dn)
     }
 
     @Test
     fun shouldCreateApprecDuplikatWithErrosDn() {
 
-        assertEquals(expectedApprecFellesformatDuplikat.appRec.error[0].dn, apprecFellesformatDuplikat.appRec.error[0].dn)
+        assertEquals(ApprecError.DUPLICAT.dn, apprecFellesformatDuplikat.appRec.error[0].dn)
     }
 
     @Test
     fun shouldCreateApprecDuplikatWithErrosV() {
 
-        assertEquals(expectedApprecFellesformatDuplikat.appRec.error[0].v, apprecFellesformatDuplikat.appRec.error[0].v)
+        assertEquals(ApprecError.DUPLICAT.v, apprecFellesformatDuplikat.appRec.error[0].v)
     }
 
     @Test
     fun shouldCreateApprecDuplikatWithErross() {
 
-        assertEquals(expectedApprecFellesformatDuplikat.appRec.error[0].s, apprecFellesformatDuplikat.appRec.error[0].s)
-    }
-
-    @Test
-    fun shouldCreateApprecAvistWithApprecReceiverHCPInstTypeIdVIs2() {
-
-        assertEquals(expectedApprecFellesformatAvist.appRec.receiver.hcp.inst.typeId.v, apprecFellesformatAvist.appRec.receiver.hcp.inst.typeId.v)
-    }
-
-    @Test
-    fun shouldCreateApprecDAvistWithStatusDnIsAvist() {
-
-        assertEquals(expectedApprecFellesformatAvist.appRec.status.dn, apprecFellesformatAvist.appRec.status.dn)
+        assertEquals(ApprecError.DUPLICAT.s, apprecFellesformatDuplikat.appRec.error[0].s)
     }
 
     @Test
     fun shouldCreateApprecRAvistWithErroDn() {
 
-        assertEquals(expectedApprecFellesformatAvist.appRec.error[0].dn, apprecFellesformatAvist.appRec.error[0].dn)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.dn, apprecFellesformaBehanderlPersonNumberNotValid.appRec.error[0].dn)
     }
 
     @Test
     fun shouldCreateApprecAvistWithErroV() {
 
-        assertEquals(expectedApprecFellesformatAvist.appRec.error[0].v, apprecFellesformatAvist.appRec.error[0].v)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.v, apprecFellesformaBehanderlPersonNumberNotValid.appRec.error[0].v)
     }
 
     @Test
     fun shouldCreateApprecAvistWithErroS() {
 
-        assertEquals(expectedApprecFellesformatAvist.appRec.error[0].s, apprecFellesformatAvist.appRec.error[0].s)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.s, apprecFellesformaBehanderlPersonNumberNotValid.appRec.error[0].s)
     }
 
     @Test
     fun shouldCreateApprecOKWithStatusV() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.status.v, apprecFellesformatOK.appRec.status.v)
+        assertEquals(ApprecStatus.ok.v, apprecFellesformatOK.appRec.status.v)
     }
 
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdMsgTypeDn() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.originalMsgId.msgType.dn, apprecFellesformatOK.appRec.originalMsgId.msgType.dn)
+        assertEquals(LegeerklaeringConstant.Legeerklæring.string, apprecFellesformatOK.appRec.originalMsgId.msgType.dn)
     }
 
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdMsgTypeV() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.originalMsgId.msgType.v, apprecFellesformatOK.appRec.originalMsgId.msgType.v)
+        assertEquals(LegeerklaeringConstant.LE.string, apprecFellesformatOK.appRec.originalMsgId.msgType.v)
     }
 
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdIssueDate() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.originalMsgId.issueDate, apprecFellesformatOK.appRec.originalMsgId.issueDate)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.genDate, apprecFellesformatOK.appRec.originalMsgId.issueDate)
     }
 
     @Test
     fun shouldCreateApprecOKWithOriginalMsgIdId() {
 
-        assertEquals(expectedApprecFellesformatOK.appRec.originalMsgId.id, apprecFellesformatOK.appRec.originalMsgId.id)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.msgId, apprecFellesformatOK.appRec.originalMsgId.id)
     }
 }

@@ -60,8 +60,9 @@ class ApprecMapper{
                             }
 
                             hcPerson.add(HCPerson().apply {
-                                name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                                        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName
+                                name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName + " " +
+                                        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName + " " +
+                                        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
 
                                 for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
                                     id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).id

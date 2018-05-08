@@ -25,8 +25,9 @@ class ArenaClient{
             }
         }
         legeData = ArenaEiaInfo.LegeData().apply {
-            navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
-                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName
+            navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
+                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
+                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase()
             fnr = LegeerklaeringApplication().getHCPFodselsnummer(fellesformat)
             tssid = tssidString
         }
