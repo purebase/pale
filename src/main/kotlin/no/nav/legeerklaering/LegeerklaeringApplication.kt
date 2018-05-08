@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
+import no.nav.legeerklaering.apprec.mapper.ApprecError
 import no.nav.legeerklaering.apprec.mapper.ApprecMapper
 import no.nav.legeerklaering.apprec.mapper.ApprecStatus
 import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
@@ -90,7 +91,8 @@ class LegeerklaeringApplication {
 
             val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
             if(jedis.exists(hashValue)) {
-                ApprecMapper().createApprec(fellesformat, ApprecStatus.ok, "")
+               val apprec = ApprecMapper().createApprec(fellesformat, ApprecStatus.avvist)
+                apprec.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
             } else {
                 jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
             }
@@ -120,6 +122,8 @@ class LegeerklaeringApplication {
                     ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
         } catch (e: HentPersonPersonIkkeFunnet) {
             outcomes.add(OutcomeType.PATIENT_NOT_FOUND_TPS)
+            val apprec = ApprecMapper().createApprec(fellesformat, ApprecStatus.avvist)
+            apprec.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
             return outcomes
         } catch (e: HentPersonSikkerhetsbegrensning) {
             outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {

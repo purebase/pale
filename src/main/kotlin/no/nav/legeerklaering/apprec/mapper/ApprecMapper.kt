@@ -8,7 +8,7 @@ import no.nav.model.msghead.Ident
 import java.util.*
 
 class ApprecMapper{
-    fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus, apprecErrorType: String): EIFellesformat {
+    fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFellesformat {
 
         val fellesformatApprec = EIFellesformat().apply {
             mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
@@ -79,23 +79,9 @@ class ApprecMapper{
 
                 }
 
-                when {
-                    apprecStatus.v != "1" -> {
-                        status =  AppRecCS().apply {
-                            v = apprecStatus.v
-                            dn = apprecStatus.dn
-                        }
-                        error.add(AppRecCV().apply {
-                            dn = ApprecError.valueOf(apprecErrorType).dn
-                            v = ApprecError.valueOf(apprecErrorType).v
-                            s = ApprecError.valueOf(apprecErrorType).s
-                        })
-                    }
-                    else -> status = AppRecCS().apply {
-                        v = apprecStatus.v
-                        dn = apprecStatus.dn
-                    }
-
+                status = AppRecCS().apply {
+                    v = apprecStatus.v
+                    dn = apprecStatus.dn
                 }
 
                 originalMsgId = OriginalMsgId().apply {
@@ -108,7 +94,15 @@ class ApprecMapper{
                 }
             }
         }
+
         return fellesformatApprec
+    }
+
+
+    fun mapApprecErrorToAppRecCV(apprecError: ApprecError): AppRecCV = AppRecCV().apply {
+        dn = apprecError.dn
+        v = apprecError.v
+        s = apprecError.s
     }
 
     fun mapIdentToAdditionalId(ident: Ident): AdditionalId = AdditionalId().apply {

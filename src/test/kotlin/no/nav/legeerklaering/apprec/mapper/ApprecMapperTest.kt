@@ -2,6 +2,7 @@ package no.nav.legeerklaering.apprec.mapper
 
 import no.nav.legeerklaering.Utils
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import java.util.*
 import javax.xml.datatype.DatatypeFactory
@@ -16,12 +17,16 @@ class ApprecMapperTest {
             "/apprec/legeerklaeringApprecAvist.xml")
     val apprecStatusOK =  ApprecStatus.ok
     val apprecStatusAvvist =  ApprecStatus.avvist
-    val apprecFellesformatOK = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusOK, "")
-    val apprecFellesformatDuplikat = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist ,
-            "DUPLICAT")
-    val apprecFellesformatAvist = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist ,
-            "PATIENT_PERSON_NUMBER_NOT_VALID")
+    val apprecFellesformatOK = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusOK)
+    val apprecFellesformatDuplikat = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
+    val apprecFellesformatAvist = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
+
+    @Before
+    fun setup(){
+        apprecFellesformatDuplikat.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+        apprecFellesformatAvist.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
+    }
 
     @Test
     fun shouldCreateApprecOKWithMottakenhetBlokkAvsender() {

@@ -13,7 +13,7 @@ class ArenaClient{
     fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, spesregInt: Int, outcomeTypeList: List<OutcomeType>, tssidString: String): ArenaEiaInfo = ArenaEiaInfo().apply {
         ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
         hendelseStatus = LegeerklaeringConstant.tilvurdering.string
-        version = "2.0"
+        version = LegeerklaeringConstant.versjon2_0.string
         skjemaType = LegeerklaeringConstant.LE.string
         mappeType = LegeerklaeringConstant.mappetypeRP.string
         pasientData = ArenaEiaInfo.PasientData().apply {

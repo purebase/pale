@@ -1,7 +1,7 @@
 package no.nav.legeerklaering.apprec.mapper
 
 enum class ApprecError(val v: String, val dn: String, val s: String){
-    PATIENT_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
+    BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
             "2.16.578.1.12.4.1.1.8222"),
     PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA("30", "Pasientens fødselsnummer finnes ikke i skjemaet.",
             "2.16.578.1.12.4.1.1.8222"),

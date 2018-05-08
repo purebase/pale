@@ -21,19 +21,6 @@ class ArenaClientTest{
     val tssid = "12454"
     val request = ArenaClient().createArenaEiaInfo(legeerklaring, fellesformat,0,outcomeTypes, tssid)
 
-
-    @Test
-    fun shouldDOT() {
-        val fnr = "12454"
-        val outcome = Outcome(OutcomeType.PERSON_NUMBER_NOT_FOUND, arrayOf(fnr))
-
-        val merknadsTekst = String.format(outcome.outcomeType.messageText, outcome.args)
-
-        System.out.println(merknadsTekst)
-       // Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId, request.ediloggId)
-    }
-
-
     @Test
     fun shouldSetEdiloggId() {
         Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId, request.ediloggId)

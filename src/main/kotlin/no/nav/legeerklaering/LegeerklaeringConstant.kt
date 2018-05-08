@@ -24,5 +24,6 @@ enum class LegeerklaeringConstant(val string: String) {
     journalposttypeKodeI("I"),
     pdfType(".pdf"),
     tilvurdering("TIL_VURDERING"),
-    mappetypeRP("RP")
+    mappetypeRP("RP"),
+    versjon2_0("2.0")
 }
