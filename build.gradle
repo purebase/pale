@@ -130,6 +130,7 @@ dependencies {
     compile "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
     compile "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jackson_version"
     compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "redis.clients:jedis:$jedis_version"
     compile "ai.grakn:redis-mock:$redis_mock_version"

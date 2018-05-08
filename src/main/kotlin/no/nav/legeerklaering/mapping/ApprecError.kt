@@ -1,4 +1,4 @@
-package no.nav.legeerklaering.apprec.mapper
+package no.nav.legeerklaering.mapping
 
 enum class ApprecError(val v: String, val dn: String, val s: String){
     BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",

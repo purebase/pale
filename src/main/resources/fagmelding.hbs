@@ -86,8 +86,9 @@
             font-size: 0.8em;
             font-weight: bold;
             font-family: Arial, sans-serif;
-            vertical-align: center;
+            display: inline-block;
             text-align: center;
+            overflow: hidden;
         }
         .left_bottom {
             position: absolute;
@@ -217,8 +218,14 @@
             margin: 0;
         }
         .titled_checkbox_block {
+            height: 20px;
             margin-left: 30px;
             display: inline-block;
+        }
+        .top_left {
+            position: absolute;
+            left: 0;
+            top: 0;
         }
     </style>
 </head>
@@ -246,7 +253,7 @@
             <div class="checkbox_title">
                 <h5 class="checkbox_number">0.3</h5>
             </div>
-            <div class="checkbox left_bottom"></div>
+            <div class="checkbox left_bottom">{{#if yrkesrettetAttfoering }}X{{/if}}</div>
         </div>
         <div class="cell col25">
             <div class="checkbox_title">
@@ -262,7 +269,7 @@
     <div class="row height40">
         <div class="col50 cell bottom_solid right_solid">
             <h5>1.1 Etternavn, fornavn</h5>
-            <div class="field_value">{{ pasient.etternavn }}, {{ pasient.fornavn }}</div>
+            <div class="field_value">{{ pasient.etternavn }}, {{ pasient.fornavn }} {{ pasient.mellomnavn }}</div>
         </div>
         <div class="col25 cell bottom_solid right_solid">
             <h5>1.2 Fødselsnummer (11 siffer)</h5>
@@ -288,7 +295,8 @@
         <div class="cell col100">
             <h5>1.6 Arbeidsgiverens navn og addresse</h5>
             <div class="field_value">{{ pasient.arbeidsgiver.navn }}</div>
-            <div class="field?value">{{ pasient.arbeidsgiver.addresse }} {{ pasient.arbeidsgiver.postnummer }} {{ pasient.arbeidsgiver.poststed }}</div>
+            <div class="field_value">{{ pasient.arbeidsgiver.adresse }}</div>
+            <div class="field_value">{{ pasient.arbeidsgiver.postnummer }} {{ pasient.arbeidsgiver.poststed }}</div>
         </div>
     </div>
 </div>
@@ -297,13 +305,11 @@
     <div class="row height80">
         <div class="cell col50 bottom_dashed right_solid">
             <h5>2.1 Hoveddiagnose</h5>
-            <p>{{ sykdomsOpplysninger.diagnose.hoveddiagnose.tekst }}</p>
+            <p>{{ sykdomsOpplysninger.hoveddiagnose.tekst }}</p>
         </div>
         <div class="cell col25 bottom_dashed right_solid">
             <h5>2.1.1 Kode(r)</h5>
-            {{#each sykdomsOpplysninger.diagnose.hoveddiagnose.koder }}
-                <div class="field_value">{{ this }}</div>
-            {{/each}}
+            <div class="field_value">{{ sykdomsOpplysninger.hoveddiagnose.kode }}</div>
         </div>
         <div class="cell col25 bottom_solid">
             <h5>2.3 Kodesystem</h5>
@@ -326,15 +332,13 @@
         <div class="cell col50 right_solid bottom_solid">
             <h5>2.2 Bidiagnose(r)</h5>
             {{#each sykdomsOpplysninger.bidiagnose }}
-                <p>tekst</p>
+                <p>{{ tekst }}</p>
             {{/each}}
         </div>
         <div class="cell col25 right_solid bottom_solid">
             <h5>2.2.1 Kode(r)</h5>
             {{#each sykdomsOpplysninger.bidiagnose }}
-                {{#each koder }}
-                    <div class="field_value">{{ this }}</div>
-                {{/each}}
+                <div class="field_value">{{ kode }}</div>
             {{/each}}
         </div>
         <div class="cell col25 bottom_solid">
@@ -383,7 +387,7 @@
     <div class="row height40">
         <div class="cell col75 right_solid">
             <h5>Etternavn, fornavn</h5>
-            <div class="field_value">{{ pasient.fornavn }} {{ pasient.etternavn }}</div>
+            <div class="field_value">{{ pasient.fornavn }} {{ pasient.mellomnavn }} {{ pasient.etternavn }}</div>
         </div>
         <div class="cell col25">
             <h5>Fødselsnummer (11 siffer)</h5>
@@ -411,7 +415,7 @@
         </div>
         <div class="cell col20 right_solid bottom_solid">
             <h5>3.1.1 Dato for henvisning</h5>
-            <div class="field_value">{{ plan.utredning.dato }}</div>
+            <div class="field_value">{{iso_to_nor_date plan.utredning.dato }}</div>
         </div>
         <div class="cell col20 bottom_solid">
             <h5>3.1.2 Antatt ventetid (uker)</h5>
@@ -436,7 +440,7 @@
         </div>
         <div class="cell col20 right_solid">
             <h5>3.1.3 Dato for henvisning</h5>
-            <div class="field_value">{{ plan.behandling.dato }}</div>
+            <div class="field_value">{{iso_to_nor_date plan.behandling.dato }}</div>
         </div>
         <div class="cell col20">
             <h5>3.1.4 Antatt ventetid (uker)</h5>
@@ -483,16 +487,14 @@
                     <div class="cell col50">
                         <h5>Er det ut fra en medisinsk vurdering aktuelt med noen av følgende tiltak nå?</h5>
                     </div>
-                    <div class="cell">
-                        <div>
-                            <div class="titled_checkbox_block">
-                                <h5>Ja</h5>
-                                <div class="checkbox">{{#if behov }}X{{/if}}</div>
-                            </div>
-                            <div class="titled_checkbox_block">
-                                <h5>Nei</h5>
-                                <div class="checkbox">{{#unless behov}}X{{/unless}}</div>
-                            </div>
+                    <div class="cell col25">
+                        <div class="titled_checkbox_block">
+                            <h5>Ja</h5>
+                            <div class="checkbox">{{#if forslagTilTiltak.behov}}X{{/if}}</div>
+                        </div>
+                        <div class="titled_checkbox_block">
+                            <h5>Nei</h5>
+                            <div class="checkbox">{{#unless forslagTilTiltak.behov}}X{{/unless}}</div>
                         </div>
                     </div>
                     <div class="cell col25">
@@ -502,49 +504,49 @@
                 <div class="row height40">
                     <div class="cell">
                         <h5 class="text_wrap">a. Kjøp av helese-tjenester</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.kjoepAvHelsetjenester}}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.kjoepAvHelsetjenester}}X{{/if}}</div>
                     </div>
                     <div class="cell">
                         <h5 class="text_wrap">b. Reisetilskott i stedet for sykepenger/ arbeidsavklaringspenger</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.reisetilskudd }}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.reisetilskudd }}X{{/if}}</div>
                     </div>
                     <div class="cell">
                         <h5 class="text_wrap">c. Aktiv syk-melding</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.aktivSykMelding}}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.aktivSykMelding}}X{{/if}}</div>
                     </div>
                     <div class="cell">
                         <h5 class="text_wrap">d. Hjelpemidler på arb.plassen</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.hjelpemidlerArbeidsplassen}}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.hjelpemidlerArbeidsplassen}}X{{/if}}</div>
                     </div>
                 </div>
                 <div class="row height40 bottom_dashed">
                     <div class="cell">
                         <h5 class="text_wrap">e. Arbeidsavklarings-penger</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.arbeidsavklaringsPenger }}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.arbeidsavklaringsPenger }}X{{/if}}</div>
                     </div>
                     <div class="cell">
                         <h5 class="text_wrap">f. Friskemelding til arbeidsformidling</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.friskemeldingTilArbeidsformidling}}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.friskemeldingTilArbeidsformidling}}X{{/if}}</div>
                     </div>
                     <div class="cell">
                         <h5 class="text_wrap">g. Andre (hvilke?)</h5>
-                        <div class="checkbox text_break">{{#if funksjonsOgArbeidsevne.andreTiltak }}X{{/if}}</div>
+                        <div class="checkbox text_break">{{#if forslagTilTiltak.andreTiltak }}X{{/if}}</div>
                     </div>
                     <div class="cell left_solid top_solid" style="width: 30%">
-                        <div class="field_value">{{ funksjonsOgArbeidsevne.andreTiltak }}</div>
+                        <div class="field_value">{{ forslagTilTiltak.andreTiltak }}</div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="cell bottom_dashed" style="width: 33%;">
             <h5>Evt. nærmere opplysninger</h5>
-            <p>{{ funksjonsOgArbeidsevne.naermereOpplysninger }}</p>
+            <p>{{ forslagTilTiltak.naermereOpplysninger }}</p>
         </div>
     </div>
     <div class="row height120">
         <div class="cell col100">
             <h5>Hvis ja, oppgi ev. begrensninger i forhold til tiltak. Hvis nei, gi begrunnelse</h5>
-            <p>{{ funksjonsOgArbeidsevne.tekst }}</p>
+            <p>{{ forslagTilTiltak.tekst }}</p>
         </div>
     </div>
 </div>
@@ -611,19 +613,19 @@
                         <h5>a) gjenoppta det tidligere arbeidet</h5>
                     </div>
                     <div class="cell col5">
-                        <div class="checkbox">{{#if funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeid}}X{{/if}}</div>
+                        <div class="checkbox top_left" style="position: absolute; top: 0; left: 0;">{{#if funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeid}}X{{/if}}</div>
                     </div>
                     <div class="cell col10">
-                        <div class="checkbox">{{#unless funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeid}}X{{/unless}}</div>
+                        <div class="checkbox top_left">{{#unless funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeid}}X{{/unless}}</div>
                     </div>
                     <div class="cell col20">
 
                     </div>
                     <div class="cell col5">
-                        <div class="checkbox">{{#if funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeidNaa}}X{{/if}}</div>
+                        <div class="checkbox top_left">{{#if funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeidNaa}}X{{/if}}</div>
                     </div>
                     <div class="cell col20">
-                        <div class="checkbox">{{#if funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeidEtterBehandling }}X{{/if}}</div>
+                        <div class="checkbox top_left">{{#if funksjonsOgArbeidsevne.kanGjenopptaTidligereArbeidEtterBehandling }}X{{/if}}</div>
                     </div>
                 </div>
                 <div class="row">
@@ -631,19 +633,19 @@
                         <h5>b) ta annet arbeid</h5>
                     </div>
                     <div class="cell col5">
-                        <div class="checkbox">{{#if funksjonsOgArbeidsevne.kanTaAnnetArbeid }}X{{/if}}</div>
+                        <div class="checkbox top_left">{{#if funksjonsOgArbeidsevne.kanTaAnnetArbeid }}X{{/if}}</div>
                     </div>
                     <div class="cell col10">
-                        <div class="checkbox">{{#unless funksjonsOgArbeidsevne.kanTaAnnetArbeid }}X{{/unless}}</div>
+                        <div class="checkbox top_left">{{#unless funksjonsOgArbeidsevne.kanTaAnnetArbeid }}X{{/unless}}</div>
                     </div>
                     <div class="cell col20">
 
                     </div>
                     <div class="cell col5">
-                        <div class="checkbox">{{#if funksjonsOgArbeidsevne.kanTaAnnetArbeidNaa}}X{{/if}}</div>
+                        <div class="checkbox top_left">{{#if funksjonsOgArbeidsevne.kanTaAnnetArbeidNaa}}X{{/if}}</div>
                     </div>
                     <div class="cell col20">
-                        <div class="checkbox">{{#if funksjonsOgArbeidsevne.kanTaAnnetArbeidEtterBehandling }}X{{/if}}</div>
+                        <div class="checkbox top_left">{{#if funksjonsOgArbeidsevne.kanTaAnnetArbeidEtterBehandling }}X{{/if}}</div>
                     </div>
                 </div>
             </div>
@@ -651,11 +653,11 @@
     </div>
     <div class="row height80">
         <div class="cell col100">
-            <div>
+            <div style="height: 1em;">
                 <div class="inline" style="width: 2em; min-height: 1px;"><h5>5.4</h5></div>
                 <h5>a) Hva kan pasienten ikke gjøre i det nåværende arbeidet?</h5>
             </div>
-            <p>{{ funksjonsOgArbeidsevne.kanIkkeINaaverendeArbeid }}</p>
+            <p style="display: block;">{{ funksjonsOgArbeidsevne.kanIkkeINaaverendeArbeid }}</p>
         </div>
     </div>
     <div class="row height80">
@@ -677,7 +679,7 @@
     <div class="row height40">
         <div class="cell col75 right_solid">
             <h5>Etternavn, fornavn</h5>
-            <div class="field_value">{{ pasient.fornavn }} {{ pasient.etternavn }}</div>
+            <div class="field_value">{{ pasient.fornavn }} {{ pasient.mellomnavn }} {{ pasient.etternavn }}</div>
         </div>
         <div class="cell col25">
             <h5>Fødselsnummer (11 siffer)</h5>
@@ -692,7 +694,7 @@
         <div class="cell col50">
             <h5>a) Antas behandlingen å føre til bedring av arbeidsevnen?</h5>
         </div>
-        <div class="cell col50">
+        <div class="cell col50 height40">
             <div class="titled_checkbox_block">
                 <h5>Ja</h5>
                 <div class="checkbox">{{#if prognose.vilForbedreArbeidsevne }}X{{/if}}</div>
@@ -747,29 +749,29 @@
     <div class="row height30">
         <div class="cell col10">
             <h5 class="text_wrap">Behandl.lege</h5>
-            <div class="checkbox text_break">{{#if forbehold.skalKontakteBehandlendeLege}}X{{/if}}</div>
+            <div class="checkbox text_break">{{#if kontakt.skalKontakteBehandlendeLege}}X{{/if}}</div>
         </div>
         <div class="cell col10">
             <h5 class="text_wrap">Arbeidsgiver</h5>
-            <div class="checkbox text_break">{{#if forbehold.skalKontakteArbeidsgiver}}X{{/if}}</div>
+            <div class="checkbox text_break">{{#if kontakt.skalKontakteArbeidsgiver}}X{{/if}}</div>
         </div>
         <div class="cell col10">
             <h5 class="text_wrap">Basisgruppe</h5>
-            <div class="checkbox text_break">{{#if forbehold.skalKontakteBasisgruppe}}X{{/if}}</div>
+            <div class="checkbox text_break">{{#if kontakt.skalKontakteBasisgruppe}}X{{/if}}</div>
         </div>
         <div class="cell" style="width: 12%">
             <h5 class="text_wrap">Annen instans (hvilken?)</h5>
-            <div class="checkbox text_break">{{#if forbehold.kontakteAnnenInstans}}X{{/if}}</div>
+            <div class="checkbox text_break">{{#if kontakt.kontakteAnnenInstans}}X{{/if}}</div>
         </div>
         <div class="cell" style="width: 35%">
-            <div class="field_value">{{forbehold.kontakteAnnenInstans}}</div>
+            <div class="field_value">{{kontakt.kontakteAnnenInstans}}</div>
         </div>
         <div class="cell" style="width: 13%;">
             <h5>9.2 Ønsker du kopi av vedtaket?</h5>
         </div>
         <div class="cell col10">
             <div class="left_bottom">
-                <div class="checkbox inline">{{#if forbehold.oenskesKopiAvVedtak}}{{/if}}</div>
+                <div class="checkbox inline">{{#if kontakt.oenskesKopiAvVedtak}}{{/if}}</div>
                 <h5 class="inline">Ja</h5>
             </div>
         </div>
@@ -788,17 +790,18 @@
                     <div class="cell col25">
                         <div class="titled_checkbox_block">
                             <h5>Ja</h5>
-                            <div class="checkbox"></div>
+                            <div class="checkbox">{{#if pasientenBurdeIkkeVite}}X{{/if}}</div>
                         </div>
                         <div class="titled_checkbox_block">
                             <h5>Nei</h5>
-                            <div class="checkbox"></div>
+                            <div class="checkbox">{{#unless pasientenBurdeIkkeVite}}X{{/unless}}</div>
                         </div>
                     </div>
                 </div>
                 <div class="row height120">
                     <div class="cell col100">
                         <h5>Hvis Ja, oppgi hva pasienten ikke bør vite</h5>
+                        <p>{{ pasientenBurdeIkkeVite }}</p>
                     </div>
                 </div>
             </div>
@@ -814,11 +817,11 @@
                     </div>
                     <div class="row bottom_solid height70">
                         <div class="cell col50">
-                            {{ signatur.dato }}
+                            {{iso_to_nor_date signatur.dato }}
                         </div>
                         <div class="cell col50">
                             <div>{{ signatur.navn }}</div>
-                            <div>{{ signatur.addresse }}</div>
+                            <div>{{ signatur.adresse }}</div>
                             <div>{{ signatur.postnummer }} {{ signatur.poststed }}</div>
                         </div>
                     </div>

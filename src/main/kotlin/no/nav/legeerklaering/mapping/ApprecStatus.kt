@@ -1,4 +1,4 @@
-package no.nav.legeerklaering.apprec.mapper
+package no.nav.legeerklaering.mapping
 
 
 enum class ApprecStatus(val v: String, val dn: String){

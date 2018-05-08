@@ -2,6 +2,9 @@ package no.nav.legeerklaering.apprec.mapper
 
 import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.Utils
+import no.nav.legeerklaering.mapping.ApprecError
+import no.nav.legeerklaering.mapping.ApprecMapper
+import no.nav.legeerklaering.mapping.ApprecStatus
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

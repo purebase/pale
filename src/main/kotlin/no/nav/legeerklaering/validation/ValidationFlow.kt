@@ -1,8 +1,8 @@
 package no.nav.legeerklaering.validation
 
-import no.nav.legeerklaering.apprec.mapper.ApprecError
-import no.nav.legeerklaering.apprec.mapper.ApprecMapper
-import no.nav.legeerklaering.apprec.mapper.ApprecStatus
+import no.nav.legeerklaering.mapping.ApprecError
+import no.nav.legeerklaering.mapping.ApprecMapper
+import no.nav.legeerklaering.mapping.ApprecStatus
 import no.nav.legeerklaering.validatePersonAndDNumber
 import no.nav.legeerklaering.validatePersonAndDNumber11Digits
 import no.nav.model.fellesformat.EIFellesformat

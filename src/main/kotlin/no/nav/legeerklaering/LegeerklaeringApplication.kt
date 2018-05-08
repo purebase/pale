@@ -1,12 +1,14 @@
 package no.nav.legeerklaering
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
-import no.nav.legeerklaering.apprec.mapper.ApprecError
-import no.nav.legeerklaering.apprec.mapper.ApprecMapper
-import no.nav.legeerklaering.apprec.mapper.ApprecStatus
+import no.nav.legeerklaering.mapping.ApprecError
+import no.nav.legeerklaering.mapping.ApprecMapper
+import no.nav.legeerklaering.mapping.ApprecStatus
 import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
 import no.nav.legeerklaering.config.EnvironmentConfig
 import no.nav.legeerklaering.validation.*
@@ -35,7 +37,10 @@ import java.math.BigInteger
 import javax.xml.bind.JAXBContext
 
 
+
 val objectMapper: ObjectMapper = ObjectMapper()
+        .registerModule(JavaTimeModule())
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 val fellesformatJaxBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
 val fellesformatUnmarshaller = fellesformatJaxBContext.createUnmarshaller()
 val newInstance = DatatypeFactory.newInstance()

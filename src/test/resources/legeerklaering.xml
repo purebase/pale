@@ -39,10 +39,13 @@
                         <TypeId DN="Fødselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
                     </Ident>
                     <Address>
-                        <StreetAdr />
-                        <PostalCode />
-                        <City />
+                        <StreetAdr>Oppdiktet gate 9001</StreetAdr>
+                        <PostalCode>9998</PostalCode>
+                        <City>Oppdiktet</City>
                     </Address>
+                    <TeleCom>
+                        <TeleAddress V="98765432" />
+                    </TeleCom>
                 </HealthcareProfessional>
             </Organisation>
         </Sender>
@@ -87,7 +90,7 @@
                                 <Mellomnavn>Yndesdal</Mellomnavn>
                             </Navn>
                             <Arbeidsforhold primartArbeidsforhold="1">
-                                <Virksomhet virksomhetsBetegnelse="" organisasjonsnummer="123456789">
+                                <Virksomhet virksomhetsBetegnelse="NAV IKT" organisasjonsnummer="123456789">
                                     <!--Optional:-->
                                     <VirksomhetsAdr adressetype="RES">
                                         <PostalAddress>
@@ -115,6 +118,10 @@
                         <NyVurdering>Trenger ikke ny vurdering</NyVurdering>
                         <BehandlingsPlan>Trenger å slappe av med litt fisking</BehandlingsPlan>
                         <UtredningsPlan>Burde dra ut på fisketur for å slappe av</UtredningsPlan>
+                        <NyeLegeopplysninger>Den gamle planen fungerte ikke</NyeLegeopplysninger>
+                        <HenvistUtredning henvistDato="2017-11-05+01:00" antattVentetid="3">
+                            <Spesifikasjon>Dra på fisketur med en guide</Spesifikasjon>
+                        </HenvistUtredning>
                     </PlanUtredBehandle>
                     <DiagnoseArbeidsuforhet arbeidsuforFra="2017-11-05+01:00">
                         <DiagnoseKodesystem kodesystem="1">
@@ -134,9 +141,11 @@
                     </ForslagTiltak>
                     <VurderingFunksjonsevne>
                         <Arbeidssituasjon arbeidssituasjon="4" annenArbeidssituasjon=""/>
-                        <VurderingArbeidsevne gjenopptaArbeid="2" taAnnetArbeid="1" narTaAnnetArbeid="1">
+                        <VurderingArbeidsevne gjenopptaArbeid="2" taAnnetArbeid="1" narTaAnnetArbeid="1" narGjenopptaArbeid="1">
                             <IkkeGjore>Ikke tunge løft</IkkeGjore>
+                            <HensynAnnetYrke>Ingen dans</HensynAnnetYrke>
                         </VurderingArbeidsevne>
+                        <KravArbeid>Ingen dans</KravArbeid>
                         <Funksjonsevne>Kan ikke lengre danse</Funksjonsevne>
                     </VurderingFunksjonsevne>
                     <Prognose bedreArbeidsevne="2">
@@ -145,6 +154,9 @@
                         <VarighetNedsattArbeidsevne>Ikke varig.</VarighetNedsattArbeidsevne>
                     </Prognose>
                     <ArsakssammenhengLegeerklaring>Sikker.</ArsakssammenhengLegeerklaring>
+                    <AndreOpplysninger onskesKopi="1">
+                        <Opplysning>Andre opplysninger</Opplysning>
+                    </AndreOpplysninger>
                     <ForbeholdLegeerklaring tilbakeholdInnhold="2" />
                 </Legeerklaring>
             </Content>

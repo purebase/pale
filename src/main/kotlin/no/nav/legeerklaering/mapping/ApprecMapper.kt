@@ -1,4 +1,4 @@
-package no.nav.legeerklaering.apprec.mapper
+package no.nav.legeerklaering.mapping
 
 import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.newInstance
