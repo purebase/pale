@@ -11,6 +11,7 @@ import java.util.*
 
 class ArenaClient{
     fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, spesregInt: Int, outcomeTypeList: List<OutcomeType>, tssidString: String): ArenaEiaInfo = ArenaEiaInfo().apply {
+        val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
         ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
         hendelseStatus = LegeerklaeringConstant.tilvurdering.string
         version = LegeerklaeringConstant.versjon2_0.string
@@ -25,9 +26,7 @@ class ArenaClient{
             }
         }
         legeData = ArenaEiaInfo.LegeData().apply {
-            navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
-                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
-                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase()
+            navn = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
             fnr = getHCPFodselsnummer(fellesformat)
             tssid = tssidString
         }
