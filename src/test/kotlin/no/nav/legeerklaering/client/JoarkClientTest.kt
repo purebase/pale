@@ -1,7 +1,7 @@
 package no.nav.legeerklaering.client
 
-import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
+import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.readToFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import org.junit.Assert
@@ -248,7 +248,7 @@ class JoarkClientTest {
     @Test
     fun shouldSetavsenderMottakerId() {
 
-        Assert.assertEquals(LegeerklaeringApplication().getHCPFodselsnummer(fellesformat), request.avsenderMottakerId)
+        Assert.assertEquals(getHCPFodselsnummer(fellesformat), request.avsenderMottakerId)
     }
 
     @Test

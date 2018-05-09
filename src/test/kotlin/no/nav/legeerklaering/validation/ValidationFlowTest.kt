@@ -7,7 +7,7 @@ import org.junit.Test
 class ValidationFlowTest{
 
     @Test
-    fun shouldCreatePatientPersonNumberNotFoundMessageText() {
+    fun shouldCreateOutcomePatientPersonNumberNotFoundMessageText() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPasientFodselsnummerIkkeFunnet.xml")
         val excpectederknadsTekst = OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.messageText
 
@@ -19,7 +19,7 @@ class ValidationFlowTest{
     }
 
     @Test
-    fun shouldCreateMerkandTekst30() {
+    fun shouldCreateOutcomePersonNumberNotFound() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringFodselsnummerEllerDnummerIkkeFunnet.xml")
         val fnr = "12454"
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret til "+ fnr +" finnes ikke i skjemaet."

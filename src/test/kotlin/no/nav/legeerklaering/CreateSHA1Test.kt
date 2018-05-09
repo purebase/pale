@@ -13,8 +13,8 @@ class CreateSHA1Test {
      fun shouldCreateDuplicateHashValues() {
 
 
-      val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
-      val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
+      val firstMessage = createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
+      val secoundMessage = createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
 
       assertEquals(firstMessage, secoundMessage)
      }
@@ -22,12 +22,12 @@ class CreateSHA1Test {
     @Test
     fun shouldCreateUniqueHashValues() {
 
-        val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(fellesformat.toString()))
+        val firstMessage = createSha256Hash(objectMapper.writeValueAsBytes(fellesformat.toString()))
 
         for (i in 1..1000) {
             val secoundFellesformat = readToFellesformat("/legeerklaering.xml")
             secoundFellesformat.mottakenhetBlokk.ediLoggId = UUID.randomUUID().toString()
-            val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(secoundFellesformat.toString()))
+            val secoundMessage = createSha256Hash(objectMapper.writeValueAsBytes(secoundFellesformat.toString()))
 
             assertNotEquals(firstMessage, secoundMessage)
         }

@@ -24,24 +24,24 @@ class RedisTest{
     fun shouldNotFindHashValueInRedis() {
 
         val inputMeldingFellesformat = readToFellesformat("/legeerklaering.xml")
-        val hashValue = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
+        val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 
-        assertFalse(LegeerklaeringApplication().checkIfHashValueIsInRedis(jedis, hashValue))
+        assertFalse(checkIfHashValueIsInRedis(jedis, hashValue))
     }
 
     @Test
     fun shouldFindHashValueInRedis() {
 
         val inputMeldingFellesformat = readToFellesformat("/legeerklaering.xml")
-        val hashValue = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
+        val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 
         jedis.set(hashValue, inputMeldingFellesformat.mottakenhetBlokk.ediLoggId.toString())
 
-        assertTrue(LegeerklaeringApplication().checkIfHashValueIsInRedis(jedis, hashValue))
+        assertTrue(checkIfHashValueIsInRedis(jedis, hashValue))
     }
 
 

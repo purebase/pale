@@ -1,9 +1,6 @@
 package no.nav.legeerklaering.client
 
-import no.nav.legeerklaering.LegeerklaeringApplication
-import no.nav.legeerklaering.LegeerklaeringConstant
-import no.nav.legeerklaering.newInstance
-import no.nav.legeerklaering.readToFellesformat
+import no.nav.legeerklaering.*
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.model.legeerklaering.Legeerklaring
 import org.junit.Assert
@@ -69,7 +66,7 @@ class ArenaClientTest{
 
     @Test
     fun shouldSetLegeDataFnr() {
-        Assert.assertEquals(LegeerklaeringApplication().getHCPFodselsnummer(fellesformat), request.legeData.fnr)
+        Assert.assertEquals(getHCPFodselsnummer(fellesformat), request.legeData.fnr)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package no.nav.legeerklaering.validation
 
 import io.reactivex.Single
+import no.nav.legeerklaering.validatePersonDNumberRange
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
@@ -57,7 +58,14 @@ fun extractPatientMiddleName(legeerklaering: Legeerklaring): String? =
 
 // TODO: We might need to modify this to work with DNR
 fun extractBornDate(personNumber: String): LocalDate =
-        LocalDate.parse(personNumber.substring(0, 6), formatter)
+        if(validatePersonDNumberRange(personNumber.substring(0,2) )){
+            personNumber.get(0).minus(4)
+            LocalDate.parse(personNumber.substring(0, 6), formatter)
+        }
+        else{
+            LocalDate.parse(personNumber.substring(0, 6), formatter)
+        }
+
 
 fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person, doctorPersonnumber: String): Familierelasjon? =
         patient.harFraRolleI.find {
