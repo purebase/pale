@@ -1,6 +1,9 @@
 package no.nav.legeerklaering.validation
 
-data class Outcome(val outcomeType: OutcomeType, val args: Array<Any>)
+data class Outcome(val outcomeType: OutcomeType, val args: Array<out Any>) {
+    val formattedMessage
+            get() = String.format(outcomeType.messageText, *args)
+}
 
 enum class OutcomeType(val messageNumber: Int, val messageText: String, val messagePriority: Priority, val messageType: Type) {
     PATIENT_PERSON_NUMBER_NOT_FOUND(13, "Pasientens fødselsnummer finnes ikke i skjema", Priority.RETUR, Type.FAGLIG),
@@ -42,6 +45,13 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
 
     BEHANDLER_PERSON_NUMBER_MISSMATCH_CERTIFICATE(381, "Behandler har endret fødselsnummer, sertifikatet for digital signatur må oppdateres.", Priority.NOTE, Type.FAGLIG),
     DUPLICATE(820, "Legeerklæringenb er mottatt før, dette er et duplikat.", Priority.NOTE, Type.FAGLIG)
+}
+
+fun OutcomeType.toOutcome(vararg args: Any): Outcome
+    = Outcome(this, args)
+
+operator fun MutableList<Outcome>.plusAssign(outcomeType: OutcomeType) {
+    this += outcomeType.toOutcome()
 }
 
 enum class Priority(val priorityNumber: Int) {

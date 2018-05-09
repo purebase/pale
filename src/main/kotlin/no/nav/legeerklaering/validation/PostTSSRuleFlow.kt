@@ -1,23 +1,23 @@
 package no.nav.legeerklaering.validation
 
+import io.reactivex.rxkotlin.toObservable
 import no.nav.legeerklaering.RelationType
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 
-fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<OutcomeType> =
+fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> =
         initFlow(fellesformat)
                 .map {
                     it to personTPS
                 }
-                .map {
-                    val (executionInfo, person) = it
+                .doOnNext {
+                    (executionInfo, person) ->
                     if (person.doedsdato == null) {
-                        executionInfo.outcome.add(OutcomeType.REGISTRERT_DOD_I_TPS)
+                        executionInfo.outcome += OutcomeType.REGISTRERT_DOD_I_TPS
                     }
-                    it
                 }
-                .map {
-                    val (executionInfo, person) = it
+                .doOnNext {
+                    (executionInfo, person) ->
                     val relations = findDoctorInRelations(person, executionInfo.doctorPersonNumber!!)
 
                     if (relations != null) {
@@ -33,9 +33,8 @@ fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<OutcomeTy
                             else -> throw RuntimeException("Found relation type \"${relations.tilRolle.value}\" that's not registered in the application")
                         }
                         if (outcomeType != null) {
-                            executionInfo.outcome.add(outcomeType)
+                            executionInfo.outcome += outcomeType
                         }
                     }
-                    it
                 }
-                .blockingGet().first.outcome
+                .firstElement().blockingGet().first.outcome

@@ -1,7 +1,7 @@
 package no.nav.legeerklaering.validation
 
-import io.reactivex.Single
-import no.nav.legeerklaering.validatePersonDNumberRange
+import io.reactivex.Observable
+import io.reactivex.rxkotlin.toObservable
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
@@ -17,20 +17,21 @@ data class RuleExecutionInfo(
         val legeerklaering: Legeerklaring,
         val patientPersonNumber: String?,
         val doctorPersonNumber: String?,
-        val outcome: MutableList<OutcomeType>
+        val outcome: MutableList<Outcome>
 )
 
-fun initFlow(fellesformat: EIFellesformat): Single<RuleExecutionInfo> =
-        Single.fromCallable {
-            val legeerklaering = extractLegeerklaering(fellesformat)
-            RuleExecutionInfo(
-                    fellesformat = fellesformat,
-                    legeerklaering = legeerklaering,
-                    patientPersonNumber = extractPersonNumber(legeerklaering),
-                    doctorPersonNumber = extractDoctorPersonNumberFromSender(fellesformat),
-                    outcome = mutableListOf()
-            )
-        }
+fun initFlow(fellesformat: EIFellesformat): Observable<RuleExecutionInfo> =
+        listOf(fellesformat).toObservable()
+                .map {
+                    val legeerklaering = extractLegeerklaering(it)
+                    RuleExecutionInfo(
+                            fellesformat = it,
+                            legeerklaering = legeerklaering,
+                            patientPersonNumber = extractPersonNumber(legeerklaering),
+                            doctorPersonNumber = extractDoctorPersonNumberFromSender(it),
+                            outcome = mutableListOf()
+                    )
+                }
 
 fun extractDoctorPersonNumberFromSender(fellesformat: EIFellesformat): String =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {
@@ -56,16 +57,14 @@ fun extractPatientFirstName(legeerklaering: Legeerklaring): String? =
 fun extractPatientMiddleName(legeerklaering: Legeerklaring): String? =
         legeerklaering.pasientopplysninger.pasient.navn.mellomnavn
 
-// TODO: We might need to modify this to work with DNR
 fun extractBornDate(personNumber: String): LocalDate =
-        if(validatePersonDNumberRange(personNumber.substring(0,2) )){
-            personNumber.get(0).minus(4)
-            LocalDate.parse(personNumber.substring(0, 6), formatter)
-        }
-        else{
-            LocalDate.parse(personNumber.substring(0, 6), formatter)
-        }
-
+        LocalDate.parse(personNumber.substring(0, 6).let {
+            if (it[0] > '3') {
+                (it[0] - 3) + it.substring(1)
+            } else {
+                it
+            }
+        }, formatter)
 
 fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person, doctorPersonnumber: String): Familierelasjon? =
         patient.harFraRolleI.find {

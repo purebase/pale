@@ -9,7 +9,7 @@ import no.nav.legeerklaering.validatePersonAndDNumber11Digits
 import no.nav.model.fellesformat.EIFellesformat
 import java.time.LocalDateTime
 
-fun validationFlow(fellesformat: EIFellesformat): List<OutcomeType> =
+fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
         initFlow(fellesformat)
                 .map {
                     val legeerklaering = extractLegeerklaering(fellesformat)
@@ -21,67 +21,63 @@ fun validationFlow(fellesformat: EIFellesformat): List<OutcomeType> =
                             outcome = mutableListOf()
                     )
                 }
-                .map {
+                .doOnNext {
                     if (it.patientPersonNumber == null || it.patientPersonNumber.trim().isEmpty()) {
-                        it.outcome.add(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND)
-                       val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA))
+                        it.outcome += OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND
+                        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA)
                     } else if (!validatePersonAndDNumber11Digits(it.patientPersonNumber)) {
-                        it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_11_DIGITS)
+                        it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(/* TODO: Figure what value to inject */"", it.patientPersonNumber)
                         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG))
                     } else if (!validatePersonAndDNumber(it.patientPersonNumber)) {
-                        it.outcome.add(OutcomeType.INVALID_PERSON_D_NUMBER)
+                        it.outcome += OutcomeType.INVALID_PERSON_D_NUMBER.toOutcome(it.patientPersonNumber, "")
                         val apprec =  createApprec(fellesformat, ApprecStatus.avvist)
-                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG))
+                        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG)
 
                     }
-                    it
                 }
-                .map {
+                .doOnNext {
                     if (it.doctorPersonNumber == null || it.doctorPersonNumber.trim().isEmpty()) {
-                        it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_FOUND)
-                    } else if (!validatePersonAndDNumber11Digits(it.doctorPersonNumber)) {
-                        it.outcome.add(OutcomeType.PERSON_NUMBER_NOT_11_DIGITS)
-                    } else if (!validatePersonAndDNumber(it.doctorPersonNumber)) {
-                        it.outcome.add(OutcomeType.INVALID_PERSON_D_NUMBER)
-                        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
-                    }
-                    it
-                }
-                .map {
+                        val hcp = it.fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional;
+                        val name = "${hcp.givenName} ${hcp.middleName} ${hcp.familyName}"
+                        it.outcome += OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome(name)
+                        } else if (!validatePersonAndDNumber11Digits(it.doctorPersonNumber)) {
+                            it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS
+                        } else if (!validatePersonAndDNumber(it.doctorPersonNumber)) {
+                            it.outcome += OutcomeType.INVALID_PERSON_D_NUMBER
+                            val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                            apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
+                        }
+                        }
+                .doOnNext {
                     val surname = extractPatientSurname(it.legeerklaering)
 
                     if (surname == null || surname.trim().isEmpty()) {
-                        it.outcome.add(OutcomeType.PATIENT_SURNAME_NOT_FOUND)
+                        it.outcome += OutcomeType.PATIENT_SURNAME_NOT_FOUND
                         val apprec =  createApprec(fellesformat, ApprecStatus.avvist)
-                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA))
+                        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA)
                     }
-                    it
                 }
-                .map {
+                .doOnNext {
                     val firstName = extractPatientFirstName(it.legeerklaering)
 
                     if (firstName == null || firstName.trim().isEmpty()) {
-                        it.outcome.add(OutcomeType.PATIENT_FIRST_NAME_NOT_FOUND)
+                        it.outcome += OutcomeType.PATIENT_FIRST_NAME_NOT_FOUND
                         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA))
+                        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA)
                     }
-                    it
                 }
-                .map {
+                .doOnNext {
                     val doctorPersonNumberFromLegeerklaering = extractDoctorPersonNumberFromSignature(fellesformat)
 
                     if (doctorPersonNumberFromLegeerklaering != it.doctorPersonNumber) {
-                        it.outcome.add(OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA)
+                        it.outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
                     }
-                    it
                 }
-                .map {
+                .doOnNext {
                     if (extractSignatureDate(it.fellesformat).isAfter(LocalDateTime.now())) {
-                        it.outcome.add(OutcomeType.SIGNATURE_TOO_NEW)
+                        it.outcome += OutcomeType.SIGNATURE_TOO_NEW
                     }
-                    it
                 }
-                .blockingGet().outcome
+                .firstElement().blockingGet().outcome

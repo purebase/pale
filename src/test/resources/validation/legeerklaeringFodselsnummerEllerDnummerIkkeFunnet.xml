@@ -69,7 +69,7 @@
             <GivenName>Daniel</GivenName>
             <Ident>
                 <Id>12128913767</Id>
-                <TypeId DN="FÃ¸dselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR" />
+                <TypeId DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR" />
             </Ident>
         </Patient>
     </MsgInfo>

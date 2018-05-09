@@ -116,8 +116,8 @@ fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrgan
     }
 }
 
-fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3): List<OutcomeType> {
-    val outcomes = mutableListOf<OutcomeType>()
+fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3): List<Outcome> {
+    val outcomes = mutableListOf<Outcome>()
 
     val person = try {
         personV3.hentPerson(HentPersonRequest()
@@ -127,16 +127,16 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
                                 .withType(Personidenter().withValue("FNR")))
                 ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
     } catch (e: HentPersonPersonIkkeFunnet) {
-        outcomes.add(OutcomeType.PATIENT_NOT_FOUND_TPS)
+        outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS
         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
         apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
         return outcomes
     } catch (e: HentPersonSikkerhetsbegrensning) {
-        outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {
+        outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {
             "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
             "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
             else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
-        })
+        }
         return outcomes
     }
 

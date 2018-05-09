@@ -1,5 +1,6 @@
 package no.nav.legeerklaering.validation
 
+import junit.framework.Assert.assertEquals
 import no.nav.legeerklaering.readToFellesformat
 import org.junit.Assert
 import org.junit.Test
@@ -11,10 +12,10 @@ class PreTSSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPasientOver70.xml")
 
         val outcomeList = preTSSFlow(fellesformat)
-        val outcome = outcomeList.find { it == OutcomeType.PASIENT_OVER_70 }
+        println(outcomeList)
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PASIENT_OVER_70 }
 
-        Assert.assertEquals(OutcomeType.PASIENT_OVER_70, outcome)
-
+        assertEquals(OutcomeType.PASIENT_OVER_70, outcome?.outcomeType)
     }
 
     @Test
@@ -22,9 +23,9 @@ class PreTSSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPasientOver70Dnummer.xml")
 
         val outcomeList = preTSSFlow(fellesformat)
-        val outcome = outcomeList.find { it == OutcomeType.PASIENT_OVER_70 }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PASIENT_OVER_70 }
 
-        Assert.assertEquals(OutcomeType.PASIENT_OVER_70, outcome)
+        Assert.assertEquals(OutcomeType.PASIENT_OVER_70, outcome?.outcomeType)
 
     }
 
@@ -33,9 +34,9 @@ class PreTSSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringBehandlerErPasient.xml")
 
         val outcomeList = preTSSFlow(fellesformat)
-        val outcome = outcomeList.find { it == OutcomeType.BEHANDLER_ER_PASIENT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_ER_PASIENT }
 
-        Assert.assertEquals(OutcomeType.BEHANDLER_ER_PASIENT, outcome)
+        Assert.assertEquals(OutcomeType.BEHANDLER_ER_PASIENT, outcome?.outcomeType)
 
     }
 
