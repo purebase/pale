@@ -151,7 +151,7 @@ data class Signatur(
         val postnummer: Int,
         val poststed: String,
         val signatur: String,
-        val tlfNummer: String
+        val tlfNummer: String?
 )
 
 data class Merknad(

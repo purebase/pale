@@ -4,122 +4,106 @@ import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.newInstance
 import no.nav.model.apprec.*
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.model.msghead.HealthcareProfessional
 import no.nav.model.msghead.Ident
+import no.nav.model.msghead.MsgHeadCV
+import no.nav.model.msghead.Organisation
 import java.util.*
 
-class ApprecMapper{
-    fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFellesformat {
-
-        val fellesformatApprec = EIFellesformat().apply {
-            mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
-                ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-                ebRole = LegeerklaeringConstant.ebRoleNav.string
-                ebService = LegeerklaeringConstant.ebServiceLegemelding.string
-                ebAction = LegeerklaeringConstant.ebActionSvarmelding.string
+fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFellesformat {
+    val fellesformatApprec = EIFellesformat().apply {
+        mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
+            ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
+            ebRole = LegeerklaeringConstant.ebRoleNav.string
+            ebService = LegeerklaeringConstant.ebServiceLegemelding.string
+            ebAction = LegeerklaeringConstant.ebActionSvarmelding.string
+        }
+        appRec = AppRec().apply {
+            msgType = AppRecCS().apply {
+                v = LegeerklaeringConstant.APPREC.string
             }
-            appRec = AppRec().apply {
+            miGversion = LegeerklaeringConstant.APPRECVersionV1_0.string
+            genDate = newInstance.newXMLGregorianCalendar(GregorianCalendar())
+            id = fellesformat.mottakenhetBlokk.ediLoggId
+
+            sender = AppRec.Sender().apply {
+                hcp = fellesformat.msgHead.msgInfo.receiver.organisation.intoHCP()
+            }
+
+            receiver = AppRec.Receiver().apply {
+                hcp = fellesformat.msgHead.msgInfo.sender.organisation.intoHCP()
+            }
+
+            status = AppRecCS().apply {
+                v = apprecStatus.v
+                dn = apprecStatus.dn
+            }
+
+            originalMsgId = OriginalMsgId().apply {
                 msgType = AppRecCS().apply {
-                    v = LegeerklaeringConstant.APPREC.string
+                    v = LegeerklaeringConstant.LE.string
+                    dn = LegeerklaeringConstant.Legeerklæring.string
                 }
-                miGversion = LegeerklaeringConstant.APPRECVersionV1_0.string
-                genDate = newInstance.newXMLGregorianCalendar(GregorianCalendar())
-                id = fellesformat.mottakenhetBlokk.ediLoggId
-
-
-                sender = AppRec.Sender().apply {
-                    hcp = HCP().apply {
-                        inst = Inst().apply {
-                            name = fellesformat.msgHead.msgInfo.receiver.organisation.organisationName
-
-                            for (i in fellesformat.msgHead.msgInfo.receiver.organisation.ident.indices) {
-                                id = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).id
-                                typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.receiver.organisation.ident.first()).typeId
-
-                                val additionalIds = fellesformat.msgHead.msgInfo.receiver.organisation.ident.drop(1)
-                                        .map { mapIdentToAdditionalId(it) }
-
-                                additionalId.addAll(additionalIds)
-                            }
-                        }
-                    }
-                }
-
-                receiver = AppRec.Receiver().apply {
-                    hcp = HCP().apply {
-                        inst = Inst().apply {
-                            name = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
-
-                            for (i in fellesformat.msgHead.msgInfo.sender.organisation.ident.indices) {
-                                id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).id
-                                typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.ident.first()).typeId
-
-                                val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.ident.drop(1)
-                                        .map { mapIdentToAdditionalId(it) }
-
-                                additionalId.addAll(additionalIds)
-                            }
-
-                            hcPerson.add(HCPerson().apply {
-                                name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName + " " +
-                                        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName + " " +
-                                        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
-
-                                for (i in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.indices) {
-                                    id = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).id
-                                    typeId = mapIdentToInst(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first()).typeId
-
-                                    val additionalIds = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.drop(1)
-                                            .map { mapIdentToAdditionalId(it) }
-
-                                    additionalId.addAll(additionalIds)
-                                }
-                            }
-                            )
-                        }
-                    }
-
-                }
-
-                status = AppRecCS().apply {
-                    v = apprecStatus.v
-                    dn = apprecStatus.dn
-                }
-
-                originalMsgId = OriginalMsgId().apply {
-                    msgType = AppRecCS().apply {
-                        v = LegeerklaeringConstant.LE.string
-                        dn = LegeerklaeringConstant.Legeerklæring.string
-                    }
-                    issueDate = fellesformat.msgHead.msgInfo.genDate
-                    id = fellesformat.msgHead.msgInfo.msgId
-                }
+                issueDate = fellesformat.msgHead.msgInfo.genDate
+                id = fellesformat.msgHead.msgInfo.msgId
             }
         }
-
-        return fellesformatApprec
     }
 
+    return fellesformatApprec
+}
 
-    fun mapApprecErrorToAppRecCV(apprecError: ApprecError): AppRecCV = AppRecCV().apply {
-        dn = apprecError.dn
-        v = apprecError.v
-        s = apprecError.s
+fun HealthcareProfessional.intoHCPerson(): HCPerson = HCPerson().apply {
+    name = "$familyName $givenName $middleName"
+    id = ident.first().id
+    typeId = ident.first().typeId.intoAppRecCS()
+    additionalId += ident.drop(1)
+}
+
+fun Organisation.intoHCP(): HCP = HCP().apply {
+    inst = ident.first().intoInst().apply {
+        name = organisationName
+        additionalId += ident.drop(1)
+
+        if (healthcareProfessional != null) {
+            hcPerson += healthcareProfessional.intoHCPerson()
+        }
     }
+}
 
-    fun mapIdentToAdditionalId(ident: Ident): AdditionalId = AdditionalId().apply {
+fun Ident.intoInst(): Inst {
+    val ident = this
+    return Inst().apply {
+        id = ident.id
+        typeId = ident.typeId.intoAppRecCS()
+    }
+}
+
+fun MsgHeadCV.intoAppRecCS(): AppRecCS {
+    val msgHeadCV = this
+    return AppRecCS().apply {
+        dn = msgHeadCV.dn
+        v = msgHeadCV.v
+    }
+}
+
+operator fun MutableList<AdditionalId>.plusAssign(idents: Iterable<Ident>) {
+    this.addAll(idents.map { it.intoAdditionalId() })
+}
+
+fun Ident.intoAdditionalId(): AdditionalId {
+    val ident = this
+    return AdditionalId().apply {
         id = ident.id
         type = AppRecCS().apply {
             dn = ident.typeId.dn
             v = ident.typeId.v
         }
     }
+}
 
-    fun mapIdentToInst(ident: Ident): Inst = Inst().apply {
-        id = ident.id
-        typeId = AppRecCS().apply {
-            dn = ident.typeId.dn
-            v = ident.typeId.v
-        }
-    }
-
+fun mapApprecErrorToAppRecCV(apprecError: ApprecError): AppRecCV = AppRecCV().apply {
+    dn = apprecError.dn
+    v = apprecError.v
+    s = apprecError.s
 }

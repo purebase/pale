@@ -7,10 +7,11 @@ import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
 import no.nav.legeerklaering.mapping.ApprecError
-import no.nav.legeerklaering.mapping.ApprecMapper
 import no.nav.legeerklaering.mapping.ApprecStatus
 import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
 import no.nav.legeerklaering.config.EnvironmentConfig
+import no.nav.legeerklaering.mapping.createApprec
+import no.nav.legeerklaering.mapping.mapApprecErrorToAppRecCV
 import no.nav.legeerklaering.validation.*
 import no.nav.model.fellesformat.*
 import no.nav.model.legeerklaering.Legeerklaring
@@ -96,8 +97,8 @@ class LegeerklaeringApplication {
 
             val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
             if(jedis.exists(hashValue)) {
-               val apprec = ApprecMapper().createApprec(fellesformat, ApprecStatus.avvist)
-                apprec.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+               val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
             } else {
                 jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
             }
@@ -127,8 +128,8 @@ class LegeerklaeringApplication {
                     ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
         } catch (e: HentPersonPersonIkkeFunnet) {
             outcomes.add(OutcomeType.PATIENT_NOT_FOUND_TPS)
-            val apprec = ApprecMapper().createApprec(fellesformat, ApprecStatus.avvist)
-            apprec.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
+            val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+            apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
             return outcomes
         } catch (e: HentPersonSikkerhetsbegrensning) {
             outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {

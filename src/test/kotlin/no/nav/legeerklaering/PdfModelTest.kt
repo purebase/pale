@@ -5,6 +5,7 @@ import no.nav.legeerklaering.mapping.mapFellesformatToFagmelding
 import no.nav.legeerklaering.model.*
 import org.junit.Test
 import java.time.ZonedDateTime
+import java.util.*
 
 class PdfModelTest {
 
@@ -118,6 +119,10 @@ class PdfModelTest {
         val fellesformat = readToFellesformat("/legeerklaering.xml")
         val pdfModel = mapFellesformatToFagmelding(fellesformat)
 
+        println(TimeZone.getDefault().id)
+        println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra.zone.id)
+        println(pdfModel.signatur.dato.zone.id)
+        println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra)
         println(objectMapper.writeValueAsString(pdfModel))
     }
 }

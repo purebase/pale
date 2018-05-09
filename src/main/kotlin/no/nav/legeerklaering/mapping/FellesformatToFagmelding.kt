@@ -7,8 +7,6 @@ import no.nav.legeerklaering.model.Prognose
 import no.nav.legeerklaering.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.*
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
@@ -98,7 +96,7 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     postnummer = healthcareProfessional.address.postalCode.toInt(),
                     poststed = healthcareProfessional.address.city,
                     signatur = "",
-                    tlfNummer = healthcareProfessional.teleCom[0].teleAddress.v
+                    tlfNummer = healthcareProfessional.teleCom.find { it.typeTelecom.dn == "Hovedtelefon" }?.teleAddress?.v
             )
     )
 }

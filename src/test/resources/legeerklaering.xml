@@ -45,6 +45,7 @@
                     </Address>
                     <TeleCom>
                         <TeleAddress V="98765432" />
+                        <TypeTelecom DN="Hovedtelefon" />
                     </TeleCom>
                 </HealthcareProfessional>
             </Organisation>

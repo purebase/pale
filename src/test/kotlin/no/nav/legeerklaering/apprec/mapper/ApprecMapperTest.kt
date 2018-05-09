@@ -3,8 +3,9 @@ package no.nav.legeerklaering.apprec.mapper
 import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.Utils
 import no.nav.legeerklaering.mapping.ApprecError
-import no.nav.legeerklaering.mapping.ApprecMapper
 import no.nav.legeerklaering.mapping.ApprecStatus
+import no.nav.legeerklaering.mapping.createApprec
+import no.nav.legeerklaering.mapping.mapApprecErrorToAppRecCV
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -16,15 +17,15 @@ class ApprecMapperTest {
     val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
     val apprecStatusOK =  ApprecStatus.ok
     val apprecStatusAvvist =  ApprecStatus.avvist
-    val apprecFellesformatOK = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusOK)
-    val apprecFellesformatDuplikat = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
-    val apprecFellesformaBehanderlPersonNumberNotValid = ApprecMapper().createApprec(inputMeldingFellesformat, apprecStatusAvvist)
+    val apprecFellesformatOK = createApprec(inputMeldingFellesformat, apprecStatusOK)
+    val apprecFellesformatDuplikat = createApprec(inputMeldingFellesformat, apprecStatusAvvist)
+    val apprecFellesformaBehanderlPersonNumberNotValid = createApprec(inputMeldingFellesformat, apprecStatusAvvist)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
     @Before
     fun setup(){
-        apprecFellesformatDuplikat.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-        apprecFellesformaBehanderlPersonNumberNotValid.appRec.error.add(ApprecMapper().mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
+        apprecFellesformatDuplikat.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+        apprecFellesformaBehanderlPersonNumberNotValid.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
     }
 
 
@@ -105,7 +106,6 @@ class ApprecMapperTest {
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstId() {
-
          assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[1].id, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].id)
     }
 
