@@ -2,20 +2,19 @@ package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
-import no.nav.legeerklaering.Utils
 import no.nav.legeerklaering.newInstance
-import no.nav.legeerklaering.validation.Outcome
+import no.nav.legeerklaering.readToFellesformat
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.model.legeerklaering.Legeerklaring
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
-import javax.xml.datatype.DatatypeFactory
+
 
 
 class ArenaClientTest{
 
-    val fellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+    val fellesformat = readToFellesformat("/legeerklaering.xml")
     val legeerklaring = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
     val outcomeTypes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND, OutcomeType.BARN_AV_PASIENT)
     val tssid = "12454"

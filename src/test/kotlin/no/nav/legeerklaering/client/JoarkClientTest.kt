@@ -2,7 +2,7 @@ package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
-import no.nav.legeerklaering.Utils
+import no.nav.legeerklaering.readToFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import org.junit.Assert
 import org.junit.Test
@@ -11,7 +11,7 @@ import javax.xml.datatype.DatatypeFactory
 
 class JoarkClientTest {
 
-    val fellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+    val fellesformat = readToFellesformat("/legeerklaering.xml")
     val legeerklaring = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
     val request = JoarkClient().archiveMessage(legeerklaring, fellesformat)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())

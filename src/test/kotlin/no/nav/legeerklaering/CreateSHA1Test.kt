@@ -7,7 +7,7 @@ import java.util.*
 
 class CreateSHA1Test {
 
-    val fellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+    val fellesformat = readToFellesformat("/legeerklaering.xml")
 
   @Test
      fun shouldCreateDuplicateHashValues() {
@@ -25,7 +25,7 @@ class CreateSHA1Test {
         val firstMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(fellesformat.toString()))
 
         for (i in 1..1000) {
-            val secoundFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+            val secoundFellesformat = readToFellesformat("/legeerklaering.xml")
             secoundFellesformat.mottakenhetBlokk.ediLoggId = UUID.randomUUID().toString()
             val secoundMessage = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(secoundFellesformat.toString()))
 

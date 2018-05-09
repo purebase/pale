@@ -1,6 +1,6 @@
 package no.nav.legeerklaering.validation
 
-import no.nav.legeerklaering.Utils
+import no.nav.legeerklaering.readToFellesformat
 import org.junit.Assert
 import org.junit.Test
 
@@ -8,7 +8,7 @@ class ValidationFlowTest{
 
     @Test
     fun shouldCreatePatientPersonNumberNotFoundMessageText() {
-        val fellesformat = Utils.readToFellesformat("/legeerklaeringMerknad13.xml")
+        val fellesformat = readToFellesformat("/validation/legeerklaeringPasientFodselsnummerIkkeFunnet.xml")
         val excpectederknadsTekst = OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.messageText
 
         val outcomeList = validationFlow(fellesformat)
@@ -20,7 +20,7 @@ class ValidationFlowTest{
 
     @Test
     fun shouldCreateMerkandTekst30() {
-        val fellesformat = Utils.readToFellesformat("/legeerklaeringMerknad30.xml")
+        val fellesformat = readToFellesformat("/validation/legeerklaeringFodselsnummerEllerDnummerIkkeFunnet.xml")
         val fnr = "12454"
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret til "+ fnr +" finnes ikke i skjemaet."
 

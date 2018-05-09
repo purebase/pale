@@ -1,7 +1,86 @@
- <Legeerklaring xmlns="http://www.kith.no/xmlstds/legeerklaring/2008-06-06">
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlxd="http://www.w3.org/2000/09/xmldsig#">
+    <MsgInfo>
+        <Type V="Legerklæring ved arbeidsuførhet" DN="LEGEERKL"/>
+        <MIGversion>v1.2 2006-05-24</MIGversion>
+        <GenDate>2017-12-29T03:49:45</GenDate>
+        <MsgId>05565fb0-cd7e-410d-bc1f-e1e918df2eac</MsgId>
+        <Sender>
+            <Organisation>
+                <OrganisationName>Kule helsetjenester AS</OrganisationName>
+                <Ident>
+                    <Id>223456789</Id>
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
+                </Ident>
+                <Ident>
+                    <Id>0123</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
+                </Ident>
+                <Address>
+                    <StreetAdr/>
+                    <PostalCode/>
+                    <City/>
+                </Address>
+                <Organisation/>
+                <HealthcareProfessional>
+                    <FamilyName>Valda</FamilyName>
+                    <MiddleName>Fos</MiddleName>
+                    <GivenName>Inga</GivenName>
+                    <Ident>
+                        <Id>1234</Id>
+                        <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret" S="1.16.578.1.12.4.3.1.8116" V="HER" />
+                    </Ident>
+                    <Ident>
+                        <Id>1234567</Id>
+                        <TypeId DN="HPR-nummer" S="1.16.578.1.12.3.1.1.8116" V="HPR" />
+                    </Ident>
+                    <Ident>
+                        <Id>04030350265</Id>
+                        <TypeId DN="Fødselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
+                    </Ident>
+                    <Address>
+                        <StreetAdr />
+                        <PostalCode />
+                        <City />
+                    </Address>
+                </HealthcareProfessional>
+            </Organisation>
+        </Sender>
+        <Receiver>
+            <Organisation>
+                <OrganisationName>NAV</OrganisationName>
+                <Ident>
+                    <Id>12668</Id>
+                    <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
+                </Ident>
+                <Ident>
+                    <Id>123456789</Id>
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
+                </Ident>
+                <Address>
+                    <StreetAdr />
+                    <PostalCode />
+                    <City />
+                </Address>
+            </Organisation>
+        </Receiver>
+        <Patient>
+            <FamilyName>Bergheim</FamilyName>
+            <GivenName>Daniel</GivenName>
+            <Ident>
+                <Id>02124513467</Id>
+                <TypeId DN="FÃ¸dselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR" />
+            </Ident>
+        </Patient>
+    </MsgInfo>
+    <Document>
+        <RefDoc>
+            <MsgType DN="XML-instans" V="XML" />
+            <Content>
+                <Legeerklaring xmlns="http://www.kith.no/xmlstds/legeerklaring/2008-06-06">
                     <LegeerklaringGjelder typeLegeerklaring="2"/>
                     <Pasientopplysninger flereArbeidsforhold="2">
-                        <Pasient fodselsnummer="12128913767" trygdekontor="NAV Sagene">
+                        <Pasient fodselsnummer="02124513467" trygdekontor="NAV Sagene">
                             <Navn>
                                 <Etternavn>Bergheim</Etternavn>
                                 <Fornavn>Daniel</Fornavn>
@@ -68,3 +147,9 @@
                     <ArsakssammenhengLegeerklaring>Sikker.</ArsakssammenhengLegeerklaring>
                     <ForbeholdLegeerklaring tilbakeholdInnhold="2" />
                 </Legeerklaring>
+            </Content>
+        </RefDoc>
+    </Document>
+</MsgHead>
+<MottakenhetBlokk ediLoggId="FiktivTestdata0001" avsender="04030350265" ebXMLSamtaleId="1234" avsenderRef="00123456789" avsenderFnrFraDigSignatur="04030350265" mottattDatotid="2017-12-29T12:21:35+02:00" ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
+</EI_fellesformat>

@@ -1,11 +1,11 @@
 package no.nav.legeerklaering.apprec.mapper
 
 import no.nav.legeerklaering.LegeerklaeringConstant
-import no.nav.legeerklaering.Utils
 import no.nav.legeerklaering.mapping.ApprecError
 import no.nav.legeerklaering.mapping.ApprecStatus
 import no.nav.legeerklaering.mapping.createApprec
 import no.nav.legeerklaering.mapping.mapApprecErrorToAppRecCV
+import no.nav.legeerklaering.readToFellesformat
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -14,7 +14,7 @@ import javax.xml.datatype.DatatypeFactory
 
 class ApprecMapperTest {
 
-    val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+    val inputMeldingFellesformat = readToFellesformat("/legeerklaering.xml")
     val apprecStatusOK =  ApprecStatus.ok
     val apprecStatusAvvist =  ApprecStatus.avvist
     val apprecFellesformatOK = createApprec(inputMeldingFellesformat, apprecStatusOK)

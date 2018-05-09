@@ -1,6 +1,5 @@
 package no.nav.legeerklaering
 
-import no.nav.legeerklaering.Utils.readToFellesformat
 import no.nav.legeerklaering.mapping.mapFellesformatToFagmelding
 import no.nav.legeerklaering.model.*
 import org.junit.Test

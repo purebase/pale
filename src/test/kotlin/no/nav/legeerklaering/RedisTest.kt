@@ -23,7 +23,7 @@ class RedisTest{
     @Test
     fun shouldNotFindHashValueInRedis() {
 
-        val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+        val inputMeldingFellesformat = readToFellesformat("/legeerklaering.xml")
         val hashValue = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
@@ -34,7 +34,7 @@ class RedisTest{
     @Test
     fun shouldFindHashValueInRedis() {
 
-        val inputMeldingFellesformat = Utils.readToFellesformat("/legeerklaering.xml")
+        val inputMeldingFellesformat = readToFellesformat("/legeerklaering.xml")
         val hashValue = LegeerklaeringApplication().createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
