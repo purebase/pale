@@ -7,6 +7,7 @@ import no.nav.legeerklaering.model.Prognose
 import no.nav.legeerklaering.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.*
+import no.nav.model.msghead.MsgHeadCS
 import java.time.ZonedDateTime
 
 fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
@@ -96,10 +97,21 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     postnummer = healthcareProfessional.address.postalCode.toInt(),
                     poststed = healthcareProfessional.address.city,
                     signatur = "",
-                    tlfNummer = healthcareProfessional.teleCom.find { it.typeTelecom.dn == "Hovedtelefon" }?.teleAddress?.v
+                    tlfNummer = healthcareProfessional.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v
             )
     )
 }
+
+enum class PhoneType(val v: String, val dn: String) {
+    MainPhone("HP", "Hovedtelefon"),
+    MobilePhone("MC", "Mobiltelefon"),
+    WorkPhone("WP", "Arbeidsplass");
+    companion object {
+        operator fun contains(type: MsgHeadCS): Boolean =
+                values().any { it.v == type.v }
+    }
+}
+
 
 fun mapEnkeltDiagnoseToDiagnose(enkeltdiagnose: Enkeltdiagnose): Diagnose =
         Diagnose(tekst = enkeltdiagnose.diagnose, kode = enkeltdiagnose.kodeverdi)

@@ -47,146 +47,144 @@ val fellesformatUnmarshaller = fellesformatJaxBContext.createUnmarshaller()
 val newInstance = DatatypeFactory.newInstance()
 private val log = LoggerFactory.getLogger(LegeerklaeringApplication::class.java)
 
-class LegeerklaeringApplication {
+class LegeerklaeringApplication
 
-    fun main(args: Array<String>) {
-        val fasitProperties = FasitProperties()
+fun main(args: Array<String>) {
+    val fasitProperties = FasitProperties()
 
-        val connectionFactory = connectionFactory(fasitProperties)
+    val connectionFactory = connectionFactory(fasitProperties)
 
-        val environmentConfig = EnvironmentConfig()
+    val environmentConfig = EnvironmentConfig()
 
-        val connection = connectionFactory.createConnection()
-        connection.start()
+    val connection = connectionFactory.createConnection()
+    connection.start()
 
-        connection.use {
-            queueConnection ->
+    connection.use {
+        queueConnection ->
 
-            Jedis().use {
-                jedis ->
-                val session = queueConnection.createSession()
-                val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
-                val outputQueue = session.createQueue(fasitProperties.arenaQueueName)
+        Jedis().use {
+            jedis ->
+            val session = queueConnection.createSession()
+            val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
+            val outputQueue = session.createQueue(fasitProperties.arenaQueueName)
 
-                val personV3 = JaxWsProxyFactoryBean().apply {
-                    address = environmentConfig.virksomhetPersonV3EndpointURL
-                    features.add(LoggingFeature())
-                    serviceClass = PersonV3::class.java
-                }.create() as PersonV3
+            val personV3 = JaxWsProxyFactoryBean().apply {
+                address = environmentConfig.virksomhetPersonV3EndpointURL
+                features.add(LoggingFeature())
+                serviceClass = PersonV3::class.java
+            }.create() as PersonV3
 
-                val tssOrganisasjon = JaxWsProxyFactoryBean().apply {
-                    address = environmentConfig.tssWSOrganisasjonV4EndpointURL
-                    features.add(LoggingFeature())
-                    serviceClass = TsswsOrganisasjonPortType::class.java
-                } as TsswsOrganisasjonPortType
+            val tssOrganisasjon = JaxWsProxyFactoryBean().apply {
+                address = environmentConfig.tssWSOrganisasjonV4EndpointURL
+                features.add(LoggingFeature())
+                serviceClass = TsswsOrganisasjonPortType::class.java
+            } as TsswsOrganisasjonPortType
 
 
-                val consumer = session.createConsumer(inputQueue)
-                listen(consumer, jedis, personV3, tssOrganisasjon)
-            }
-        }
-
-    }
-
-    fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrganisasjon: TsswsOrganisasjonPortType) = consumer.setMessageListener {
-        if (it is BytesMessage) {
-            val bytes = ByteArray(it.bodyLength.toInt())
-            it.readBytes(bytes)
-            val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
-            val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
-
-            val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
-            if(jedis.exists(hashValue)) {
-               val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-            } else {
-                jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
-            }
-
-            val duplicateCheckedFellesformat = DuplicateCheckedFellesformat().apply {
-                setFellesformat(String(bytes, Charsets.UTF_8))
-                setRetryCounter(0)
-            }
-
-            val outcomes = validateMessage(fellesformat, legeerklaering, personV3)
-
-            val organisation = tssOrganisasjon.hentOrganisasjon(HentOrganisasjonRequest().apply {
-                orgnummer = extractSenderOrganisationNumber(fellesformat)
-            }).organisasjon
+            val consumer = session.createConsumer(inputQueue)
+            listen(consumer, jedis, personV3, tssOrganisasjon)
         }
     }
 
-    fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3): List<OutcomeType> {
-        val outcomes = mutableListOf<OutcomeType>()
+}
 
-        val person = try {
-            personV3.hentPerson(HentPersonRequest()
-                    .withAktoer(PersonIdent().withIdent(
-                            NorskIdent()
-                                    .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
-                                    .withType(Personidenter().withValue("FNR")))
-                    ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
-        } catch (e: HentPersonPersonIkkeFunnet) {
-            outcomes.add(OutcomeType.PATIENT_NOT_FOUND_TPS)
+fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrganisasjon: TsswsOrganisasjonPortType) = consumer.setMessageListener {
+    if (it is BytesMessage) {
+        val bytes = ByteArray(it.bodyLength.toInt())
+        it.readBytes(bytes)
+        val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
+        val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
+
+        val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
+        if(jedis.exists(hashValue)) {
             val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-            apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
-            return outcomes
-        } catch (e: HentPersonSikkerhetsbegrensning) {
-            outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {
-                "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
-                "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
-                else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
-            })
-            return outcomes
+            apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+        } else {
+            jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
         }
 
-        outcomes.addAll(validationFlow(fellesformat))
-
-        outcomes.addAll(preTSSFlow(fellesformat))
-
-        if (outcomes.none { true }) {
-            outcomes.addAll(postTSSFlow(fellesformat, person))
+        val duplicateCheckedFellesformat = DuplicateCheckedFellesformat().apply {
+            setFellesformat(String(bytes, Charsets.UTF_8))
+            setRetryCounter(0)
         }
 
+        val outcomes = validateMessage(fellesformat, legeerklaering, personV3)
+
+        val organisation = tssOrganisasjon.hentOrganisasjon(HentOrganisasjonRequest().apply {
+            orgnummer = extractSenderOrganisationNumber(fellesformat)
+        }).organisasjon
+    }
+}
+
+fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3): List<OutcomeType> {
+    val outcomes = mutableListOf<OutcomeType>()
+
+    val person = try {
+        personV3.hentPerson(HentPersonRequest()
+                .withAktoer(PersonIdent().withIdent(
+                        NorskIdent()
+                                .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+                                .withType(Personidenter().withValue("FNR")))
+                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
+    } catch (e: HentPersonPersonIkkeFunnet) {
+        outcomes.add(OutcomeType.PATIENT_NOT_FOUND_TPS)
+        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
+        return outcomes
+    } catch (e: HentPersonSikkerhetsbegrensning) {
+        outcomes.add(when (e.faultInfo.sikkerhetsbegrensning[0].value) {
+            "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
+            "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
+            else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
+        })
         return outcomes
     }
 
+    outcomes.addAll(validationFlow(fellesformat))
 
-    fun createSha256Hash(input: ByteArray): String {
-        val bytes = MessageDigest
-                .getInstance("SHA1")
-                .digest(input)
+    outcomes.addAll(preTSSFlow(fellesformat))
 
-        return BigInteger(bytes).toString(16)
+    if (outcomes.none { true }) {
+        outcomes.addAll(postTSSFlow(fellesformat, person))
     }
 
-    fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().apply {
-        hostName = fasitProperties.mqHostname
-        port = fasitProperties.mqPort
-        queueManager = fasitProperties.mqQueueManagerName
-        transportType = WMQConstants.WMQ_CM_CLIENT
-        ccsid = 1208
-        setIntProperty(WMQConstants.JMS_IBM_ENCODING, MQC.MQENC_NATIVE)
-        setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
-    }
-
-    fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean =
-            jedis.get(hashValue) != null
+    return outcomes
+}
 
 
-    fun getHCPFodselsnummer(fellesformat: EIFellesformat): String {
+fun createSha256Hash(input: ByteArray): String {
+    val bytes = MessageDigest
+            .getInstance("SHA1")
+            .digest(input)
 
-        for (ident in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident) {
+    return BigInteger(bytes).toString(16)
+}
 
-            if (ident.typeId.v.equals("FNR"))
-            {
-                return ident.id
-            }
+fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().apply {
+    hostName = fasitProperties.mqHostname
+    port = fasitProperties.mqPort
+    queueManager = fasitProperties.mqQueueManagerName
+    transportType = WMQConstants.WMQ_CM_CLIENT
+    ccsid = 1208
+    setIntProperty(WMQConstants.JMS_IBM_ENCODING, MQC.MQENC_NATIVE)
+    setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
+}
 
+fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean =
+        jedis.get(hashValue) != null
+
+
+fun getHCPFodselsnummer(fellesformat: EIFellesformat): String {
+
+    for (ident in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident) {
+
+        if (ident.typeId.v.equals("FNR"))
+        {
+            return ident.id
         }
 
-        return ""
-
     }
+
+    return ""
 
 }

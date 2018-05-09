@@ -2,6 +2,7 @@ package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
+import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.newInstance
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
@@ -81,7 +82,7 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
     avsenderMottaker = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
             fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
             fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase()
-    avsenderMottakerId = LegeerklaeringApplication().getHCPFodselsnummer(fellesformat)
+    avsenderMottakerId = getHCPFodselsnummer(fellesformat)
     opprettetAvNavn = LegeerklaeringConstant.eiaAuto.string
     }
 }

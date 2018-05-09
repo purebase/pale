@@ -1,7 +1,7 @@
 package no.nav.legeerklaering.client
 
-import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
+import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.newInstance
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.model.arenainfo.ArenaEiaInfo
@@ -28,7 +28,7 @@ class ArenaClient{
             navn = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
                     fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
                     fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase()
-            fnr = LegeerklaeringApplication().getHCPFodselsnummer(fellesformat)
+            fnr = getHCPFodselsnummer(fellesformat)
             tssid = tssidString
         }
         eiaData = ArenaEiaInfo.EiaData().apply {
