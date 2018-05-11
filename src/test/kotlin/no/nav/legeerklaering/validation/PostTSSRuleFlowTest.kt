@@ -163,6 +163,25 @@ class PostTSSRuleFlowTest {
         }
     }
 
+    @Test
+    fun shouldCreateOutcomeTypePatientEmigrated() {
+
+        val patient = Person().apply {
+            personstatus = Personstatus().apply {
+                personstatus = Personstatuser().apply {
+                    value = "UTVA"
+                }
+            }
+
+
+        }
+        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_EMIGRATED }
+
+        assertEquals(OutcomeType.PATIENT_EMIGRATED, outcome?.outcomeType)
+    }
+
+
     fun familierelasjon(faimilierelasjon: String): Familierelasjon  =  Familierelasjon().apply {
         tilRolle = Familierelasjoner().apply {
             value = faimilierelasjon

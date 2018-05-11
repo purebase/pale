@@ -36,4 +36,14 @@ fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                         }
                     }
                 }
+                .doOnNext {
+                    (executionInfo, person) ->
+                    if (person.personstatus != null) {
+                        //TODO make it better somehow
+                        if (person.personstatus.personstatus.value == "UTVA") {
+                            executionInfo.outcome += OutcomeType.PATIENT_EMIGRATED
+
+                        }
+                    }
+                }
                 .firstElement().blockingGet().first.outcome

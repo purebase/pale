@@ -1,6 +1,7 @@
-package no.nav.legeerklaering
+package no.nav.legeerklaering.validation
 
 
+import no.nav.legeerklaering.validatePersonAndDNumber
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

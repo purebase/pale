@@ -13,10 +13,10 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PATIENT_FIRST_NAME_NOT_FOUND(34, "Pasientens fornavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PERSON_NUMBER_NOT_11_DIGITS(47,"%s sitt fødselsnummer eller D-nummer %s er ikke 11 tegn. Det er %s tegn langt.", Priority.RETUR, Type.FAGLIG),
-    PERSON_HAS_NO_NAV_KONTOR(50,"Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i   Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
+    PERSON_HAS_NO_NAV_KONTOR(50,"Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.",  Priority.MANUAL_PROCESSING, Type.FAGLIG),
-    ADRESS_MISSING__TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
+    ADRESS_MISSING_TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
     NO_VALID_TSSID_PRACTICE_TYPE_TSS(77,"Finner ingen gyldig praksistype i TSS.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78,"Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't
