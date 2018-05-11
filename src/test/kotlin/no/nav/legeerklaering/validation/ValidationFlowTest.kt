@@ -137,8 +137,13 @@ class ValidationFlowTest{
     fun shouldCreateOutcomeDoctorSignatureSchemaToNew() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringDoctorSignatureSchemaToNew.xml")
 
+        val messagerecived =  fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
+        val messagesign = fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
+        val excpectederknadsTekst = "Melding mottatt til behandling i dag $messagerecived er signert med dato $messagesign, og avvises"
+
         val outcome = validationFlow(fellesformat).find { it.outcomeType == OutcomeType.SIGNATURE_TOO_NEW }
 
         assertEquals(OutcomeType.SIGNATURE_TOO_NEW, outcome?.outcomeType)
+        assertEquals(excpectederknadsTekst, outcome?.formattedMessage)
     }
 }

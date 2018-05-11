@@ -99,6 +99,7 @@ fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrgan
         if(jedis.exists(hashValue)) {
             val apprec = createApprec(fellesformat, ApprecStatus.avvist)
             apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+            val outcome = OutcomeType.DUPLICATE
         } else {
             jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
         }

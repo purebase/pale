@@ -95,7 +95,9 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                 }
                 .doOnNext {
                     if (extractSignatureDate(it.fellesformat).isAfter(LocalDateTime.now())) {
-                        it.outcome += OutcomeType.SIGNATURE_TOO_NEW
+                        it.outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(
+                                fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
+                                fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime())
                     }
                 }
                 .firstElement().blockingGet().outcome
