@@ -27,11 +27,17 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA)
                     } else if (!validatePersonAndDNumber11Digits(it.patientPersonNumber)) {
-                        it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(/* TODO: Figure what value to inject */"", it.patientPersonNumber)
+                        it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(
+                                extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
+                                        " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn
+                                        +" "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn, it.patientPersonNumber, it.patientPersonNumber.length)
                         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG))
                     } else if (!validatePersonAndDNumber(it.patientPersonNumber)) {
-                        it.outcome += OutcomeType.INVALID_PERSON_D_NUMBER.toOutcome(it.patientPersonNumber, "")
+                        it.outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(
+                                extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
+                                " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn
+                                +" "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn,it.patientPersonNumber)
                         val apprec =  createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG)
 
@@ -43,9 +49,21 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                         val name = "${hcp.givenName} ${hcp.middleName} ${hcp.familyName}"
                         it.outcome += OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome(name)
                         } else if (!validatePersonAndDNumber11Digits(it.doctorPersonNumber)) {
-                            it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS
+                            it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(
+                                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
+                                            " " +
+                                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
+                                            " " +
+                                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName,
+                                    it.doctorPersonNumber,  it.doctorPersonNumber.length)
                         } else if (!validatePersonAndDNumber(it.doctorPersonNumber)) {
-                            it.outcome += OutcomeType.INVALID_PERSON_D_NUMBER
+                            it.outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(
+                                    fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
+                                            " " +
+                                            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
+                                            " " +
+                                            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName,
+                                    it.doctorPersonNumber)
                             val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                             apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
                         }

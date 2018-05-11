@@ -9,10 +9,10 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PATIENT_PERSON_NUMBER_NOT_FOUND(13, "Pasientens fødselsnummer finnes ikke i skjema", Priority.RETUR, Type.FAGLIG),
     BEHANDLER_NOT_TSS(18,"Behandler er ikke registrert i TSS.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
     PERSON_NUMBER_NOT_FOUND(30,"Fødselsnummeret eller D-nummeret til %s" + " finnes ikke i skjemaet.", Priority.RETUR, Type.FAGLIG),
-    INVALID_PERSON_D_NUMBER(31, "Fødselsnummeret eller D-nummeret \"%s\" til %s er feil.", Priority.RETUR, Type.FAGLIG),
+    INVALID_PERSON_NUMBER_OR_D_NUMBER(31, "Fødselsnummeret eller D-nummeret %s til %s er feil.", Priority.RETUR, Type.FAGLIG),
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PATIENT_FIRST_NAME_NOT_FOUND(34, "Pasientens fornavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
-    PERSON_NUMBER_NOT_11_DIGITS(47,"\"%s\" sitt fødselsnummer eller D-nummer \"%s\" er ikke 11 tegn. Det er \"%s\" tegn langt.", Priority.RETUR, Type.FAGLIG),
+    PERSON_NUMBER_NOT_11_DIGITS(47,"%s sitt fødselsnummer eller D-nummer %s er ikke 11 tegn. Det er %s tegn langt.", Priority.RETUR, Type.FAGLIG),
     PERSON_HAS_NO_NAV_KONTOR(50,"Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i   Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.",  Priority.MANUAL_PROCESSING, Type.FAGLIG),
@@ -23,7 +23,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     // contain the signature date, and even if it doesn't we'd throw an exception and we wont let it through
     //SIGNATURE_DATE_MISSING(65, "Signaturdato mangler.", Priority.RETUR, Type.FAGLIG),
 
-    UNCERTAIN_RESPONSE_TSS_SHOULD_VERIFIED(141,"Usikkert svar fra TSS, lav sannsynlighet \"%s\" for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
+    UNCERTAIN_RESPONSE_TSS_SHOULD_VERIFIED(141,"Usikkert svar fra TSS, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
     MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA(221, "Avvik mellom fødselsnummer fra elektronisk signatur og skjemaet.", Priority.NOTE, Type.FAGLIG),
     RECEIVED(245, "Legeerklæring er mottatt.", Priority.NOTE, Type.LOG),
     PATIENT_HAS_SPERREKODE_6(248, "Pasient er registrert med sperrekode 6, sperret adresse, strengt fortrolig. Kode 6 overstyrer oppfølgingsregler. Melding går ikke til Arena.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
