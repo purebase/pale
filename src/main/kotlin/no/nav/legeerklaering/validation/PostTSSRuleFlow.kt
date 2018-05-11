@@ -1,6 +1,5 @@
 package no.nav.legeerklaering.validation
 
-import io.reactivex.rxkotlin.toObservable
 import no.nav.legeerklaering.RelationType
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
@@ -12,7 +11,7 @@ fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                 }
                 .doOnNext {
                     (executionInfo, person) ->
-                    if (person.doedsdato == null) {
+                    if (person.doedsdato != null) {
                         executionInfo.outcome += OutcomeType.REGISTRERT_DOD_I_TPS
                     }
                 }

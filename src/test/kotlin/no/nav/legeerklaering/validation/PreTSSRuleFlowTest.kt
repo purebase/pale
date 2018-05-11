@@ -12,7 +12,6 @@ class PreTSSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPasientOver70.xml")
 
         val outcomeList = preTSSFlow(fellesformat)
-        println(outcomeList)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PASIENT_OVER_70 }
 
         assertEquals(OutcomeType.PASIENT_OVER_70, outcome?.outcomeType)
