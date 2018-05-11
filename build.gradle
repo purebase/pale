@@ -148,4 +148,5 @@ dependencies {
     implementation "no.nav.tjeneste.tssws:nav-fim-tssws-organisasjon-v3-tjenestespesifikasjon:$nav_tssws_organisasjon_v3:jaxws"
 
     testImplementation "junit:junit:$junit_version"
+    testImplementation "com.devskiller:jfairy:0.6.2"
 }

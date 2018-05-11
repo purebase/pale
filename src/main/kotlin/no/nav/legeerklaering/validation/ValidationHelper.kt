@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-private val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
+val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
 
 data class RuleExecutionInfo(
         val fellesformat: EIFellesformat,
@@ -64,7 +64,7 @@ fun extractBornDate(personNumber: String): LocalDate =
             } else {
                 it
             }
-        }, formatter)
+        }, personNumberDateFormat)
 
 fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person, doctorPersonnumber: String): Familierelasjon? =
         patient.harFraRolleI.find {
