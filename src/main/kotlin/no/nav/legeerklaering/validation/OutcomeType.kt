@@ -16,13 +16,14 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PERSON_HAS_NO_NAV_KONTOR(50,"Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.",  Priority.MANUAL_PROCESSING, Type.FAGLIG),
+    BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_TSS(75,"Behandler har angitt D-nummer, men TSS fant gyldig F-nummer.",Priority.NOTE, Type.FAGLIG),
     ADRESS_MISSING_TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
     NO_VALID_TSSID_PRACTICE_TYPE_TSS(77,"Finner ingen gyldig praksistype i TSS.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78,"Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't
     // contain the signature date, and even if it doesn't we'd throw an exception and we wont let it through
     //SIGNATURE_DATE_MISSING(65, "Signaturdato mangler.", Priority.RETUR, Type.FAGLIG),
-
+    
     UNCERTAIN_RESPONSE_TSS_SHOULD_VERIFIED(141,"Usikkert svar fra TSS, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
     MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA(221, "Avvik mellom fødselsnummer fra elektronisk signatur og skjemaet.", Priority.NOTE, Type.FAGLIG),
     RECEIVED(245, "Legeerklæring er mottatt.", Priority.NOTE, Type.LOG),
@@ -44,6 +45,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     GIFT_LEVER_ADSKILT(358, "Vurder om legeerklæring kan godtas, behandler er gift med pasienten- lever atskilt.", Priority.FOLLOW_UP, Type.FAGLIG),
 
     BEHANDLER_PERSON_NUMBER_MISSMATCH_CERTIFICATE(381, "Behandler har endret fødselsnummer, sertifikatet for digital signatur må oppdateres.", Priority.NOTE, Type.FAGLIG),
+    MAX_RETRAYS_REACHED(806, "Maksimum antall rebehandlinger nådd, meldingen sendt til feillogg",Priority.NOTE, Type.FAGLIG),
     DUPLICATE(820, "Legeerklæringen er mottatt før, dette er et duplikat.", Priority.NOTE, Type.FAGLIG)
 }
 
