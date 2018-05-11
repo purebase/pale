@@ -8,9 +8,11 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.*
 import no.nav.model.msghead.*
 import org.junit.Test
+import java.io.StringWriter
 import java.math.BigInteger
 import java.time.LocalDate
 import java.util.*
+import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
 
 val fairy: Fairy = Fairy.create(Locale.getDefault())
@@ -20,7 +22,14 @@ val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
 class TestDataGenerator {
     @Test
     fun generateTestFellesformat() {
-        println(objectMapper.writeValueAsString(defaultFellesformat()))
+        val result = StringWriter().let {
+            val marshaller = fellesformatJaxBContext.createMarshaller()
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
+            marshaller.marshal(defaultFellesformat(), it)
+            it.toString()
+        }
+
+        println(result)
     }
 }
 
@@ -35,8 +44,6 @@ fun defaultFellesformat(): EIFellesformat {
 
     val patientData = fairy.person()
     val patientPersonNumber = generatePersonNumber(patientData.dateOfBirth)
-
-    println(doctorPersonNumber)
 
     return EIFellesformat().apply {
         msgHead = MsgHead().apply {
@@ -86,9 +93,9 @@ fun defaultFellesformat(): EIFellesformat {
                                 ident.add(generateOrganisationNumberIdent())
                                 ident.add(generateHerIdent())
                                 address = MsgHeadAddress().apply {
-                                    streetAdr = orgAddr.addressLine1
-                                    postalCode = orgAddr.postalCode
-                                    city = orgAddr.city
+                                    streetAdr = navAddr.addressLine1
+                                    postalCode = navAddr.postalCode
+                                    city = navAddr.city
                                 }
                             }
                         }
@@ -236,7 +243,7 @@ fun Boolean.toBigInteger(): BigInteger =
         }.toBigInteger()
 
 fun generateTypeTiltak(): List<AktueltTiltak> = TypeTiltak.values()
-        .filter { random.nextBoolean() }
+        .filter { random.nextInt(3) == 1 }
         .map { AktueltTiltak().apply { typeTiltak = it.typeTiltak.toBigInteger() } }
 
 fun generateLegeerklaeringType(): Int =
