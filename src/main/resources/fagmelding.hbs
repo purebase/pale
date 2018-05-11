@@ -181,10 +181,8 @@
         .checkbox_text {
             display: table-cell;
         }
-        @media print {
-            .new_page {
-                page-break-after: always;
-            }
+        .new_page {
+            page-break-after: always;
         }
         @media not print {
             .new_page {
@@ -383,18 +381,6 @@
 
 <div class="new_page"></div>
 <!-- Page 2 -->
-<div class="table frame_solid">
-    <div class="row height40">
-        <div class="cell col75 right_solid">
-            <h5>Etternavn, fornavn</h5>
-            <div class="field_value">{{ pasient.fornavn }} {{ pasient.mellomnavn }} {{ pasient.etternavn }}</div>
-        </div>
-        <div class="cell col25">
-            <h5>Fødselsnummer (11 siffer)</h5>
-            <div class="field_value">{{ pasient.foedselsnummer }}</div>
-        </div>
-    </div>
-</div>
 <h2>3 Plan for medisinsk utreding og behandling</h2>
 <div class="table frame_solid">
     <div class="row height40">
@@ -675,18 +661,6 @@
 
 <div class="new_page"></div>
 <!-- Page 3 -->
-<div class="table frame_solid">
-    <div class="row height40">
-        <div class="cell col75 right_solid">
-            <h5>Etternavn, fornavn</h5>
-            <div class="field_value">{{ pasient.fornavn }} {{ pasient.mellomnavn }} {{ pasient.etternavn }}</div>
-        </div>
-        <div class="cell col25">
-            <h5>Fødselsnummer (11 siffer)</h5>
-            <div class="field_value">{{ pasient.foedselsnummer }}</div>
-        </div>
-    </div>
-</div>
 
 <h2>6 Prognose</h2>
 <div class="table frame_solid">
