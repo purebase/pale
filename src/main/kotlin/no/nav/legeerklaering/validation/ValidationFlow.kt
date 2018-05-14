@@ -4,6 +4,7 @@ import no.nav.legeerklaering.mapping.ApprecError
 import no.nav.legeerklaering.mapping.ApprecStatus
 import no.nav.legeerklaering.mapping.createApprec
 import no.nav.legeerklaering.mapping.mapApprecErrorToAppRecCV
+import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.legeerklaering.validatePersonAndDNumber
 import no.nav.legeerklaering.validatePersonAndDNumber11Digits
 import no.nav.model.fellesformat.EIFellesformat
@@ -98,6 +99,11 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                         it.outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(
                                 fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
                                 fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime())
+                    }
+                }
+                .doOnNext {
+                    it.outcome.forEach {
+                        RULE_COUNTER.labels(it.outcomeType.name).inc()
                     }
                 }
                 .firstElement().blockingGet().outcome

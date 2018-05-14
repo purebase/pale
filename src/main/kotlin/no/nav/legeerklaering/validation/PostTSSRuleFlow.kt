@@ -1,6 +1,7 @@
 package no.nav.legeerklaering.validation
 
 import no.nav.legeerklaering.RelationType
+import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 
@@ -44,6 +45,12 @@ fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                             executionInfo.outcome += OutcomeType.PATIENT_EMIGRATED
 
                         }
+                    }
+                }
+                .doOnNext {
+                    (executionInfo, _) ->
+                    executionInfo.outcome.forEach {
+                        RULE_COUNTER.labels(it.outcomeType.name).inc()
                     }
                 }
                 .firstElement().blockingGet().first.outcome

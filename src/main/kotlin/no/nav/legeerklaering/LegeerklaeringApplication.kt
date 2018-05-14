@@ -6,12 +6,16 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.runBlocking
 import no.nav.legeerklaering.mapping.ApprecError
 import no.nav.legeerklaering.mapping.ApprecStatus
 import no.nav.legeerklaering.avro.DuplicateCheckedFellesformat
 import no.nav.legeerklaering.config.EnvironmentConfig
 import no.nav.legeerklaering.mapping.createApprec
 import no.nav.legeerklaering.mapping.mapApprecErrorToAppRecCV
+import no.nav.legeerklaering.metrics.WS_CALL_TIME
 import no.nav.legeerklaering.validation.*
 import no.nav.model.fellesformat.*
 import no.nav.model.legeerklaering.Legeerklaring
@@ -19,14 +23,15 @@ import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.TsswsOrganisasjonPor
 import no.nav.tjeneste.fellesregistre.tssws_organisasjon.v3.meldinger.HentOrganisasjonRequest
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.FinnNAVKontorUgyldigInput
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Geografi
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorRequest
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
@@ -120,20 +125,23 @@ fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrgan
     }
 }
 
-fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3): List<Outcome> {
+fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3, orgnaisasjonEnhet: OrganisasjonEnhetV2): List<Outcome> = runBlocking {
     val outcomes = mutableListOf<Outcome>()
 
+    outcomes.addAll(validationFlow(fellesformat))
+
+    outcomes.addAll(preTSSFlow(fellesformat))
+
+    val personDeferred = personV3.hentPersonAsync(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+    val geografiskTilknytningDeferred = personV3.hentGeografiskTilknytningAsync(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+    val navKontorDeferred = orgnaisasjonEnhet.hentNavKontorAsync(geografiskTilknytningDeferred.await().geografiskTilknytning)
+
     val person = try {
-        personV3.hentPerson(HentPersonRequest()
-                .withAktoer(PersonIdent().withIdent(
-                        NorskIdent()
-                                .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
-                                .withType(Personidenter().withValue("FNR")))
-                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
+        personDeferred.await()
     } catch (e: HentPersonPersonIkkeFunnet) {
         outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS
         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER))
+        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
         return outcomes
     } catch (e: HentPersonSikkerhetsbegrensning) {
         outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {
@@ -144,15 +152,43 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
         return outcomes
     }
 
-    outcomes.addAll(validationFlow(fellesformat))
-
-    outcomes.addAll(preTSSFlow(fellesformat))
-
     if (outcomes.none { true }) {
         outcomes.addAll(postTSSFlow(fellesformat, person))
     }
 
-    return outcomes
+    if (outcomes.none { true }) {
+        outcomes.addAll(postNORG2Flow(fellesformat, navKontorDeferred.await()))
+    }
+
+    outcomes
+}
+
+fun OrganisasjonEnhetV2.hentNavKontorAsync(geografiskTilknytning: String): Deferred<Organisasjonsenhet> = async {
+    finnNAVKontor(FinnNAVKontorRequest().apply {
+        this.geografiskTilknytning = Geografi().apply {
+            this.value = geografiskTilknytning
+        }
+    }).navKontor
+}
+
+fun PersonV3.hentPersonAsync(fnr: String): Deferred<Person> = async {
+    WS_CALL_TIME.labels("hent_person").startTimer().use {
+        hentPerson(HentPersonRequest()
+                .withAktoer(PersonIdent().withIdent(
+                        NorskIdent()
+                                .withIdent(fnr)
+                                .withType(Personidenter().withValue("FNR")))
+                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
+    }
+}
+
+fun PersonV3.hentGeografiskTilknytningAsync(fnr: String): Deferred<GeografiskTilknytning> = async {
+    WS_CALL_TIME.labels("hent_geografisk_tilknytning").startTimer().use {
+        hentGeografiskTilknytning(HentGeografiskTilknytningRequest().withAktoer(PersonIdent().withIdent(
+                NorskIdent()
+                        .withIdent(fnr)
+                        .withType(Personidenter().withValue("FNR"))))).geografiskTilknytning
+    }
 }
 
 

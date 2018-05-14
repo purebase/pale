@@ -1,5 +1,6 @@
 package no.nav.legeerklaering.validation
 
+import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.model.fellesformat.EIFellesformat
 import java.time.LocalDate
 
@@ -12,6 +13,11 @@ fun preTSSFlow(fellesformat: EIFellesformat): List<Outcome> = initFlow(fellesfor
         .doOnNext {
             if (extractDoctorPersonNumberFromSender(it.fellesformat) == extractPersonNumber(it.legeerklaering)) {
                 it.outcome += OutcomeType.BEHANDLER_ER_PASIENT
+            }
+        }
+        .doOnNext {
+            it.outcome.forEach {
+                RULE_COUNTER.labels(it.outcomeType.name).inc()
             }
         }
         .firstElement().blockingGet().outcome
