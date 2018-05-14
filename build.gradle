@@ -17,6 +17,7 @@ buildscript {
     ext.nav_journalbehandling = '1.3.3'
     ext.nav_tssws_organisasjon_v3 = '1.0'
     ext.rxkotlin = '2.2.0'
+    ext.nav_organisasjonEnhet_v2 = '2.1.0'
 
     repositories {
         mavenCentral()
@@ -146,6 +147,7 @@ dependencies {
     implementation "org.apache.kafka:kafka-clients:$kafka_version"
     implementation "no.nav.tjenester:nav-journalbehandling-tjenestespesifikasjon:$nav_journalbehandling:jaxws"
     implementation "no.nav.tjeneste.tssws:nav-fim-tssws-organisasjon-v3-tjenestespesifikasjon:$nav_tssws_organisasjon_v3:jaxws"
+    implementation "no.nav.tjenester:nav-organisasjonEnhet-v2-tjenestespesifikasjon:$nav_organisasjonEnhet_v2:jaxws"
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "com.devskiller:jfairy:0.6.2"

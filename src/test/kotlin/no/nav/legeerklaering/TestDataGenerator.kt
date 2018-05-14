@@ -15,7 +15,7 @@ import java.util.*
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
 
-val fairy: Fairy = Fairy.create(Locale.getDefault())
+val fairy: Fairy = Fairy.create(Locale.US)
 val random: Random = Random()
 val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
 
