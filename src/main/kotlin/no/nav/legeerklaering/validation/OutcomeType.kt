@@ -26,7 +26,6 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     
     UNCERTAIN_RESPONSE_TSS_SHOULD_VERIFIED(141,"Usikkert svar fra TSS, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
     MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA(221, "Avvik mellom fødselsnummer fra elektronisk signatur og skjemaet.", Priority.NOTE, Type.FAGLIG),
-    RECEIVED(245, "Legeerklæring er mottatt.", Priority.NOTE, Type.LOG),
     PATIENT_HAS_SPERREKODE_6(248, "Pasient er registrert med sperrekode 6, sperret adresse, strengt fortrolig. Kode 6 overstyrer oppfølgingsregler. Melding går ikke til Arena.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
     PATIENT_HAS_SPERREKODE_7(249, "Pasient er registrert med sperrekode 7, sperret adresse, fortrolig.", Priority.NOTE, Type.FAGLIG),
     SIGNATURE_TOO_NEW(251, "Melding mottatt til behandling i dag %s er signert med dato %s, og avvises", Priority.RETUR, Type.FAGLIG),

@@ -5,7 +5,7 @@ import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 
-fun postTSSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> =
+fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> =
         initFlow(fellesformat)
                 .map {
                     it to personTPS

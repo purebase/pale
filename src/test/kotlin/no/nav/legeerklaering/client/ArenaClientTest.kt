@@ -15,7 +15,7 @@ class ArenaClientTest{
     val legeerklaring = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
     val outcomeTypes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND, OutcomeType.BARN_AV_PASIENT)
     val tssid = "12454"
-    val request = ArenaClient().createArenaEiaInfo(legeerklaring, fellesformat,0,outcomeTypes, tssid)
+    val request = createArenaEiaInfo(legeerklaring, fellesformat,0,outcomeTypes, tssid)
 
     @Test
     fun shouldSetEdiloggId() {

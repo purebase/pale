@@ -130,7 +130,7 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
 
     outcomes.addAll(validationFlow(fellesformat))
 
-    outcomes.addAll(preTSSFlow(fellesformat))
+    outcomes.addAll(preTPSFlow(fellesformat))
 
     val personDeferred = personV3.hentPersonAsync(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
     val geografiskTilknytningDeferred = personV3.hentGeografiskTilknytningAsync(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
@@ -163,7 +163,7 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
     }
 
     if (outcomes.none { it.outcomeType.messagePriority == Priority.RETUR }) {
-        outcomes.addAll(postTSSFlow(fellesformat, person))
+        outcomes.addAll(postTPSFlow(fellesformat, person))
     }
 
     if (outcomes.none { it.outcomeType.messagePriority == Priority.RETUR }) {

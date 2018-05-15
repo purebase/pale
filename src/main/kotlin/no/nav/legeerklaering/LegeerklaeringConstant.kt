@@ -20,6 +20,7 @@ enum class LegeerklaeringConstant(val string: String) {
     kategoriKodeES("ES"),
     brevkode900002("900002"),
     behandlingsVeddleggTittel("legeerklæring-behandlingsvedlegg"),
+    houveddokument("HOVEDDOKUMENT"),
     journalstatusKodeMO("MO"),
     journalposttypeKodeI("I"),
     pdfType(".pdf"),

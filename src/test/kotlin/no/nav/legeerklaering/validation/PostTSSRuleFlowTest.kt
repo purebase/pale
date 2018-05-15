@@ -23,7 +23,7 @@ class PostTSSRuleFlowTest {
             }
         }
 
-        val outcomeList = postTSSFlow(fellesformat, person)
+        val outcomeList = postTPSFlow(fellesformat, person)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTRERT_DOD_I_TPS }
 
         assertEquals(OutcomeType.REGISTRERT_DOD_I_TPS, outcome?.outcomeType)
@@ -38,7 +38,7 @@ class PostTSSRuleFlowTest {
 
         }
 
-        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.GIFT_MED_PASIENT }
 
         assertEquals(OutcomeType.GIFT_MED_PASIENT, outcome?.outcomeType)
@@ -53,7 +53,7 @@ class PostTSSRuleFlowTest {
 
         }
 
-        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.SAMBOER_MED_PASIENT }
 
         assertEquals(OutcomeType.SAMBOER_MED_PASIENT, outcome?.outcomeType)
@@ -68,7 +68,7 @@ class PostTSSRuleFlowTest {
 
         }
 
-        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTRERT_PARTNER_MED_PASIENT }
 
         assertEquals(OutcomeType.REGISTRERT_PARTNER_MED_PASIENT, outcome?.outcomeType)
@@ -89,8 +89,8 @@ class PostTSSRuleFlowTest {
 
         }
 
-        val outcomeListFARA = postTSSFlow(fellesformat, patientFARA)
-        val outcomeListMORA = postTSSFlow(fellesformat, patientMORA)
+        val outcomeListFARA = postTPSFlow(fellesformat, patientFARA)
+        val outcomeListMORA = postTPSFlow(fellesformat, patientMORA)
         val outcomeFARA = outcomeListFARA.find { it.outcomeType == OutcomeType.FORELDER_TIL_PASIENT }
         val outcomeMORA = outcomeListMORA.find { it.outcomeType == OutcomeType.FORELDER_TIL_PASIENT }
 
@@ -108,7 +108,7 @@ class PostTSSRuleFlowTest {
 
         }
 
-        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BARN_AV_PASIENT }
 
         assertEquals(OutcomeType.BARN_AV_PASIENT, outcome?.outcomeType)
@@ -123,7 +123,7 @@ class PostTSSRuleFlowTest {
 
         }
 
-        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.GIFT_LEVER_ADSKILT }
 
         assertEquals(OutcomeType.GIFT_LEVER_ADSKILT, outcome?.outcomeType)
@@ -156,7 +156,7 @@ class PostTSSRuleFlowTest {
         }
 
         try {
-            postTSSFlow(fellesformat, patient)
+            postTPSFlow(fellesformat, patient)
         }
         catch (e: RuntimeException) {
             assertEquals("relations.tilRolle.value must not be null", e.message)
@@ -175,7 +175,7 @@ class PostTSSRuleFlowTest {
 
 
         }
-        val outcomeList = postTSSFlow(fellesformat, patient)
+        val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_EMIGRATED }
 
         assertEquals(OutcomeType.PATIENT_EMIGRATED, outcome?.outcomeType)

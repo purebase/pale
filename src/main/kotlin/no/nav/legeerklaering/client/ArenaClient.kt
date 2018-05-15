@@ -9,7 +9,6 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import java.util.*
 
-class ArenaClient{
     fun createArenaEiaInfo(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, spesregInt: Int, outcomeTypeList: List<OutcomeType>, tssidString: String): ArenaEiaInfo = ArenaEiaInfo().apply {
         val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
         ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
@@ -51,4 +50,3 @@ class ArenaClient{
         meldingsPrioritet = outcomeType.messagePriority.priorityNumber.toBigInteger()
         meldingsType = outcomeType.messageType.toString()
         }
-}

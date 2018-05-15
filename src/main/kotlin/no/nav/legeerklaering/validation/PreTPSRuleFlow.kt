@@ -4,7 +4,7 @@ import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.model.fellesformat.EIFellesformat
 import java.time.LocalDate
 
-fun preTSSFlow(fellesformat: EIFellesformat): List<Outcome> = initFlow(fellesformat)
+fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> = initFlow(fellesformat)
         .doOnNext {
             if (LocalDate.now().minusYears(70).isBefore(extractBornDate(it.patientPersonNumber!!))) {
                 it.outcome += OutcomeType.PASIENT_OVER_70

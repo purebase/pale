@@ -1,69 +1,24 @@
 package no.nav.legeerklaering.client
 
-import no.nav.legeerklaering.LegeerklaeringApplication
 import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.newInstance
+import no.nav.legeerklaering.validation.Outcome
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
-class JoarkClient {
 
-fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
+fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, outcomes: List<Outcome>?):
         LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
 
-    val fagmeldingJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
-        dokumentInfo = DokumentInfo().apply {
-
-            if (legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()) {
-                begrensetPartsinnsynFraTredjePart = true}
-
-            fildetaljerListe.add(Fildetaljer().apply {
-                //TODO fil = createPDFBase64Encoded(legeeklaering)
-                filnavn = fellesformat.mottakenhetBlokk.ediLoggId + LegeerklaeringConstant.pdfType.string
-                filtypeKode = LegeerklaeringConstant.pdf.string
-                variantFormatKode = LegeerklaeringConstant.arkiv.string
-                versjon = 1
-            })
-            kategoriKode = LegeerklaeringConstant.kategoriKodeES.string
-            tittel = LegeerklaeringConstant.legeerklæring.string
-            brevkode = LegeerklaeringConstant.brevkode900002.string
-            sensitivt = false
-            organInternt = false
-            versjon = 1
-        }
-        tilknyttetJournalpostSomKode = "HOVEDDOKUMENT"
-        tilknyttetAvNavn =  LegeerklaeringConstant.eiaAuto.string
-        versjon = 1
-    }
-
-    val behandlingsvedleggJournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
-        dokumentInfo = DokumentInfo().apply {
-
-            fildetaljerListe.add(Fildetaljer().apply {
-                //TODO = createPDFBase64Encoded(legeeklaering)
-                filnavn = fellesformat.mottakenhetBlokk.ediLoggId+"-behandlingsvedlegg"+
-                        LegeerklaeringConstant.pdfType.string
-                filtypeKode = LegeerklaeringConstant.pdf.string
-                variantFormatKode = LegeerklaeringConstant.arkiv.string
-                versjon = 1
-            })
-            kategoriKode = LegeerklaeringConstant.kategoriKodeES.string
-            tittel = LegeerklaeringConstant.behandlingsVeddleggTittel.string
-            brevkode = LegeerklaeringConstant.brevkode900002.string
-            sensitivt = false
-            organInternt = true
-            versjon = 1
-        }
-        tilknyttetJournalpostSomKode = LegeerklaeringConstant.vedlegg.string
-        tilknyttetAvNavn =  LegeerklaeringConstant.eiaAuto.string
-        versjon = 1
-    }
-
+    val fagmeldingJournalpostDokumentInfoRelasjon = mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering,fellesformat, false)
     journalpostDokumentInfoRelasjonListe.add(fagmeldingJournalpostDokumentInfoRelasjon)
-    journalpostDokumentInfoRelasjonListe.add(behandlingsvedleggJournalpostDokumentInfoRelasjon)
+    if(outcomes != null) {
+        val behandlingsvedleggJournalpostDokumentInfoRelasjon = mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering, fellesformat, true)
+        journalpostDokumentInfoRelasjonListe.add(behandlingsvedleggJournalpostDokumentInfoRelasjon)
+    }
 
     gjelderListe.add(Bruker().apply {
         brukerId = fellesformat.msgHead.msgInfo.patient.ident[0].id
@@ -85,4 +40,46 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat):
     avsenderMottakerId = getHCPFodselsnummer(fellesformat)
     opprettetAvNavn = LegeerklaeringConstant.eiaAuto.string
     }
-}
+
+
+    fun mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, behandlingsvedlegg: Boolean):
+            JournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
+        dokumentInfo = DokumentInfo().apply {
+
+            if (legeeklaering.forbeholdLegeerklaring.tilbakeholdInnhold != 2.toBigInteger()) {
+                begrensetPartsinnsynFraTredjePart = true}
+
+            fildetaljerListe.add(Fildetaljer().apply {
+                //TODO fil = createPDFBase64Encoded(legeeklaering)
+                filnavn = if(behandlingsvedlegg) {
+                    fellesformat.mottakenhetBlokk.ediLoggId+"-behandlingsvedlegg"+
+                            LegeerklaeringConstant.pdfType.string
+                }
+                else{
+                    fellesformat.mottakenhetBlokk.ediLoggId + LegeerklaeringConstant.pdfType.string
+                }
+                fil
+                filtypeKode = LegeerklaeringConstant.pdf.string
+                variantFormatKode = LegeerklaeringConstant.arkiv.string
+                versjon = 1
+            })
+            kategoriKode = LegeerklaeringConstant.kategoriKodeES.string
+
+            tittel = if(behandlingsvedlegg) {
+                LegeerklaeringConstant.behandlingsVeddleggTittel.string
+            }
+            else{
+                LegeerklaeringConstant.legeerklæring.string
+            }
+            brevkode = LegeerklaeringConstant.brevkode900002.string
+            sensitivt = false
+            organInternt = behandlingsvedlegg
+            versjon = 1
+        }
+        if(behandlingsvedlegg) {
+            tilknyttetJournalpostSomKode = LegeerklaeringConstant.vedlegg.string
+        }
+        tilknyttetJournalpostSomKode =  LegeerklaeringConstant.houveddokument.string
+        tilknyttetAvNavn =  LegeerklaeringConstant.eiaAuto.string
+        versjon = 1
+    }
