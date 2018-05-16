@@ -5,7 +5,8 @@ import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.readToFellesformat
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.legeerklaering.validation.toOutcome
-import no.nav.model.legeerklaering.Legeerklaring
+import no.nav.model.fellesformat.EIFellesformat
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
 import org.junit.Assert
 import org.junit.Test
 import java.util.*
@@ -13,11 +14,11 @@ import javax.xml.datatype.DatatypeFactory
 
 class JoarkClientTest {
 
-    val fellesformat = readToFellesformat("/legeerklaering.xml")
-    val legeerklaring = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
-    val requestZeroOutcomes = createJoarkRequest(legeerklaring, fellesformat, null)
-    val outcomes = listOf(OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome())
-    val requestWithOutcomes = createJoarkRequest(legeerklaring, fellesformat, outcomes)
+    val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
+    val behandlingsvedleggBytes: ByteArray = byteArrayOf()
+    val fagmeldingBytes: ByteArray = byteArrayOf()
+    val requestZeroOutcomes: LagreDokumentOgOpprettJournalpostRequest = createJoarkRequest(fellesformat, fagmeldingBytes, null)
+    val requestWithOutcomes = createJoarkRequest(fellesformat, fagmeldingBytes, behandlingsvedleggBytes)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
 

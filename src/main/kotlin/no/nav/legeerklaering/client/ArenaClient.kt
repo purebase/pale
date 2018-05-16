@@ -4,11 +4,9 @@ import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.newInstance
 import no.nav.legeerklaering.validation.Outcome
-import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.legeerklaering.validation.extractLegeerklaering
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
-import no.nav.model.legeerklaering.Legeerklaring
 import java.util.*
 
 fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outcome>, tssId: String, sperrekode: Int? = null): ArenaEiaInfo = ArenaEiaInfo().apply {

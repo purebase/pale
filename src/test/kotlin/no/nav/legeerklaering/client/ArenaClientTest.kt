@@ -2,20 +2,25 @@ package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.*
 import no.nav.legeerklaering.validation.OutcomeType
+import no.nav.legeerklaering.validation.extractLegeerklaering
+import no.nav.legeerklaering.validation.toOutcome
+import no.nav.model.arenainfo.ArenaEiaInfo
+import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import org.junit.Assert
 import org.junit.Test
+import java.time.LocalDate
 import java.util.*
 
 
 
 class ArenaClientTest{
 
-    val fellesformat = readToFellesformat("/legeerklaering.xml")
-    val legeerklaring = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
-    val outcomeTypes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND, OutcomeType.BARN_AV_PASIENT)
-    val tssid = "12454"
-    val request = createArenaEiaInfo(legeerklaring, fellesformat,0,outcomeTypes, tssid)
+    private val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
+    private val legeerklaring: Legeerklaring = extractLegeerklaering(fellesformat)
+    private val outcomes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(generatePersonNumber(LocalDate.now().minusYears(40))), OutcomeType.BARN_AV_PASIENT.toOutcome())
+    private val tssid = "12454"
+    private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid)
 
     @Test
     fun shouldSetEdiloggId() {
@@ -76,15 +81,15 @@ class ArenaClientTest{
 
     @Test
     fun shouldSetEiaDataSystemSvar() {
-        Assert.assertEquals(outcomeTypes[0].messageNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsNr)
-        Assert.assertEquals(outcomeTypes[0].messageText, request.eiaData.systemSvar[0].meldingsTekst)
-        Assert.assertEquals(outcomeTypes[0].messagePriority.priorityNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsPrioritet)
-        Assert.assertEquals(outcomeTypes[0].messageType.toString(), request.eiaData.systemSvar[0].meldingsType)
+        Assert.assertEquals(outcomes[0].outcomeType.messageNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsNr)
+        Assert.assertEquals(outcomes[0].formattedMessage, request.eiaData.systemSvar[0].meldingsTekst)
+        Assert.assertEquals(outcomes[0].outcomeType.messagePriority.priorityNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsPrioritet)
+        Assert.assertEquals(outcomes[0].outcomeType.messageType.type, request.eiaData.systemSvar[0].meldingsType)
 
-        Assert.assertEquals(outcomeTypes[1].messageNumber.toBigInteger(), request.eiaData.systemSvar[1].meldingsNr)
-        Assert.assertEquals(outcomeTypes[1].messageText, request.eiaData.systemSvar[1].meldingsTekst)
-        Assert.assertEquals(outcomeTypes[1].messagePriority.priorityNumber.toBigInteger(), request.eiaData.systemSvar[1].meldingsPrioritet)
-        Assert.assertEquals(outcomeTypes[1].messageType.toString(), request.eiaData.systemSvar[1].meldingsType)
+        Assert.assertEquals(outcomes[1].outcomeType.messageNumber.toBigInteger(), request.eiaData.systemSvar[1].meldingsNr)
+        Assert.assertEquals(outcomes[1].formattedMessage, request.eiaData.systemSvar[1].meldingsTekst)
+        Assert.assertEquals(outcomes[1].outcomeType.messagePriority.priorityNumber.toBigInteger(), request.eiaData.systemSvar[1].meldingsPrioritet)
+        Assert.assertEquals(outcomes[1].outcomeType.messageType.type, request.eiaData.systemSvar[1].meldingsType)
     }
 
     @Test
