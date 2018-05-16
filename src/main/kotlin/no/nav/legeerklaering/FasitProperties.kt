@@ -13,7 +13,8 @@ data class FasitProperties(
         val organisasjonEnhetV2EndpointURL: String = getEnvVar("ORGANISASJONENHET_v2_ENDPOINTURL"),
         val srvLegeerklaeringUsername: String = getEnvVar("SRVLEGEERKLAERING_USERNAME"),
         val srvLegeerklaeringPassword: String = getEnvVar("SRVLEGEERKLAERING_PASSWORD"),
-        val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "https://kuhr-sar-api")
+        val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "https://kuhr-sar-api"),
+        val pdfGeneratorEndpointURL: String = getEnvVar("PDF_GENERATOR_ENDPOINTURL")
 )
 
 fun getEnvVar(name: String, default: String? = null): String =

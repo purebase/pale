@@ -15,9 +15,9 @@ class JoarkClientTest {
 
     val fellesformat = readToFellesformat("/legeerklaering.xml")
     val legeerklaring = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
-    val requestZeroOutcomes = archiveMessage(legeerklaring, fellesformat, null)
+    val requestZeroOutcomes = createJoarkRequest(legeerklaring, fellesformat, null)
     val outcomes = listOf(OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome())
-    val requestWithOutcomes = archiveMessage(legeerklaring, fellesformat, outcomes)
+    val requestWithOutcomes = createJoarkRequest(legeerklaring, fellesformat, outcomes)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
 

@@ -157,7 +157,6 @@ dependencies {
     implementation "io.prometheus:simpleclient_hotspot:0.4.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
     implementation "no.nav.tjenester:nav-journalbehandling-tjenestespesifikasjon:$nav_journalbehandling:jaxws"
-    implementation "no.nav.tjeneste.tssws:nav-fim-tssws-organisasjon-v3-tjenestespesifikasjon:$nav_tssws_organisasjon_v3:jaxws"
     implementation "no.nav.tjenester:nav-organisasjonEnhet-v2-tjenestespesifikasjon:$nav_organisasjonEnhet_v2:jaxws"
     implementation "io.ktor:ktor-server-netty:$ktor_version"
     implementation "com.squareup.okhttp3:okhttp:3.10.0"

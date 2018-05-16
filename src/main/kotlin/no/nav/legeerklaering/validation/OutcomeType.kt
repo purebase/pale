@@ -44,7 +44,6 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     GIFT_LEVER_ADSKILT(358, "Vurder om legeerklæring kan godtas, behandler er gift med pasienten- lever atskilt.", Priority.FOLLOW_UP, Type.FAGLIG),
 
     BEHANDLER_PERSON_NUMBER_MISSMATCH_CERTIFICATE(381, "Behandler har endret fødselsnummer, sertifikatet for digital signatur må oppdateres.", Priority.NOTE, Type.FAGLIG),
-    DUPLICATE(820, "Legeerklæringen er mottatt før, dette er et duplikat.", Priority.NOTE, Type.FAGLIG)
 }
 
 fun OutcomeType.toOutcome(vararg args: Any): Outcome

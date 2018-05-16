@@ -18,7 +18,7 @@ data class BehandlingsvedleggSender(
         val signaturNavn: String,
         val avsenderId: String,
         val avsenderNavn: String,
-        val tlfNummer: String,
+        val tlfNummer: String?,
         val organisasjonsId: String,
         val organisasjonsNavn: String,
         val adresse: String,
@@ -27,9 +27,7 @@ data class BehandlingsvedleggSender(
         val merknadAvvist: List<Merknad>,
         val merknadManuellBehandling: List<Merknad>,
         val merknadOppfoelging: List<Merknad>,
-        val merknadNotis: List<Merknad>,
-        val documentInfo: List<Merknad>
-
+        val merknadNotis: List<Merknad>
 )
 
 data class Fagmelding(

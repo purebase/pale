@@ -4,19 +4,22 @@ import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.newInstance
 import no.nav.legeerklaering.validation.Outcome
+import no.nav.legeerklaering.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
 
-fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, outcomes: List<Outcome>?):
+fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?):
         LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
+    val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
+    val legeerklaering = extractLegeerklaering(fellesformat)
 
-    val fagmeldingJournalpostDokumentInfoRelasjon = mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering,fellesformat, false)
+    val fagmeldingJournalpostDokumentInfoRelasjon = mapfellesformatToJournalpostDokumentInfoRelasjon(legeerklaering,fellesformat, false, fagmelding)
     journalpostDokumentInfoRelasjonListe.add(fagmeldingJournalpostDokumentInfoRelasjon)
-    if(outcomes != null) {
-        val behandlingsvedleggJournalpostDokumentInfoRelasjon = mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering, fellesformat, true)
+    if(behandlingsvedlegg != null) {
+        val behandlingsvedleggJournalpostDokumentInfoRelasjon = mapfellesformatToJournalpostDokumentInfoRelasjon(legeerklaering, fellesformat, true, behandlingsvedlegg)
         journalpostDokumentInfoRelasjonListe.add(behandlingsvedleggJournalpostDokumentInfoRelasjon)
     }
 
@@ -34,15 +37,13 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, o
     dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     fagomradeKode = LegeerklaeringConstant.opp.string
     fordeling = LegeerklaeringConstant.eiaOk.string
-    avsenderMottaker = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
-            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
-            fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase()
+    avsenderMottaker = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
     avsenderMottakerId = getHCPFodselsnummer(fellesformat)
     opprettetAvNavn = LegeerklaeringConstant.eiaAuto.string
     }
 
 
-    fun mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, behandlingsvedlegg: Boolean):
+    fun mapfellesformatToJournalpostDokumentInfoRelasjon(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, behandlingsvedlegg: Boolean, pdfDocumentBase64: ByteArray):
             JournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
         dokumentInfo = DokumentInfo().apply {
 
@@ -50,7 +51,7 @@ fun archiveMessage(legeeklaering: Legeerklaring, fellesformat: EIFellesformat, o
                 begrensetPartsinnsynFraTredjePart = true}
 
             fildetaljerListe.add(Fildetaljer().apply {
-                //TODO fil = createPDFBase64Encoded(legeeklaering)
+                fil = pdfDocumentBase64
                 filnavn = if(behandlingsvedlegg) {
                     fellesformat.mottakenhetBlokk.ediLoggId+"-behandlingsvedlegg"+
                             LegeerklaeringConstant.pdfType.string

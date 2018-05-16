@@ -91,7 +91,7 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
             ),
             pasientenBurdeIkkeVite = legeerklaering.forbeholdLegeerklaring.borTilbakeholdes,
             signatur = Signatur(
-                    dato = ZonedDateTime.now().minusDays(1), // TODO
+                    dato = ZonedDateTime.now(),
                     navn = "${healthcareProfessional.familyName}, ${healthcareProfessional.givenName} ${healthcareProfessional.middleName}",
                     adresse = healthcareProfessional.address.streetAdr,
                     postnummer = healthcareProfessional.address.postalCode.toInt(),
