@@ -19,6 +19,7 @@ buildscript {
     ext.rxkotlin = '2.2.0'
     ext.nav_organisasjonEnhet_v2 = '2.1.0'
     ext.ktor_version = '0.9.2'
+    ext.logstash_encoder_version = '5.1'
 
     repositories {
         mavenCentral()
@@ -51,6 +52,10 @@ apply plugin: "com.commercehub.gradle.plugin.avro"
 
 configurations {
     generateJaxb2
+}
+
+avro {
+    fieldVisibility = "PRIVATE"
 }
 
 task generateJaxb2() {
@@ -133,16 +138,17 @@ dependencies {
     generateJaxb2 "com.sun.xml.bind:jaxb-core:2.3.0"
     generateJaxb2 "org.jvnet.jaxb2_commons:jaxb2-basics-ant:1.11.1"
 
-    compile "no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:$nav_person_v3_version"
-    compile "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
-    compile "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jackson_version"
-    compile "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version"
-    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "redis.clients:jedis:$jedis_version"
-    compile "ai.grakn:redis-mock:$redis_mock_version"
-    compile "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
-    compile "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
+    implementation "no.nav.tjenester:nav-person-v3-tjenestespesifikasjon:$nav_person_v3_version"
+    implementation "com.ibm.mq:com.ibm.mq.allclient:$ibm_mq_version"
+    implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jackson_version"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jackson_version"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "redis.clients:jedis:$jedis_version"
+    implementation "ai.grakn:redis-mock:$redis_mock_version"
+    implementation "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
+    implementation "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
 
     implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlin"
     implementation "ch.qos.logback:logback-classic:$logback_version"
@@ -153,7 +159,9 @@ dependencies {
     implementation "no.nav.tjenester:nav-journalbehandling-tjenestespesifikasjon:$nav_journalbehandling:jaxws"
     implementation "no.nav.tjeneste.tssws:nav-fim-tssws-organisasjon-v3-tjenestespesifikasjon:$nav_tssws_organisasjon_v3:jaxws"
     implementation "no.nav.tjenester:nav-organisasjonEnhet-v2-tjenestespesifikasjon:$nav_organisasjonEnhet_v2:jaxws"
-    compile "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "io.ktor:ktor-server-netty:$ktor_version"
+    implementation "com.squareup.okhttp3:okhttp:3.10.0"
+    implementation "net.logstash.logback:logstash-logback-encoder:$logstash_encoder_version"
 
     testImplementation "junit:junit:$junit_version"
     testImplementation "com.devskiller:jfairy:0.6.2"

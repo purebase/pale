@@ -3,6 +3,7 @@ package no.nav.legeerklaering
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
@@ -46,6 +47,7 @@ import javax.xml.bind.JAXBContext
 
 val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
+        .registerKotlinModule()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 val fellesformatJaxBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
 val fellesformatUnmarshaller = fellesformatJaxBContext.createUnmarshaller()
@@ -89,7 +91,6 @@ fun main(args: Array<String>) {
                 serviceClass = OrganisasjonEnhetV2::class.java
             } as OrganisasjonEnhetV2
 
-
             val consumer = session.createConsumer(inputQueue)
             listen(consumer, jedis, personV3, tssOrganisasjon, orgnaisasjonEnhet)
         }
@@ -114,8 +115,8 @@ fun listen(consumer: MessageConsumer, jedis: Jedis, personV3: PersonV3, tssOrgan
         }
 
         val duplicateCheckedFellesformat = DuplicateCheckedFellesformat().apply {
-            setFellesformat(String(bytes, Charsets.UTF_8))
-            setRetryCounter(0)
+            this.fellesformat = String(bytes, Charsets.UTF_8)
+            this.retryCounter = 0
         }
 
         val outcomes = validateMessage(fellesformat, legeerklaering, personV3, organisasjonEnhet)
@@ -144,7 +145,6 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
             }).navKontor
         }
     }
-
 
     val person = try {
         runBlocking { personDeferred.await() }
@@ -215,18 +215,14 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
 fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean =
         jedis.get(hashValue) != null
 
-
 fun getHCPFodselsnummer(fellesformat: EIFellesformat): String {
 
     for (ident in fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident) {
-
         if (ident.typeId.v.equals("FNR"))
         {
             return ident.id
         }
-
     }
 
     return ""
-
 }
