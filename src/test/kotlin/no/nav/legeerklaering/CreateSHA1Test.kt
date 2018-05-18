@@ -1,5 +1,6 @@
 package no.nav.legeerklaering;
 
+import no.nav.legeerklaering.validation.extractLegeerklaering
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -9,27 +10,26 @@ class CreateSHA1Test {
 
     val fellesformat = readToFellesformat("/legeerklaering.xml")
 
-  @Test
-     fun shouldCreateDuplicateHashValues() {
+    @Test
+    fun shouldCreateDuplicateHashValues() {
 
+        val firstHash = createHash(objectMapper.writeValueAsBytes((fellesformat)))
+        val secondHash = createHash(objectMapper.writeValueAsBytes((fellesformat)))
 
-      val firstMessage = createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
-      val secoundMessage = createSha256Hash(objectMapper.writeValueAsBytes((fellesformat)))
-
-      assertEquals(firstMessage, secoundMessage)
-     }
+        assertEquals(firstHash, secondHash)
+    }
 
     @Test
     fun shouldCreateUniqueHashValues() {
 
-        val firstMessage = createSha256Hash(objectMapper.writeValueAsBytes(fellesformat.toString()))
+        val firstHash = createHash(objectMapper.writeValueAsBytes(fellesformat.toString()))
 
         for (i in 1..1000) {
-            val secoundFellesformat = readToFellesformat("/legeerklaering.xml")
-            secoundFellesformat.mottakenhetBlokk.ediLoggId = UUID.randomUUID().toString()
-            val secoundMessage = createSha256Hash(objectMapper.writeValueAsBytes(secoundFellesformat.toString()))
+            val secondLegeerklaering = extractLegeerklaering(readToFellesformat("/legeerklaering.xml"))
+            secondLegeerklaering.andreOpplysninger.opplysning = UUID.randomUUID().toString()
+            val secondHash = createLEHash(secondLegeerklaering)
 
-            assertNotEquals(firstMessage, secoundMessage)
+            assertNotEquals(firstHash, secondHash)
         }
 
     }

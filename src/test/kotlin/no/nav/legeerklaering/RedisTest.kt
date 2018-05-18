@@ -23,7 +23,7 @@ class RedisTest{
 
     @Test
     fun shouldNotFindHashValueInRedis() {
-        val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
+        val hashValue = createHash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 
@@ -32,7 +32,7 @@ class RedisTest{
 
     @Test
     fun shouldFindHashValueInRedis() {
-        val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
+        val hashValue = createHash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 

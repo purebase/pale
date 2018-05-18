@@ -50,6 +50,7 @@ val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
         .registerKotlinModule()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+
 val fellesformatJaxBContext: JAXBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
 val arenaEiaInfoJaxBContext: JAXBContext = JAXBContext.newInstance(ArenaEiaInfo::class.java)
 val apprecJaxBContext: JAXBContext = JAXBContext.newInstance(EIFellesformat::class.java, AppRec::class.java)
@@ -128,7 +129,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     keyValue("msgId", fellesformat.msgHead.msgInfo.msgId)
             )
 
-            val defaultKeyFormat = (0..defaultKeyValues.size).joinToString(", ") { "{}" }
+            val defaultKeyFormat = (0..defaultKeyValues.size).joinToString(", ", "(", ")") { "{}" }
 
             log.info("Received message from {}, $defaultKeyFormat",
                     keyValue("size", bytes.size),
@@ -140,11 +141,12 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
-            val hashValue = createSha256Hash(objectMapper.writeValueAsBytes(legeerklaering))
-            if (jedis.exists(hashValue)) {
+            val hashValue = createLEHash(legeerklaering)
+            val jedisEdiLoggId = jedis.get(hashValue)
+            if (jedisEdiLoggId != null) {
                 val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                 apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                log.warn("Message marked as duplicate $defaultKeyFormat",
+                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisEdiLoggId,
                         *defaultKeyValues)
             } else {
                 jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
@@ -276,8 +278,14 @@ fun PersonV3.hentGeografiskTilknytningAsync(fnr: String): Deferred<GeografiskTil
     }
 }
 
+fun createLEHash(legeerklaering: Legeerklaring): String {
+    val bytes = objectMapper
+            .writeValueAsBytes(legeerklaering)
 
-fun createSha256Hash(input: ByteArray): String {
+    return createHash(bytes)
+}
+
+fun createHash(input: ByteArray): String {
     val bytes = MessageDigest
             .getInstance("SHA1")
             .digest(input)
