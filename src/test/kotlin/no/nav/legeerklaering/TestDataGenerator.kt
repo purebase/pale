@@ -12,6 +12,7 @@ import java.io.StringWriter
 import java.math.BigInteger
 import java.time.LocalDate
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
 
@@ -116,7 +117,8 @@ fun defaultFellesformat(): EIFellesformat {
                             typeLegeerklaring = generateLegeerklaeringType().toBigInteger()
                         })
                         pasientopplysninger = Pasientopplysninger().apply {
-                            flereArbeidsforhold = 2.toBigInteger() // TODO
+                            flereArbeidsforhold = ThreadLocalRandom.current().
+                                    nextInt(0, 2 + 1).toBigInteger()
                             pasient = Pasient().apply {
                                 navn = TypeNavn().apply {
                                     fornavn = patientData.firstName
@@ -164,7 +166,8 @@ fun defaultFellesformat(): EIFellesformat {
                                     diagnoseArbeidsuforhet = DiagnoseArbeidsuforhet().apply {
                                         arbeidsuforFra = datatypeFactory.newXMLGregorianCalendar()
                                         diagnoseKodesystem = DiagnoseKodesystem().apply {
-                                            kodesystem = 1.toBigInteger() // TODO
+                                            kodesystem = ThreadLocalRandom.current().
+                                                    nextInt(0, 2 + 1).toBigInteger()
                                             enkeltdiagnose.add(Enkeltdiagnose().apply {
                                                 diagnose = "82-01-Le"
                                                 kodeverdi = "K74"

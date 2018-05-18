@@ -1,9 +1,7 @@
 package no.nav.legeerklaering
 
 import io.ktor.server.engine.ApplicationEngine
-import no.nav.legeerklaering.metrics.INPUT_MESSAGE_TIME
-import no.nav.legeerklaering.metrics.RULE_COUNTER
-import no.nav.legeerklaering.metrics.WS_CALL_TIME
+import no.nav.legeerklaering.metrics.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
@@ -68,6 +66,8 @@ class HttpServerTest {
         WS_CALL_TIME.labels("test_ws").startTimer().use {
             Thread.sleep(12)
         }
+        APPREC_STATUS_COUNTER.labels("test_ok").inc()
+        APPREC_ERROR_COUNTER.labels("test_big_error_happend").inc()
 
         val request = Request.Builder()
                 .url("$baseUrl/prometheus")

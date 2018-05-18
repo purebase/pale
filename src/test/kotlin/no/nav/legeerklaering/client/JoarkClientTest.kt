@@ -3,8 +3,6 @@ package no.nav.legeerklaering.client
 import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.readToFellesformat
-import no.nav.legeerklaering.validation.OutcomeType
-import no.nav.legeerklaering.validation.toOutcome
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
 import org.junit.Assert
