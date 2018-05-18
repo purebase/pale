@@ -33,8 +33,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
     eiaData = ArenaEiaInfo.EiaData().apply {
 
         if (outcomeTypeList.isNotEmpty()) {
-            val systemsvarList = outcomeTypeList
-                    .map { mapOutcomeTypeToSystemsvar(it) }
+            val systemsvarList = outcomeTypeList.map { it.toSystemsvar() }
             systemSvar.addAll(systemsvarList)
         }
 
@@ -45,9 +44,9 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
     }
 }
 
-fun mapOutcomeTypeToSystemsvar(outcome: Outcome): ArenaEiaInfo.EiaData.SystemSvar = ArenaEiaInfo.EiaData.SystemSvar().apply {
-    meldingsNr = outcome.outcomeType.messageNumber.toBigInteger()
-    meldingsTekst = outcome.formattedMessage
-    meldingsPrioritet = outcome.outcomeType.messagePriority.priorityNumber.toBigInteger()
-    meldingsType = outcome.outcomeType.messageType.type
+fun Outcome.toSystemsvar(): ArenaEiaInfo.EiaData.SystemSvar = ArenaEiaInfo.EiaData.SystemSvar().apply {
+    meldingsNr = outcomeType.messageNumber.toBigInteger()
+    meldingsTekst = formattedMessage
+    meldingsPrioritet = outcomeType.messagePriority.priorityNumber.toBigInteger()
+    meldingsType = outcomeType.messageType.type
 }
