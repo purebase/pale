@@ -155,6 +155,7 @@ dependencies {
     implementation "io.confluent:kafka-avro-serializer:$confluent_version"
     implementation "org.apache.kafka:kafka-clients:$kafka_version"
     implementation "io.prometheus:simpleclient_hotspot:0.4.0"
+    implementation "io.prometheus:simpleclient_common:0.4.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
     implementation "no.nav.tjenester:nav-journalbehandling-tjenestespesifikasjon:$nav_journalbehandling:jaxws"
     implementation "no.nav.tjenester:nav-organisasjonEnhet-v2-tjenestespesifikasjon:$nav_organisasjonEnhet_v2:jaxws"

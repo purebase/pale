@@ -14,6 +14,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.legeerklaering.client.*
 import no.nav.legeerklaering.mapping.*
+import no.nav.legeerklaering.metrics.INPUT_MESSAGE_TIME
 import no.nav.legeerklaering.metrics.WS_CALL_TIME
 import no.nav.legeerklaering.validation.*
 import no.nav.model.apprec.AppRec
@@ -123,6 +124,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
             val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
 
+            val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
+
             val defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
@@ -185,6 +188,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     receiptProducer.send(this)
                 }
             }
+            inputHistogram.close()
         }
     }
 }
