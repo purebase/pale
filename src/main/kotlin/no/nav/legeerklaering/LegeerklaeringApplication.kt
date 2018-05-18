@@ -14,6 +14,8 @@ import kotlinx.coroutines.experimental.runBlocking
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.legeerklaering.client.*
 import no.nav.legeerklaering.mapping.*
+import no.nav.legeerklaering.metrics.APPREC_ERROR_COUNTER
+import no.nav.legeerklaering.metrics.APPREC_STATUS_COUNTER
 import no.nav.legeerklaering.metrics.INPUT_MESSAGE_TIME
 import no.nav.legeerklaering.metrics.WS_CALL_TIME
 import no.nav.legeerklaering.validation.*
@@ -147,10 +149,17 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val hashValue = createLEHash(legeerklaering)
             val jedisEdiLoggId = jedis.get(hashValue)
             if (jedisEdiLoggId != null) {
-                val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisEdiLoggId,
-                        *defaultKeyValues)
+                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat",
+                        jedisEdiLoggId, *defaultKeyValues)
+                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
+                         session.createBytesMessage().apply {
+                             val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                             apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+                             APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
+                             val apprecBytes = apprecMarshaller.toByteArray(apprec)
+                             writeBytes(apprecBytes)
+                             APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
+                        }
             } else {
                 jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
             }
@@ -165,6 +174,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     val apprecBytes = apprecMarshaller.toByteArray(apprec)
                     todo<Unit>("Add reason to the apprec")
                     writeBytes(apprecBytes)
+                    APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 }
             } else {
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
@@ -186,6 +196,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     val apprecBytes = apprecMarshaller.toByteArray(apprec)
                     writeBytes(apprecBytes)
                     receiptProducer.send(this)
+                    APPREC_STATUS_COUNTER.labels(ApprecStatus.ok.dn).inc()
                 }
             }
             inputHistogram.close()
@@ -235,6 +246,7 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
         outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS
         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
         apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
+        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.v).inc()
         return outcomes.toResult()
     } catch (e: HentPersonSikkerhetsbegrensning) {
         outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {

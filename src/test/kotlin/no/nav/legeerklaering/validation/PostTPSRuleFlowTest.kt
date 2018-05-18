@@ -10,7 +10,7 @@ import javax.xml.datatype.DatatypeFactory
 
 
 
-class PostTSSRuleFlowTest {
+class PostTPSRuleFlowTest {
 
 
     val fellesformat = readToFellesformat("/legeerklaering.xml")

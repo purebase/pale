@@ -25,7 +25,7 @@ class JoarkClientTest {
     @Test
     fun shouldSetbegrensetPartsinnsynFraTredjePartOnFagmelding() {
 
-        Assert.assertEquals(null,
+        Assert.assertEquals(false,
                 requestZeroOutcomes.journalpostDokumentInfoRelasjonListe[0].dokumentInfo.begrensetPartsinnsynFraTredjePart)
     }
 

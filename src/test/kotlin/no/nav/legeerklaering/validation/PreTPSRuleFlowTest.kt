@@ -1,11 +1,11 @@
 package no.nav.legeerklaering.validation
 
-import junit.framework.Assert.assertEquals
 import no.nav.legeerklaering.readToFellesformat
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class PreTSSRuleFlowTest {
+class PreTPSRuleFlowTest {
 
     @Test
     fun shouldCreateOutcomeTypePasientOver70() {

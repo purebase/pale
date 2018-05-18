@@ -13,3 +13,11 @@ val WS_CALL_TIME: Summary = Summary.Builder().name("ws_call_time")
 
 val INPUT_MESSAGE_TIME: Summary = Summary.build().name("legeerklaering_time")
         .help("Amount of messages received from emottak").register()
+
+val APPREC_STATUS_COUNTER: Counter = Counter.Builder().name("apprec_status_counter")
+        .labelNames("apprec_status_type")
+        .help("Counts the number of apprec status types we send back to emottak").register()
+
+val APPREC_ERROR_COUNTER: Counter = Counter.Builder().name("apprec_error_counter")
+        .labelNames("apprec_error_type")
+        .help("Counts the number of apprec error we send back to emottak").register()
