@@ -1,7 +1,7 @@
 # Legeerklaering
 
-Repository for Legeerklaering. Application written in Kotlin to handle messages regarding Legeerklaering and sending them to
-the internal system.
+Repository for Legeerklaering. Application written in Kotlin used to receive legeerklæringer from external systems,
+doing some validation, then pushing it to our internal systems.
 
 ## Technologies & Tools
 
