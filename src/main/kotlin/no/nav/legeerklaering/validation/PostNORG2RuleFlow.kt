@@ -5,7 +5,7 @@ import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjons
 
 fun postNORG2Flow(fellesformat: EIFellesformat, navKontor: Organisasjonsenhet): List<Outcome> = initFlow(fellesformat)
         .doOnNext {
-            if (navKontor.enhetId != null && navKontor.enhetId.isNotEmpty()) {
+            if (navKontor.enhetId == null || navKontor.enhetId.isEmpty()) {
                 it.outcome += OutcomeType.PERSON_HAS_NO_NAV_KONTOR
             }
         }
