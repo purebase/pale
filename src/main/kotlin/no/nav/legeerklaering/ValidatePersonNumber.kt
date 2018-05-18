@@ -29,17 +29,9 @@ private fun validatePersonDNumberMod11(personNumber: String): Boolean {
 }
 
 private fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
-  val personNumberFirstAndSecoundChar = personNumber.substring(0,2)
-    if(validatePersonNumberRange(personNumberFirstAndSecoundChar)){
-        return true
-    }
-    else {
-        if (validatePersonDNumberRange(personNumberFirstAndSecoundChar)) {
-            return true
-        }
-    }
-    return false
-    }
+    val personNumberBornDay = personNumber.substring(0, 2)
+    return validatePersonNumberRange(personNumberBornDay) || validatePersonDNumberRange(personNumberBornDay)
+}
 
 fun validatePersonAndDNumber(personNumber: String): Boolean =
         validatePersonDNumberMod11(personNumber) && validatePersonAndPersonDNumberRange(personNumber)
