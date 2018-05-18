@@ -10,10 +10,6 @@ enum class ApprecError(val v: String, val dn: String, val s: String){
             "2.16.578.1.12.4.1.1.8222"),
     PATIENT_LASTNAME_IS_NOT_IN_SCHEMA("33", "Pasientens etternavn finnes ikke på skjemaet.",
             "2.16.578.1.12.4.1.1.8222"),
-    PATIENT_GIVENNAME_IS_NOT_IN_SCHEMA("34", "Pasientens fornavn finnes ikke på skjemaet.",
-            "2.16.578.1.12.4.1.1.8222"),
-    PATIENT_PERSON_NUMBER_NOT_11_CHARACTERS("47",
-            "Pasientens fødselsnummer er ikke 11 tegn.", "2.16.578.1.12.4.1.1.8222"),
     INFORMATION_PATIENT_IS_KNOWN_OR_HAS_BEEN_LEGITIMIZED_IS_NOT_COMPLETED("51",
             "Informasjon om pasienten er kjent eller har legitimert seg, er ikke utfylt.",
             "2.16.578.1.12.4.1.1.8222"),
@@ -22,4 +18,5 @@ enum class ApprecError(val v: String, val dn: String, val s: String){
             "2.16.578.1.12.4.1.1.8222"),
     DUPLICAT("801", "Duplikat! - Denne meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
             "2.16.578.1.12.4.1.1.8222")
+    //All available apprecs for legeerklæring(OID=8222) are here: https://volven.no/produkt.asp?id=335023&catID=3&subID=8
 }
