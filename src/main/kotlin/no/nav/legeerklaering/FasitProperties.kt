@@ -7,14 +7,15 @@ data class FasitProperties(
         val mqUsername: String = getEnvVar("SRVAPPSERVER_USERNAME"),
         val mqPassword: String = getEnvVar("SRVAPPSERVER_PASSWORD"),
         val legeerklaeringQueueName: String = getEnvVar("LEGEERKLAERING_QUEUENAME"),
-        val arenaQueueName: String = getEnvVar("ARENA_QUEUENAMEEEE"),
+        val arenaQueueName: String = getEnvVar("ARENA_QUEUENAME"),
         val virksomhetPersonV3EndpointURL: String = getEnvVar("VIRKSOMHET_PERSON_V3_ENDPOINTURL"),
         val tssWSOrganisasjonV4EndpointURL: String = getEnvVar("TSSWSORGANISASJON_V4_ENDPOINTURL"),
         val organisasjonEnhetV2EndpointURL: String = getEnvVar("ORGANISASJONENHET_v2_ENDPOINTURL"),
         val srvLegeerklaeringUsername: String = getEnvVar("SRVLEGEERKLAERING_USERNAME"),
         val srvLegeerklaeringPassword: String = getEnvVar("SRVLEGEERKLAERING_PASSWORD"),
         val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "https://kuhr-sar-api"),
-        val pdfGeneratorEndpointURL: String = getEnvVar("PDF_GENERATOR_ENDPOINTURL")
+        val pdfGeneratorEndpointURL: String = getEnvVar("PDF_GENERATOR_ENDPOINTURL"),
+        val legeerklaeringBackoutQueueName: String = getEnvVar("LEGEERKLAERING_BACKOUT_QUEUENAME")
 )
 
 fun getEnvVar(name: String, default: String? = null): String =

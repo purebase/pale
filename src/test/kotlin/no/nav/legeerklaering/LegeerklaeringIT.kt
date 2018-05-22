@@ -2,7 +2,9 @@ package no.nav.legeerklaering
 
 import ai.grakn.redismock.RedisServer
 import io.ktor.application.call
+import io.ktor.content.PartData
 import io.ktor.http.ContentType
+import io.ktor.request.receiveMultipart
 import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.post
@@ -19,6 +21,7 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbeh
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl
 import org.apache.activemq.artemis.core.server.ActiveMQServer
 import org.apache.activemq.artemis.core.server.ActiveMQServers
+import org.apache.commons.io.IOUtils
 import org.apache.cxf.BusFactory
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
@@ -29,6 +32,7 @@ import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.mockito.Mockito.mock
+import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
 import javax.jms.ConnectionFactory
 import javax.naming.InitialContext
@@ -37,6 +41,7 @@ import javax.xml.ws.Endpoint
 class LegeerklaeringIT {
 
     companion object {
+        val log = LoggerFactory.getLogger("le.legeerklaering-it")
         val personV3Mock: PersonV3 = mock(PersonV3::class.java)
         val organisasjonEnhetV2Mock: OrganisasjonEnhetV2 = mock(OrganisasjonEnhetV2::class.java)
         val journalbehandlingMock: Journalbehandling = mock(Journalbehandling::class.java)
@@ -76,19 +81,19 @@ class LegeerklaeringIT {
             createHttpMock()
 
             val personV3Client = JaxWsProxyFactoryBean().apply {
-                address = "$wsBaseUrl/tps"
+                address = "$wsBaseUrl/ws/tps"
                 features.add(LoggingFeature())
                 serviceClass = PersonV3::class.java
             }.create() as PersonV3
 
             val organisasjonEnhetV2Client = JaxWsProxyFactoryBean().apply {
-                address = "$wsBaseUrl/norg2"
+                address = "$wsBaseUrl/ws/norg2"
                 features.add(LoggingFeature())
                 serviceClass = OrganisasjonEnhetV2::class.java
             }.create() as OrganisasjonEnhetV2
 
             val journalbehandlingClient = JaxWsProxyFactoryBean().apply {
-                address = "$wsBaseUrl/joark"
+                address = "$wsBaseUrl/ws/joark"
                 features.add(LoggingFeature())
                 serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
@@ -99,13 +104,17 @@ class LegeerklaeringIT {
             val sarClient = SarClient(mockHttpServerUrl, "username", "password")
 
             val queueConnection = connectionFactory.createConnection()
+            queueConnection.start()
             val session = queueConnection.createSession()
             val inputQueue = session.createQueue("input_queue")
             val arenaQueue = session.createQueue("arena_queue")
             val apprecQueue = session.createQueue("apprec_queue")
+            val backoutQueue = session.createQueue("backout_queue")
+
+            diagnosisWebserver = createHttpServer(diagnosisWebServerPort)
 
             session.close()
-            listen(pdfClient, jedis, personV3Client, organisasjonEnhetV2Client, journalbehandlingClient, sarClient, inputQueue, arenaQueue, apprecQueue, queueConnection)
+            listen(pdfClient, jedis, personV3Client, organisasjonEnhetV2Client, journalbehandlingClient, sarClient, inputQueue, arenaQueue, apprecQueue, backoutQueue, queueConnection)
         }
 
         private fun createHttpMock() {
@@ -115,6 +124,33 @@ class LegeerklaeringIT {
                         call.respondText("Mocked PDF", ContentType.parse("application/pdf"))
                     }
 
+                    post("/input") {
+                        val multipart = call.receiveMultipart()
+                        log.info("Received input {}", multipart)
+                        while (true) {
+                            val part = multipart.readPart() ?: break
+                            when (part) {
+                                is PartData.FileItem -> {
+                                    val stream = part.streamProvider()
+                                    val bytes = IOUtils.toByteArray(stream)
+
+                                    connectionFactory.createConnection().use {
+                                        it.start()
+
+                                        val session = it.createSession()
+                                        val inputQueue = session.createQueue("input_queue")
+                                        val bytesMessage = session.createBytesMessage()
+                                        bytesMessage.writeBytes(bytes)
+                                        val producer = session.createProducer(inputQueue)
+
+                                        producer.send(bytesMessage)
+                                        log.info("Pushed message to queue")
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     get("/rest/sar/samh") {
                         val ident = call.request.queryParameters["ident"]
                         call.respondJson {
@@ -122,7 +158,7 @@ class LegeerklaeringIT {
                         }
                     }
                 }
-            }
+            }.start()
         }
 
         private fun createJettyServer() {
@@ -149,6 +185,9 @@ class LegeerklaeringIT {
         @JvmStatic
         fun main(args: Array<String>) {
             setup()
+
+            log.info("Diagnosis available at: {}", diagnosisWebServerUrl)
+            log.info("Mock and input available at: {}", mockHttpServerUrl)
 
             Runtime.getRuntime().addShutdownHook(Thread {
                 tearDown()

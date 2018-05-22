@@ -39,9 +39,9 @@ class PostTPSRuleFlowTest {
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.GIFT_MED_PASIENT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.MARRIED_TO_PATIENT }
 
-        assertEquals(OutcomeType.GIFT_MED_PASIENT, outcome?.outcomeType)
+        assertEquals(OutcomeType.MARRIED_TO_PATIENT, outcome?.outcomeType)
     }
 
     @Test

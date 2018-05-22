@@ -36,7 +36,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PASIENT_OVER_70(352, "Legeerklæring til vurdering,  personen er over 70 år.", Priority.FOLLOW_UP, Type.FAGLIG),
 
     // Pasientrelasjoner
-    GIFT_MED_PASIENT(353, "Vurder om legeerklæring kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    MARRIED_TO_PATIENT(353, "Vurder om legeerklæring kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
     SAMBOER_MED_PASIENT(354, "Vurder om legeerklæring  kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
     REGISTRERT_PARTNER_MED_PASIENT(355, "Vurder om legeerklæring kan godtas, behandler er registerert partnes med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
     FORELDER_TIL_PASIENT(356, "Vurder om legeerklæring kan godtas, behandler er foreldre til pasient.", Priority.FOLLOW_UP, Type.FAGLIG),

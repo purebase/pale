@@ -11,13 +11,11 @@ import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.runBlocking
+import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.legeerklaering.client.*
 import no.nav.legeerklaering.mapping.*
-import no.nav.legeerklaering.metrics.APPREC_ERROR_COUNTER
-import no.nav.legeerklaering.metrics.APPREC_STATUS_COUNTER
-import no.nav.legeerklaering.metrics.INPUT_MESSAGE_TIME
-import no.nav.legeerklaering.metrics.WS_CALL_TIME
+import no.nav.legeerklaering.metrics.*
 import no.nav.legeerklaering.validation.*
 import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
@@ -41,6 +39,7 @@ import java.security.MessageDigest
 import redis.clients.jedis.Jedis
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.math.BigInteger
 import javax.jms.*
 import javax.jms.Queue
@@ -62,15 +61,11 @@ val fellesformatUnmarshaller: Unmarshaller = fellesformatJaxBContext.createUnmar
 val arenaEiaInfoMarshaller: Marshaller = arenaEiaInfoJaxBContext.createMarshaller()
 val apprecMarshaller: Marshaller = apprecJaxBContext.createMarshaller()
 val newInstance: DatatypeFactory = DatatypeFactory.newInstance()
+val retryInterval = arrayOf(1000L * 60, 2000L * 60, 2000L * 60, 5000L * 60)
 
-
-private val log = LoggerFactory.getLogger(LegeerklaeringApplication::class.java)
+private val log = LoggerFactory.getLogger("le-application")
 
 class LegeerklaeringApplication
-
-fun <T>todo(reason: String): T {
-    throw RuntimeException(reason)
-}
 
 fun main(args: Array<String>) {
     DefaultExports.initialize()
@@ -84,7 +79,8 @@ fun main(args: Array<String>) {
             val session = connection.createSession()
             val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
             val arenaQueue = session.createQueue(fasitProperties.arenaQueueName)
-            val receiptQueue = session.createQueue(todo("Figure what queue to use for apprec"))
+            val receiptQueue = session.createQueue(TODO("Figure what queue to use for apprec"))
+            val backoutQueue = session.createQueue(fasitProperties.legeerklaeringBackoutQueueName)
             session.close()
 
             val personV3 = JaxWsProxyFactoryBean().apply {
@@ -100,27 +96,42 @@ fun main(args: Array<String>) {
             }.create() as OrganisasjonEnhetV2
 
             val journalbehandling = JaxWsProxyFactoryBean().apply {
-                todo("Implement fasit resources for joark")
+                TODO("Implement fasit resources for joark")
             }.create() as Journalbehandling
 
             val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword)
 
-            listen(PdfClient(fasitProperties.pdfGeneratorEndpointURL), jedis, personV3, orgnaisasjonEnhet, journalbehandling, sarClient, inputQueue, arenaQueue, receiptQueue, connection)
+            listen(PdfClient(fasitProperties.pdfGeneratorEndpointURL), jedis, personV3, orgnaisasjonEnhet, journalbehandling, sarClient, inputQueue, arenaQueue, receiptQueue, backoutQueue, connection)
         }
     }
 
 }
 
+fun defaultLogInfo(keyValues: Array<StructuredArgument>): String =
+        (0..(keyValues.size-1)).joinToString(", ", "(", ")") { "{}" }
+
 fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonEnhet: OrganisasjonEnhetV2,
            journalbehandling: Journalbehandling, sarClient: SarClient, inputQueue: Queue, arenaQueue: Queue,
-           receiptQueue: Queue, connection: Connection) {
+           receiptQueue: Queue, backoutQueue: Queue, connection: Connection) {
     val session = connection.createSession()
     val consumer = session.createConsumer(inputQueue)
     val arenaProducer = session.createProducer(arenaQueue)
     val receiptProducer = session.createProducer(receiptQueue)
+    val backoutProducer = session.createProducer(backoutQueue)
+    var defaultKeyValues = arrayOf(
+            keyValue("noMessageIdentifier", true))
+    var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
+
+    QueueStatusCollector(connection.createSession(), inputQueue, arenaQueue, receiptQueue, backoutQueue)
+            .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
-        if (it is BytesMessage) {
+        var messageHash: String? = null
+        var ediLoggId: String? = null
+        try {
+            if (it !is BytesMessage)
+                throw RuntimeException("Incoming message not a byte message?")
+
             val bytes = ByteArray(it.bodyLength.toInt())
             it.readBytes(bytes)
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
@@ -128,13 +139,17 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
 
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
-            val defaultKeyValues = arrayOf(
+            ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
+            messageHash = createLEHash(legeerklaering)
+
+            defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
-                    keyValue("msgId", fellesformat.msgHead.msgInfo.msgId)
+                    keyValue("msgId", fellesformat.msgHead.msgInfo.msgId),
+                    keyValue("messageHash", messageHash)
             )
 
-            val defaultKeyFormat = (0..defaultKeyValues.size).joinToString(", ", "(", ")") { "{}" }
+            defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
             log.info("Received message from {}, $defaultKeyFormat",
                     keyValue("size", bytes.size),
@@ -146,36 +161,38 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
-            val hashValue = createLEHash(legeerklaering)
-            val jedisEdiLoggId = jedis.get(hashValue)
-            if (jedisEdiLoggId != null) {
-                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat",
-                        jedisEdiLoggId, *defaultKeyValues)
-                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
-                         session.createBytesMessage().apply {
-                             val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                             apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                             APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
-                             val apprecBytes = apprecMarshaller.toByteArray(apprec)
-                             writeBytes(apprecBytes)
-                             APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
-                        }
-            } else {
-                jedis.set(hashValue, fellesformat.mottakenhetBlokk.ediLoggId.toString())
-            }
-
-
-
-            val validationResult = validateMessage(fellesformat, legeerklaering, personV3, organisasjonEnhet, sarClient)
-
-            if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR } || validationResult.tssId == null) {
-                session.createBytesMessage().apply {
-                    val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+            println(messageHash)
+            val jedisEdiLoggId = jedis.get(messageHash)
+            val duplicate = jedisEdiLoggId != null
+            if (duplicate) {
+                val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisEdiLoggId,
+                        *defaultKeyValues)
+                APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
+                receiptProducer.send(session.createBytesMessage().apply {
                     val apprecBytes = apprecMarshaller.toByteArray(apprec)
-                    todo<Unit>("Add reason to the apprec")
                     writeBytes(apprecBytes)
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
-                }
+                })
+                return@setMessageListener
+            }
+
+            val validationResult = try {
+                validateMessage(fellesformat, legeerklaering, personV3, organisasjonEnhet, sarClient)
+            } catch (e: Exception) {
+                log.error("Received exception", e)
+                throw e
+            }
+
+            if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR } || validationResult.tssId == null) {
+                receiptProducer.send(session.createBytesMessage().apply {
+                    val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                    val apprecBytes = apprecMarshaller.toByteArray(apprec)
+                    TODO("Add reason to the apprec")
+                    writeBytes(apprecBytes)
+                    APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
+                })
             } else {
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
                 val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
@@ -183,23 +200,30 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
-                session.createBytesMessage().apply {
+                arenaProducer.send(session.createBytesMessage().apply {
                     val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId)
                     val arenaEiaInfoBytes = arenaEiaInfoMarshaller.toByteArray(arenaEiaInfo)
                     writeBytes(arenaEiaInfoBytes)
                     arenaProducer.send(this)
-                }
+                })
 
                 log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
-                session.createBytesMessage().apply {
+                receiptProducer.send(session.createBytesMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.ok)
                     val apprecBytes = apprecMarshaller.toByteArray(apprec)
                     writeBytes(apprecBytes)
                     receiptProducer.send(this)
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.ok.dn).inc()
-                }
+                })
             }
             inputHistogram.close()
+        } catch (e: Exception) {
+            log.error("Exception caught while handling message, sending to backout $defaultKeyFormat", *defaultKeyValues, e)
+            backoutProducer.send(it)
+        }
+
+        if (messageHash != null && ediLoggId != null) {
+            jedis.set(messageHash, ediLoggId)
         }
     }
 }
@@ -224,20 +248,32 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
 
     outcomes.addAll(preTPSFlow(fellesformat))
 
-    val personDeferred = personV3.hentPersonAsync(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
-    val geografiskTilknytningDeferred = personV3.hentGeografiskTilknytningAsync(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
-    val samhandlerDeferred = async {
+    val personDeferred = retryWithInterval(retryInterval, "hent_person") {
+        personV3.hentPerson(HentPersonRequest()
+                .withAktoer(PersonIdent().withIdent(
+                        NorskIdent()
+                                .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+                                .withType(Personidenter().withValue("FNR")))
+                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
+    }
+
+    val geografiskTilknytningDeferred = retryWithInterval(retryInterval, "hent_geografisk_tilknytting") {
+        personV3.hentGeografiskTilknytning(HentGeografiskTilknytningRequest().withAktoer(PersonIdent().withIdent(
+                NorskIdent()
+                        .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+                        .withType(Personidenter().withValue("FNR"))))).geografiskTilknytning
+    }
+
+    val samhandlerDeferred = retryWithInterval(retryInterval, "kuhr_sar_hent_samhandler") {
         findBestSamhandlerPraksisMatch(sarClient.getSamhandler(extractDoctorPersonNumberFromSender(fellesformat)))
     }
 
-    val navKontorDeferred = async {
-        WS_CALL_TIME.labels("finn_nav_kontor").startTimer().use {
-            orgnaisasjonEnhet.finnNAVKontor(FinnNAVKontorRequest().apply {
-                this.geografiskTilknytning = Geografi().apply {
-                    this.value = geografiskTilknytningDeferred.await().geografiskTilknytning
-                }
-            }).navKontor
-        }
+    val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {
+        orgnaisasjonEnhet.finnNAVKontor(FinnNAVKontorRequest().apply {
+            this.geografiskTilknytning = Geografi().apply {
+                this.value = geografiskTilknytningDeferred.await().geografiskTilknytning
+            }
+        }).navKontor
     }
 
     val person = try {
@@ -270,33 +306,37 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
     return outcomes.toResult(samhandlerPraksis.tss_ident)
 }
 
-fun findBestSamhandlerPraksisMatch(samhandler: List<Samhandler>): SamhandlerPraksis {
-    return todo("Implement method for finding the best matched samhandler")
+fun findBestSamhandlerPraksisMatch(samhandlers: List<Samhandler>): SamhandlerPraksis {
+    val aktiveSamhandlere = samhandlers.flatMap { it.samh_praksis }
+            .filter {
+                it.samh_praksis_status_kode == "aktiv"
+            }.toList()
+    if (aktiveSamhandlere.size != 1)
+        return TODO("Implement better handling of multiple praksises")
+    return aktiveSamhandlere.first()
 }
 
-fun PersonV3.hentPersonAsync(fnr: String): Deferred<Person> = async {
-    WS_CALL_TIME.labels("hent_person").startTimer().use {
-        hentPerson(HentPersonRequest()
-                .withAktoer(PersonIdent().withIdent(
-                        NorskIdent()
-                                .withIdent(fnr)
-                                .withType(Personidenter().withValue("FNR")))
-                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
-    }
-}
+fun <T>retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {
+    return async {
+        for (time in interval) {
+            try {
+                WS_CALL_TIME.labels(callName).startTimer().use {
+                    return@async blocking()
+                }
+            } catch (e: IOException) {
+                log.warn("Caught IO exception trying to reach {}", callName, e)
+            }
+            Thread.sleep(time)
+        }
 
-fun PersonV3.hentGeografiskTilknytningAsync(fnr: String): Deferred<GeografiskTilknytning> = async {
-    WS_CALL_TIME.labels("hent_geografisk_tilknytning").startTimer().use {
-        hentGeografiskTilknytning(HentGeografiskTilknytningRequest().withAktoer(PersonIdent().withIdent(
-                NorskIdent()
-                        .withIdent(fnr)
-                        .withType(Personidenter().withValue("FNR"))))).geografiskTilknytning
+        WS_CALL_TIME.labels(callName).startTimer().use {
+            blocking()
+        }
     }
 }
 
 fun createLEHash(legeerklaering: Legeerklaring): String {
-    val bytes = objectMapper
-            .writeValueAsBytes(legeerklaering)
+    val bytes = objectMapper.writeValueAsBytes(legeerklaering)
 
     return createHash(bytes)
 }

@@ -22,7 +22,7 @@ fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
 
                     if (relations != null) {
                         val outcomeType = when (RelationType.fromKodeverkValue(relations.tilRolle.value)) {
-                            RelationType.EKTEFELLE -> OutcomeType.GIFT_MED_PASIENT
+                            RelationType.EKTEFELLE -> OutcomeType.MARRIED_TO_PATIENT
                             RelationType.SAMBOER -> OutcomeType.SAMBOER_MED_PASIENT
                             RelationType.REGISTRERT_PARTNER_MED -> OutcomeType.REGISTRERT_PARTNER_MED_PASIENT
                             RelationType.FAR -> OutcomeType.FORELDER_TIL_PASIENT
