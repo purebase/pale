@@ -17,7 +17,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.",  Priority.MANUAL_PROCESSING, Type.FAGLIG),
     BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_TSS(75,"Behandler har angitt D-nummer, men TSS fant gyldig F-nummer.",Priority.NOTE, Type.FAGLIG),
-    ADRESS_MISSING_TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
+    ADDRESS_MISSING_TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
     NO_VALID_TSSID_PRACTICE_TYPE_TSS(77,"Finner ingen gyldig praksistype i TSS.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78,"Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't
@@ -31,17 +31,17 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     SIGNATURE_TOO_NEW(251, "Melding mottatt til behandling i dag %s er signert med dato %s, og avvises", Priority.RETUR, Type.FAGLIG),
 
     // Pasientopplysninger
-    BEHANDLER_ER_PASIENT(350, "Vurder om legeerklæring kan godtas, behandler er pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    REGISTRERT_DOD_I_TPS(351, "Legeerklæring til vurdering, personen er registrert død i Folkeregisteret.", Priority.FOLLOW_UP, Type.FAGLIG),
-    PASIENT_OVER_70(352, "Legeerklæring til vurdering,  personen er over 70 år.", Priority.FOLLOW_UP, Type.FAGLIG),
+    BEHANDLER_IS_PATIENT(350, "Vurder om legeerklæring kan godtas, behandler er pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    REGISTERED_DEAD_IN_TPS(351, "Legeerklæring til vurdering, personen er registrert død i Folkeregisteret.", Priority.FOLLOW_UP, Type.FAGLIG),
+    PATIENT_IS_OVER_70(352, "Legeerklæring til vurdering,  personen er over 70 år.", Priority.FOLLOW_UP, Type.FAGLIG),
 
     // Pasientrelasjoner
     MARRIED_TO_PATIENT(353, "Vurder om legeerklæring kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    SAMBOER_MED_PASIENT(354, "Vurder om legeerklæring  kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    REGISTRERT_PARTNER_MED_PASIENT(355, "Vurder om legeerklæring kan godtas, behandler er registerert partnes med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    FORELDER_TIL_PASIENT(356, "Vurder om legeerklæring kan godtas, behandler er foreldre til pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    BARN_AV_PASIENT(357, "Vurder om legeerklæring kan godtas, behandler er barn av pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    GIFT_LEVER_ADSKILT(358, "Vurder om legeerklæring kan godtas, behandler er gift med pasienten- lever atskilt.", Priority.FOLLOW_UP, Type.FAGLIG),
+    COHABITANT_WITH_PATIENT(354, "Vurder om legeerklæring  kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    REGISTERED_PARTNER_WITH_PATIENT(355, "Vurder om legeerklæring kan godtas, behandler er registerert partnes med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    PARENT_TO_PATIENT(356, "Vurder om legeerklæring kan godtas, behandler er foreldre til pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    CHILD_OF_PATIENT(357, "Vurder om legeerklæring kan godtas, behandler er barn av pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    MARIED_LIVES_SEPERATED(358, "Vurder om legeerklæring kan godtas, behandler er gift med pasienten- lever atskilt.", Priority.FOLLOW_UP, Type.FAGLIG),
 
     BEHANDLER_PERSON_NUMBER_MISSMATCH_CERTIFICATE(381, "Behandler har endret fødselsnummer, sertifikatet for digital signatur må oppdateres.", Priority.NOTE, Type.FAGLIG),
 }

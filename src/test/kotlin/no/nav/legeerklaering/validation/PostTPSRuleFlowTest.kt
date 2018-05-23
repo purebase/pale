@@ -24,9 +24,9 @@ class PostTPSRuleFlowTest {
         }
 
         val outcomeList = postTPSFlow(fellesformat, person)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTRERT_DOD_I_TPS }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTERED_DEAD_IN_TPS }
 
-        assertEquals(OutcomeType.REGISTRERT_DOD_I_TPS, outcome?.outcomeType)
+        assertEquals(OutcomeType.REGISTERED_DEAD_IN_TPS, outcome?.outcomeType)
     }
 
     @Test
@@ -54,9 +54,9 @@ class PostTPSRuleFlowTest {
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.SAMBOER_MED_PASIENT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.COHABITANT_WITH_PATIENT }
 
-        assertEquals(OutcomeType.SAMBOER_MED_PASIENT, outcome?.outcomeType)
+        assertEquals(OutcomeType.COHABITANT_WITH_PATIENT, outcome?.outcomeType)
     }
 
     @Test
@@ -69,9 +69,9 @@ class PostTPSRuleFlowTest {
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTRERT_PARTNER_MED_PASIENT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTERED_PARTNER_WITH_PATIENT }
 
-        assertEquals(OutcomeType.REGISTRERT_PARTNER_MED_PASIENT, outcome?.outcomeType)
+        assertEquals(OutcomeType.REGISTERED_PARTNER_WITH_PATIENT, outcome?.outcomeType)
     }
 
     @Test
@@ -91,11 +91,11 @@ class PostTPSRuleFlowTest {
 
         val outcomeListFARA = postTPSFlow(fellesformat, patientFARA)
         val outcomeListMORA = postTPSFlow(fellesformat, patientMORA)
-        val outcomeFARA = outcomeListFARA.find { it.outcomeType == OutcomeType.FORELDER_TIL_PASIENT }
-        val outcomeMORA = outcomeListMORA.find { it.outcomeType == OutcomeType.FORELDER_TIL_PASIENT }
+        val outcomeFARA = outcomeListFARA.find { it.outcomeType == OutcomeType.PARENT_TO_PATIENT }
+        val outcomeMORA = outcomeListMORA.find { it.outcomeType == OutcomeType.PARENT_TO_PATIENT }
 
-        assertEquals(OutcomeType.FORELDER_TIL_PASIENT, outcomeFARA?.outcomeType)
-        assertEquals(OutcomeType.FORELDER_TIL_PASIENT, outcomeMORA?.outcomeType)
+        assertEquals(OutcomeType.PARENT_TO_PATIENT, outcomeFARA?.outcomeType)
+        assertEquals(OutcomeType.PARENT_TO_PATIENT, outcomeMORA?.outcomeType)
     }
 
 
@@ -109,9 +109,9 @@ class PostTPSRuleFlowTest {
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BARN_AV_PASIENT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.CHILD_OF_PATIENT }
 
-        assertEquals(OutcomeType.BARN_AV_PASIENT, outcome?.outcomeType)
+        assertEquals(OutcomeType.CHILD_OF_PATIENT, outcome?.outcomeType)
     }
 
     @Test
@@ -124,9 +124,9 @@ class PostTPSRuleFlowTest {
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.GIFT_LEVER_ADSKILT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.MARIED_LIVES_SEPERATED }
 
-        assertEquals(OutcomeType.GIFT_LEVER_ADSKILT, outcome?.outcomeType)
+        assertEquals(OutcomeType.MARIED_LIVES_SEPERATED, outcome?.outcomeType)
     }
 
 

@@ -13,7 +13,7 @@ fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                 .doOnNext {
                     (executionInfo, person) ->
                     if (person.doedsdato != null) {
-                        executionInfo.outcome += OutcomeType.REGISTRERT_DOD_I_TPS
+                        executionInfo.outcome += OutcomeType.REGISTERED_DEAD_IN_TPS
                     }
                 }
                 .doOnNext {
@@ -23,12 +23,12 @@ fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                     if (relations != null) {
                         val outcomeType = when (RelationType.fromKodeverkValue(relations.tilRolle.value)) {
                             RelationType.EKTEFELLE -> OutcomeType.MARRIED_TO_PATIENT
-                            RelationType.SAMBOER -> OutcomeType.SAMBOER_MED_PASIENT
-                            RelationType.REGISTRERT_PARTNER_MED -> OutcomeType.REGISTRERT_PARTNER_MED_PASIENT
-                            RelationType.FAR -> OutcomeType.FORELDER_TIL_PASIENT
-                            RelationType.MOR -> OutcomeType.FORELDER_TIL_PASIENT
-                            RelationType.BARN -> OutcomeType.BARN_AV_PASIENT
-                            RelationType.GIFT_LEVER_ADSKILT -> OutcomeType.GIFT_LEVER_ADSKILT
+                            RelationType.SAMBOER -> OutcomeType.COHABITANT_WITH_PATIENT
+                            RelationType.REGISTRERT_PARTNER_MED -> OutcomeType.REGISTERED_PARTNER_WITH_PATIENT
+                            RelationType.FAR -> OutcomeType.PARENT_TO_PATIENT
+                            RelationType.MOR -> OutcomeType.PARENT_TO_PATIENT
+                            RelationType.BARN -> OutcomeType.CHILD_OF_PATIENT
+                            RelationType.GIFT_LEVER_ADSKILT -> OutcomeType.MARIED_LIVES_SEPERATED
                             in RelationType.values() -> null
                             else -> throw RuntimeException("Found relation type \"${relations.tilRolle.value}\" that's not registered in the application")
                         }

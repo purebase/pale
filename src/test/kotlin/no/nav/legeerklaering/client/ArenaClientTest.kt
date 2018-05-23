@@ -18,7 +18,7 @@ class ArenaClientTest{
 
     private val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
     private val legeerklaring: Legeerklaring = extractLegeerklaering(fellesformat)
-    private val outcomes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(generatePersonNumber(LocalDate.now().minusYears(40))), OutcomeType.BARN_AV_PASIENT.toOutcome())
+    private val outcomes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(generatePersonNumber(LocalDate.now().minusYears(40))), OutcomeType.CHILD_OF_PATIENT.toOutcome())
     private val tssid = "12454"
     private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid)
 

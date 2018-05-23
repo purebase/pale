@@ -7,12 +7,12 @@ import java.time.LocalDate
 fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> = initFlow(fellesformat)
         .doOnNext {
             if (LocalDate.now().minusYears(70).isBefore(extractBornDate(it.patientPersonNumber!!))) {
-                it.outcome += OutcomeType.PASIENT_OVER_70
+                it.outcome += OutcomeType.PATIENT_IS_OVER_70
             }
         }
         .doOnNext {
             if (extractDoctorPersonNumberFromSender(it.fellesformat) == extractPersonNumber(it.legeerklaering)) {
-                it.outcome += OutcomeType.BEHANDLER_ER_PASIENT
+                it.outcome += OutcomeType.BEHANDLER_IS_PATIENT
             }
         }
         .doOnNext {

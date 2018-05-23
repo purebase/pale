@@ -12,9 +12,9 @@ class PreTPSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPasientOver70.xml")
 
         val outcomeList = preTPSFlow(fellesformat)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PASIENT_OVER_70 }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_IS_OVER_70 }
 
-        assertEquals(OutcomeType.PASIENT_OVER_70, outcome?.outcomeType)
+        assertEquals(OutcomeType.PATIENT_IS_OVER_70, outcome?.outcomeType)
     }
 
     @Test
@@ -22,9 +22,9 @@ class PreTPSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPasientOver70Dnummer.xml")
 
         val outcomeList = preTPSFlow(fellesformat)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PASIENT_OVER_70 }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_IS_OVER_70 }
 
-        Assert.assertEquals(OutcomeType.PASIENT_OVER_70, outcome?.outcomeType)
+        Assert.assertEquals(OutcomeType.PATIENT_IS_OVER_70, outcome?.outcomeType)
 
     }
 
@@ -33,9 +33,9 @@ class PreTPSRuleFlowTest {
         val fellesformat = readToFellesformat("/validation/legeerklaeringBehandlerErPasient.xml")
 
         val outcomeList = preTPSFlow(fellesformat)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_ER_PASIENT }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_IS_PATIENT }
 
-        Assert.assertEquals(OutcomeType.BEHANDLER_ER_PASIENT, outcome?.outcomeType)
+        Assert.assertEquals(OutcomeType.BEHANDLER_IS_PATIENT, outcome?.outcomeType)
 
     }
 
