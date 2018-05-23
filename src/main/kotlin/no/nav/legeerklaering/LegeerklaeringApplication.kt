@@ -32,19 +32,16 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
-import org.apache.cxf.endpoint.Client
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.ws.security.SecurityConstants
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
-import java.security.MessageDigest
 import redis.clients.jedis.Jedis
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.math.BigInteger
 import javax.jms.*
 import javax.jms.Queue
 import javax.xml.bind.JAXBContext
@@ -132,7 +129,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
-        var messageHash: String? = null
+        var messageId: String? = null
         var ediLoggId: String? = null
         try {
             if (it !is BytesMessage)
@@ -146,13 +143,13 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-            messageHash = createLEHash(legeerklaering)
+            messageId = fellesformat.msgHead.msgInfo.msgId
 
             defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
                     keyValue("msgId", fellesformat.msgHead.msgInfo.msgId),
-                    keyValue("messageHash", messageHash)
+                    keyValue("messageId", messageId)
             )
 
             defaultKeyFormat = defaultLogInfo(defaultKeyValues)
@@ -167,8 +164,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
-            println(messageHash)
-            val jedisEdiLoggId = jedis.get(messageHash)
+            println(messageId)
+            val jedisEdiLoggId = jedis.get(messageId)
             val duplicate = jedisEdiLoggId != null
             if (duplicate) {
                 val apprec = createApprec(fellesformat, ApprecStatus.avvist)
@@ -228,8 +225,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             backoutProducer.send(it)
         }
 
-        if (messageHash != null && ediLoggId != null) {
-            jedis.set(messageHash, ediLoggId)
+        if (messageId != null && ediLoggId != null) {
+            jedis.set(messageId, ediLoggId)
         }
     }
 }
@@ -351,19 +348,6 @@ fun <T>retryWithInterval(interval: Array<Long>, callName: String, blocking: susp
     }
 }
 
-fun createLEHash(legeerklaering: Legeerklaring): String {
-    val bytes = objectMapper.writeValueAsBytes(legeerklaering)
-
-    return createHash(bytes)
-}
-
-fun createHash(input: ByteArray): String {
-    val bytes = MessageDigest
-            .getInstance("SHA1")
-            .digest(input)
-
-    return BigInteger(bytes).toString(16)
-}
 
 fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().apply {
     hostName = fasitProperties.mqHostname

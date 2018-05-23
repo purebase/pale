@@ -23,22 +23,22 @@ class RedisTest{
 
     @Test
     fun shouldNotFindHashValueInRedis() {
-        val hashValue = createHash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
+        val msgid = inputMeldingFellesformat.msgHead.msgInfo.msgId
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 
-        assertFalse(checkIfHashValueIsInRedis(jedis, hashValue))
+        assertFalse(checkIfHashValueIsInRedis(jedis, msgid))
     }
 
     @Test
     fun shouldFindHashValueInRedis() {
-        val hashValue = createHash(objectMapper.writeValueAsBytes(inputMeldingFellesformat.toString()))
+        val msgid = inputMeldingFellesformat.msgHead.msgInfo.msgId
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 
-        jedis.set(hashValue, inputMeldingFellesformat.mottakenhetBlokk.ediLoggId.toString())
+        jedis.set(msgid, inputMeldingFellesformat.mottakenhetBlokk.ediLoggId.toString())
 
-        assertTrue(checkIfHashValueIsInRedis(jedis, hashValue))
+        assertTrue(checkIfHashValueIsInRedis(jedis, msgid))
     }
 
 
