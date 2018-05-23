@@ -17,7 +17,6 @@ import no.nav.legeerklaering.client.*
 import no.nav.legeerklaering.mapping.*
 import no.nav.legeerklaering.metrics.*
 import no.nav.legeerklaering.sts.configureSTSFor
-import no.nav.legeerklaering.sts.createSystemUserSTSClient
 import no.nav.legeerklaering.validation.*
 import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
@@ -34,9 +33,7 @@ import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningR
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
 import org.apache.cxf.ext.logging.LoggingFeature
-import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
-import org.apache.cxf.ws.security.SecurityConstants
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
@@ -206,9 +203,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
                 val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
                 if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }){
-                    val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg, true)
+                    val joarkRequest = createJoarkRequest(fellesformat, legeerklaering , fagmelding, behandlingsvedlegg, true)
                 }
-                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg, false)
+                val joarkRequest = createJoarkRequest(fellesformat, legeerklaering, fagmelding, behandlingsvedlegg, false)
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)

@@ -10,7 +10,7 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
 
-fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?, manuelBehandling: Boolean):
+fun createJoarkRequest(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?, manuelBehandling: Boolean):
         LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
 
@@ -21,7 +21,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     }
 
     gjelderListe.add(Bruker().apply {
-        brukerId = fellesformat.msgHead.msgInfo.patient.ident[0].id
+        brukerId = legeerklaering.pasientopplysninger.pasient.fodselsnummer
         brukertypeKode = LegeerklaeringConstant.person.string
     })
 

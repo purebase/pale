@@ -30,6 +30,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
         fnr = getHCPFodselsnummer(fellesformat)
         tssid = tssId
     }
+    //TODO eiaData is it really used by Arena or gosys, do we realy need it???
     eiaData = ArenaEiaInfo.EiaData().apply {
 
         if (outcomeTypeList.isNotEmpty()) {
