@@ -1,6 +1,13 @@
 package no.nav.legeerklaering.validation
 
-data class Outcome(val outcomeType: OutcomeType, val args: Array<out Any>) {
+import no.nav.legeerklaering.mapping.ApprecError
+
+data class Outcome(val outcomeType: OutcomeType, val args: Array<out Any>, val apprecError: ApprecError?) {
+    init {
+        if (outcomeType.messagePriority == Priority.RETUR && apprecError == null) {
+            throw RuntimeException("A outcome type without a apprec error should never occur")
+        }
+    }
     val formattedMessage
             get() = String.format(outcomeType.messageText, *args)
 }
@@ -46,8 +53,8 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     BEHANDLER_PERSON_NUMBER_MISSMATCH_CERTIFICATE(381, "Behandler har endret fødselsnummer, sertifikatet for digital signatur må oppdateres.", Priority.NOTE, Type.FAGLIG),
 }
 
-fun OutcomeType.toOutcome(vararg args: Any): Outcome
-    = Outcome(this, args)
+fun OutcomeType.toOutcome(vararg args: Any, apprecError: ApprecError? = null): Outcome
+    = Outcome(this, args, apprecError = apprecError)
 
 operator fun MutableList<Outcome>.plusAssign(outcomeType: OutcomeType) {
     this += outcomeType.toOutcome()

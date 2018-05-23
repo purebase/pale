@@ -16,6 +16,7 @@ import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.legeerklaering.client.*
 import no.nav.legeerklaering.mapping.*
 import no.nav.legeerklaering.metrics.*
+import no.nav.legeerklaering.sts.configureSTSFor
 import no.nav.legeerklaering.sts.createSystemUserSTSClient
 import no.nav.legeerklaering.validation.*
 import no.nav.model.apprec.AppRec
@@ -80,7 +81,7 @@ fun main(args: Array<String>) {
             val session = connection.createSession()
             val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
             val arenaQueue = session.createQueue(fasitProperties.arenaQueueName)
-            val receiptQueue = session.createQueue(TODO("Figure what queue to use for apprec"))
+            val receiptQueue = session.createQueue(fasitProperties.mottakQueueUtsendingQueueName)
             val backoutQueue = session.createQueue(fasitProperties.legeerklaeringBackoutQueueName)
             session.close()
 
@@ -89,17 +90,19 @@ fun main(args: Array<String>) {
                 features.add(LoggingFeature())
                 serviceClass = PersonV3::class.java
             }.create() as PersonV3
-            val client = ClientProxy.getClient(personV3)
-            client.endpoint[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl, true)
+            configureSTSFor(personV3, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
 
             val orgnaisasjonEnhet = JaxWsProxyFactoryBean().apply {
                 address = fasitProperties.virksomhetOrganisasjonEnhetV2EndpointURL
                 features.add(LoggingFeature())
                 serviceClass = OrganisasjonEnhetV2::class.java
             }.create() as OrganisasjonEnhetV2
+            configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
 
             val journalbehandling = JaxWsProxyFactoryBean().apply {
                 TODO("Implement fasit resources for joark")
+                features.add(LoggingFeature())
+                serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
 
             val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword)
@@ -121,8 +124,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
     val arenaProducer = session.createProducer(arenaQueue)
     val receiptProducer = session.createProducer(receiptQueue)
     val backoutProducer = session.createProducer(backoutQueue)
-    var defaultKeyValues = arrayOf(
-            keyValue("noMessageIdentifier", true))
+
+    var defaultKeyValues = arrayOf(keyValue("noMessageIdentifier", true))
     var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
     QueueStatusCollector(connection.createSession(), inputQueue, arenaQueue, receiptQueue, backoutQueue)
@@ -191,8 +194,11 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR } || validationResult.tssId == null) {
                 receiptProducer.send(session.createBytesMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                    apprec.appRec.error.addAll(validationResult.outcomes
+                            .filter { it.outcomeType.messagePriority == Priority.RETUR }
+                            .map { mapApprecErrorToAppRecCV(it.apprecError!!) }
+                    )
                     val apprecBytes = apprecMarshaller.toByteArray(apprec)
-                    TODO("Add reason to the apprec")
                     writeBytes(apprecBytes)
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })

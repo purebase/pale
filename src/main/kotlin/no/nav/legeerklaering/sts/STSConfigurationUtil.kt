@@ -5,6 +5,7 @@ import org.apache.cxf.binding.soap.Soap12
 import org.apache.cxf.binding.soap.SoapMessage
 import org.apache.cxf.endpoint.Client
 import org.apache.cxf.ext.logging.LoggingFeature
+import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.ws.policy.PolicyBuilder
 import org.apache.cxf.ws.policy.PolicyEngine
 import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver
@@ -15,6 +16,8 @@ var STS_CLIENT_AUTHENTICATION_POLICY = "classpath:sts/policies/untPolicy.xml"
 var STS_REQUEST_SAML_POLICY = "classpath:sts/policies/requestSamlPolicy.xml"
 
 fun configureSTSFor(service: Any, username: String, password: String, endpoint: String) {
+    val client = ClientProxy.getClient(service)
+    client.endpoint[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, username, password, endpoint, true)
 
 }
 

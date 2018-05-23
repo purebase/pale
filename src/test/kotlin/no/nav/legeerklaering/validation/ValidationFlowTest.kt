@@ -21,7 +21,7 @@ class ValidationFlowTest{
     @Test
     fun shouldCreateOutcomePersonNumberNotFound() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringFodselsnummerEllerDnummerIkkeFunnet.xml")
-        val name = "Inga Fos Valda"
+        val name = "Valda Inga Fos"
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret til $name finnes ikke i skjemaet."
 
         val outcome = validationFlow(fellesformat).find { it.outcomeType == OutcomeType.PERSON_NUMBER_NOT_FOUND }

@@ -1,6 +1,7 @@
 package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.*
+import no.nav.legeerklaering.mapping.ApprecError
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.legeerklaering.validation.extractLegeerklaering
 import no.nav.legeerklaering.validation.toOutcome
@@ -18,7 +19,10 @@ class ArenaClientTest{
 
     private val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
     private val legeerklaring: Legeerklaring = extractLegeerklaering(fellesformat)
-    private val outcomes = listOf(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(generatePersonNumber(LocalDate.now().minusYears(40))), OutcomeType.CHILD_OF_PATIENT.toOutcome())
+    private val outcomes = listOf(
+            OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(generatePersonNumber(LocalDate.now().minusYears(40)), apprecError = ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA),
+            OutcomeType.CHILD_OF_PATIENT.toOutcome()
+    )
     private val tssid = "12454"
     private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid)
 

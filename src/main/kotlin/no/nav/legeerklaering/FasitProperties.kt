@@ -15,7 +15,8 @@ data class FasitProperties(
         val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "https://kuhr-sar-api"),
         val pdfGeneratorEndpointURL: String = getEnvVar("PDF_GENERATOR_ENDPOINTURL", "https://pdf-gen"),
         val legeerklaeringBackoutQueueName: String = getEnvVar("LEGEERKLAERING_BACKOUT_QUEUENAME"),
-        val securityTokenServiceUrl: String = getEnvVar("SECURITYTOKENSERVICE_URL")
+        val securityTokenServiceUrl: String = getEnvVar("SECURITYTOKENSERVICE_URL"),
+        val mottakQueueUtsendingQueueName: String = getEnvVar("MOTTAK_QUEUE_UTSENDING_QUEUENAME")
 )
 
 fun getEnvVar(name: String, default: String? = null): String =

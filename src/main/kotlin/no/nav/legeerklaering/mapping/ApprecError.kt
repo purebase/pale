@@ -1,6 +1,10 @@
 package no.nav.legeerklaering.mapping
 
 enum class ApprecError(val v: String, val dn: String, val s: String){
+    SIGNATURE_ERROR("S01", "Feil på signatur", "2.16.578.1.12.4.1.1.8221"),
+    MISSING_PATIENT_INFO("E36", "Pasientopplysninger er utilstrekkelige", "2.16.578.1.12.4.1.1.8221"),
+
+
     BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
             "2.16.578.1.12.4.1.1.8222"),
     PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA("30", "Pasientens fødselsnummer finnes ikke i skjemaet.",
