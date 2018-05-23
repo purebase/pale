@@ -199,7 +199,10 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             } else {
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
                 val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
-                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg)
+                if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }){
+                    val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg, true)
+                }
+                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg, false)
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)

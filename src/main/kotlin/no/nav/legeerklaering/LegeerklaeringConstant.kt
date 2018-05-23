@@ -11,6 +11,7 @@ enum class LegeerklaeringConstant(val string: String) {
     ebActionSvarmelding ("Svarmelding"),
     eiaAuto("EIA_AUTO"),
     eiaOk ("EIA_OK"),
+    eiaMan ("EIA_MAN"),
     pdf("PDF"),
     eia("EIA"),
     person("PERSON"),

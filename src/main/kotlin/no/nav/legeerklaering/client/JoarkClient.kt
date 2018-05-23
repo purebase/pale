@@ -10,7 +10,7 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
 
-fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?):
+fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?, manuelBehandling: Boolean):
         LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
 
@@ -34,6 +34,10 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     journalstatusKode = LegeerklaeringConstant.journalstatusKodeMO.string
     dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     fagomradeKode = LegeerklaeringConstant.opp.string
+
+    if (manuelBehandling){
+        fordeling = LegeerklaeringConstant.eiaMan.string
+    }
     fordeling = LegeerklaeringConstant.eiaOk.string
     avsenderMottaker = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
     avsenderMottakerId = getHCPFodselsnummer(fellesformat)
