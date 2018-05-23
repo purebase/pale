@@ -141,11 +141,12 @@ class PostTPSRuleFlowTest {
                 }
                 tilPerson = Person().apply {
 
+                    val doctorIdent = extractDoctorIdentFromSender(fellesformat)!!
                     aktoer = PersonIdent().apply {
                         ident = NorskIdent().apply {
-                            ident = extractDoctorPersonNumberFromSender(fellesformat)
+                            ident = doctorIdent.id
                             type = Personidenter().apply {
-                                value = "FNR"
+                                value = doctorIdent.typeId.v
                             }
                         }
                     }
@@ -190,9 +191,10 @@ class PostTPSRuleFlowTest {
 
             aktoer = PersonIdent().apply {
                 ident = NorskIdent().apply {
-                    ident = extractDoctorPersonNumberFromSender(fellesformat)
+                    val doctorIdent = extractDoctorIdentFromSender(fellesformat)!!
+                    ident = doctorIdent.id
                     type = Personidenter().apply {
-                        value = "FNR"
+                        value = doctorIdent.typeId.v
                     }
                 }
             }

@@ -18,7 +18,7 @@ fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                 }
                 .doOnNext {
                     (executionInfo, person) ->
-                    val relations = findDoctorInRelations(person, executionInfo.doctorPersonNumber!!)
+                    val relations = findDoctorInRelations(person, executionInfo.doctorIdent!!.id)
 
                     if (relations != null) {
                         val outcomeType = when (RelationType.fromKodeverkValue(relations.tilRolle.value)) {

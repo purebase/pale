@@ -4,6 +4,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
+import no.nav.model.msghead.Ident
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import java.time.LocalDate
@@ -12,40 +13,42 @@ import java.time.format.DateTimeFormatter
 
 val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
 
-data class RuleExecutionInfo(
+data class RuleExecutionInfo<P, D>(
         val fellesformat: EIFellesformat,
         val legeerklaering: Legeerklaring,
-        val patientPersonNumber: String?,
-        val doctorPersonNumber: String?,
+        val patientIdent: P,
+        val doctorIdent: D,
         val outcome: MutableList<Outcome>
 )
 
-fun initFlow(fellesformat: EIFellesformat): Observable<RuleExecutionInfo> =
+fun initFlow(fellesformat: EIFellesformat): Observable<RuleExecutionInfo<String?, Ident?>> =
         listOf(fellesformat).toObservable()
                 .map {
                     val legeerklaering = extractLegeerklaering(it)
                     RuleExecutionInfo(
                             fellesformat = it,
                             legeerklaering = legeerklaering,
-                            patientPersonNumber = extractPersonNumber(legeerklaering),
-                            doctorPersonNumber = extractDoctorPersonNumberFromSender(it),
+                            patientIdent = extractPersonIdent(legeerklaering),
+                            doctorIdent = extractDoctorIdentFromSender(it),
                             outcome = mutableListOf()
                     )
                 }
 
-fun extractDoctorPersonNumberFromSender(fellesformat: EIFellesformat): String =
+fun extractDoctorIdentFromSender(fellesformat: EIFellesformat): Ident? =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {
             it.typeId.v == "FNR"
-        }!!.id
+        } ?: fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {
+            it.typeId.v == "DNR"
+        }
 
-fun extractDoctorPersonNumberFromSignature(fellesformat: EIFellesformat): String =
+fun extractDoctorIdentFromSignature(fellesformat: EIFellesformat): String =
         fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
 
 fun extractSenderOrganisationNumber(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation.ident.find {
     it.typeId.v == "ENH"
 }!!.id
 
-fun extractPersonNumber(legeerklaering: Legeerklaring): String
+fun extractPersonIdent(legeerklaering: Legeerklaring): String?
         = legeerklaering.pasientopplysninger.pasient.fodselsnummer
 
 fun extractPatientSurname(legeerklaering: Legeerklaring): String? =
@@ -57,14 +60,17 @@ fun extractPatientFirstName(legeerklaering: Legeerklaring): String? =
 fun extractPatientMiddleName(legeerklaering: Legeerklaring): String? =
         legeerklaering.pasientopplysninger.pasient.navn.mellomnavn
 
-fun extractBornDate(personNumber: String): LocalDate =
-        LocalDate.parse(personNumber.substring(0, 6).let {
-            if (it[0] > '3') {
+fun extractBornDate(personIdent: String): LocalDate =
+        LocalDate.parse(personIdent.substring(0, 6).let {
+            if (isDNR(personIdent)) {
                 (it[0] - 3) + it.substring(1)
             } else {
                 it
             }
         }, personNumberDateFormat)
+
+fun isDNR(personIdent: String): Boolean
+    = personIdent[0] > '3'
 
 fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person, doctorPersonnumber: String): Familierelasjon? =
         patient.harFraRolleI.find {

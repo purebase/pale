@@ -18,30 +18,30 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                     RuleExecutionInfo(
                             fellesformat = fellesformat,
                             legeerklaering = legeerklaering,
-                            patientPersonNumber = extractPersonNumber(legeerklaering),
-                            doctorPersonNumber = extractDoctorPersonNumberFromSender(fellesformat),
+                            patientIdent = extractPersonIdent(legeerklaering),
+                            doctorIdent = extractDoctorIdentFromSender(fellesformat),
                             outcome = mutableListOf()
                     )
                 }
                 .doOnNext {
-                    if (it.patientPersonNumber == null || it.patientPersonNumber.trim().isEmpty()) {
+                    if (it.patientIdent == null || it.patientIdent.trim().isEmpty()) {
                         it.outcome += OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND
                         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA)
                         APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA.v).inc()
-                    } else if (!validatePersonAndDNumber11Digits(it.patientPersonNumber)) {
+                    } else if (!validatePersonAndDNumber11Digits(it.patientIdent)) {
                         it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(
                                 extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
                                         " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn
-                                        +" "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn, it.patientPersonNumber, it.patientPersonNumber.length)
+                                        +" "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn, it.patientIdent, it.patientIdent.length)
                         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG))
                         APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG.v).inc()
-                    } else if (!validatePersonAndDNumber(it.patientPersonNumber)) {
+                    } else if (!validatePersonAndDNumber(it.patientIdent)) {
                         it.outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(
                                 extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
                                 " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn
-                                +" "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn,it.patientPersonNumber)
+                                +" "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn,it.patientIdent)
                         val apprec =  createApprec(fellesformat, ApprecStatus.avvist)
                         apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG)
                         APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG.v).inc()
@@ -49,26 +49,26 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                     }
                 }
                 .doOnNext {
-                    if (it.doctorPersonNumber == null || it.doctorPersonNumber.trim().isEmpty()) {
+                    if (it.doctorIdent?.id == null || it.doctorIdent.id.trim().isEmpty()) {
                         val hcp = it.fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional;
                         val name = "${hcp.givenName} ${hcp.middleName} ${hcp.familyName}"
                         it.outcome += OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome(name)
-                        } else if (!validatePersonAndDNumber11Digits(it.doctorPersonNumber)) {
+                        } else if (!validatePersonAndDNumber11Digits(it.doctorIdent.id)) {
                             it.outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(
                                     fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
                                             " " +
                                     fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                                             " " +
                                     fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName,
-                                    it.doctorPersonNumber,  it.doctorPersonNumber.length)
-                        } else if (!validatePersonAndDNumber(it.doctorPersonNumber)) {
+                                    it.doctorIdent,  it.doctorIdent.id.length)
+                        } else if (!validatePersonAndDNumber(it.doctorIdent.id)) {
                             it.outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(
                                     fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
                                             " " +
                                             fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                                             " " +
                                             fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName,
-                                    it.doctorPersonNumber)
+                                    it.doctorIdent)
                             val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                             apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
                             APPREC_ERROR_COUNTER.labels(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.v).inc()
@@ -95,9 +95,9 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                     }
                 }
                 .doOnNext {
-                    val doctorPersonNumberFromLegeerklaering = extractDoctorPersonNumberFromSignature(fellesformat)
+                    val doctorPersonNumberFromLegeerklaering = extractDoctorIdentFromSignature(fellesformat)
 
-                    if (doctorPersonNumberFromLegeerklaering != it.doctorPersonNumber) {
+                    if (doctorPersonNumberFromLegeerklaering != it.doctorIdent!!.id) {
                         it.outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
                     }
                 }

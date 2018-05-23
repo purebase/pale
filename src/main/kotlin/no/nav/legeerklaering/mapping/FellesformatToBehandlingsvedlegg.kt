@@ -15,7 +15,7 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
     return Behandlingsvedlegg(
             type = "LEGEERKL",
             status = "OPPFØLGING",
-            pasientId = extractPersonNumber(legeerklaering),
+            pasientId = extractPersonIdent(legeerklaering),
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId,
             msgId = fellesformat.msgHead.msgInfo.msgId,
             generertDato = fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime(),
@@ -24,7 +24,7 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
             sender = BehandlingsvedleggSender(
                     signaturId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur,
                     signaturNavn = fellesformat.mottakenhetBlokk.avsender,
-                    avsenderId = extractDoctorPersonNumberFromSender(fellesformat),
+                    avsenderId = extractDoctorIdentFromSender(fellesformat)?.id,
                     avsenderNavn = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}",
                     tlfNummer = hcp.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v,
                     organisasjonsId = "${orgIdent.id} (${orgIdent.typeId.v}",

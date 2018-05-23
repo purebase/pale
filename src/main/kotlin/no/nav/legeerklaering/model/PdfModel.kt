@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 data class Behandlingsvedlegg(
         val type: String,
         val status: String,
-        val pasientId: String,
+        val pasientId: String?,
         val ediLoggId: String,
         val msgId: String,
         val generertDato: ZonedDateTime,
@@ -16,7 +16,7 @@ data class Behandlingsvedlegg(
 data class BehandlingsvedleggSender(
         val signaturId: String,
         val signaturNavn: String,
-        val avsenderId: String,
+        val avsenderId: String?,
         val avsenderNavn: String,
         val tlfNummer: String?,
         val organisasjonsId: String,

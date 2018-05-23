@@ -36,8 +36,8 @@ class ValidationFlowTest{
         val name = extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
                 " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn +
                 " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn
-        val fnr = extractPersonNumber(extractLegeerklaering(fellesformat))
-        val fnrlengt = extractPersonNumber(extractLegeerklaering(fellesformat)).length
+        val fnr = extractPersonIdent(extractLegeerklaering(fellesformat))
+        val fnrlengt = extractPersonIdent(extractLegeerklaering(fellesformat))!!.length
 
 
         val excpectederknadsTekst = "$name sitt fødselsnummer eller D-nummer $fnr er ikke 11 tegn. Det er $fnrlengt tegn langt."
@@ -57,11 +57,11 @@ class ValidationFlowTest{
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
-        val fnr = extractDoctorPersonNumberFromSender(fellesformat)
-        val fnrlengt = extractDoctorPersonNumberFromSender(fellesformat).length
+        val fnr = extractDoctorIdentFromSender(fellesformat)
+        val personNumberLength = extractDoctorIdentFromSender(fellesformat)!!.id.length
 
 
-        val excpectederknadsTekst = "$name sitt fødselsnummer eller D-nummer $fnr er ikke 11 tegn. Det er $fnrlengt tegn langt."
+        val excpectederknadsTekst = "$name sitt fødselsnummer eller D-nummer $fnr er ikke 11 tegn. Det er $personNumberLength tegn langt."
 
 
         val outcome = validationFlow(fellesformat).findLast { it.outcomeType == OutcomeType.PERSON_NUMBER_NOT_11_DIGITS }
@@ -76,7 +76,7 @@ class ValidationFlowTest{
         val name = extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
                 " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn +
                 " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn
-        val fnr = extractPersonNumber(extractLegeerklaering(fellesformat))
+        val fnr = extractPersonIdent(extractLegeerklaering(fellesformat))
 
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret $name til $fnr er feil."
 
@@ -95,7 +95,7 @@ class ValidationFlowTest{
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
-        val fnr = extractDoctorPersonNumberFromSender(fellesformat)
+        val fnr = extractDoctorIdentFromSender(fellesformat)
 
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret $name til $fnr er feil."
 

@@ -248,24 +248,34 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
 
     outcomes.addAll(preTPSFlow(fellesformat))
 
+    if (outcomes.map { it.outcomeType.messagePriority }.any { it == Priority.RETUR || it == Priority.MANUAL_PROCESSING })
+        return ValidationResult(null, outcomes)
+
+    val patientIdent = extractPersonIdent(legeerklaering)!!
+    val patientIdentType = if (isDNR(patientIdent)) {
+        "DNR"
+    } else {
+        "FNR"
+    }
+
     val personDeferred = retryWithInterval(retryInterval, "hent_person") {
         personV3.hentPerson(HentPersonRequest()
                 .withAktoer(PersonIdent().withIdent(
                         NorskIdent()
-                                .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
-                                .withType(Personidenter().withValue("FNR")))
+                                .withIdent(extractPersonIdent(legeerklaering)!!)
+                                .withType(Personidenter().withValue(patientIdentType)))
                 ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
     }
 
     val geografiskTilknytningDeferred = retryWithInterval(retryInterval, "hent_geografisk_tilknytting") {
         personV3.hentGeografiskTilknytning(HentGeografiskTilknytningRequest().withAktoer(PersonIdent().withIdent(
                 NorskIdent()
-                        .withIdent(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
-                        .withType(Personidenter().withValue("FNR"))))).geografiskTilknytning
+                        .withIdent(patientIdent)
+                        .withType(Personidenter().withValue(patientIdent))))).geografiskTilknytning
     }
 
     val samhandlerDeferred = retryWithInterval(retryInterval, "kuhr_sar_hent_samhandler") {
-        findBestSamhandlerPraksisMatch(sarClient.getSamhandler(extractDoctorPersonNumberFromSender(fellesformat)))
+        findBestSamhandlerPraksisMatch(sarClient.getSamhandler(extractDoctorIdentFromSender(fellesformat)!!.id))
     }
 
     val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {
