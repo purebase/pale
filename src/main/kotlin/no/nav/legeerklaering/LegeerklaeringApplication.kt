@@ -16,6 +16,7 @@ import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.legeerklaering.client.*
 import no.nav.legeerklaering.mapping.*
 import no.nav.legeerklaering.metrics.*
+import no.nav.legeerklaering.sts.createSystemUserSTSClient
 import no.nav.legeerklaering.validation.*
 import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
@@ -31,8 +32,11 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
+import org.apache.cxf.endpoint.Client
 import org.apache.cxf.ext.logging.LoggingFeature
+import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
+import org.apache.cxf.ws.security.SecurityConstants
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import java.security.MessageDigest
@@ -88,9 +92,11 @@ fun main(args: Array<String>) {
                 features.add(LoggingFeature())
                 serviceClass = PersonV3::class.java
             }.create() as PersonV3
+            val client = ClientProxy.getClient(personV3)
+            client.endpoint[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl, true)
 
             val orgnaisasjonEnhet = JaxWsProxyFactoryBean().apply {
-                address = fasitProperties.organisasjonEnhetV2EndpointURL
+                address = fasitProperties.virksomhetOrganisasjonEnhetV2EndpointURL
                 features.add(LoggingFeature())
                 serviceClass = OrganisasjonEnhetV2::class.java
             }.create() as OrganisasjonEnhetV2

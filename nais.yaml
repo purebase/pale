@@ -33,3 +33,19 @@ fasitResources:
   used:
     - alias: OrganisasjonEnhet_v2
       resourceType: Webserviceendpoint
+    - alias: virksomhet:PersonV3
+      resourceType: Webserviceendpoint
+    - alias: mqGateway04
+      resourceType: QueueManager
+    - alias: srvappserver
+      resourceType: Credentials
+    - alias: eia_queue_arena_ia_outbound
+      resourceType: Queue
+    - alias: virksomhet:OrganisasjonEnhet_v2
+      resourceType: Webserviceendpoint
+    - alias: srvlegeerklaering
+      resourceType: Credentials
+    - alias: legeerklaering_backout_queue
+      resourceType: Queue
+    - alias: securityTokenService
+      resourceType: BaseUrl

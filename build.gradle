@@ -145,6 +145,7 @@ dependencies {
     // Communication libraries
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
     implementation "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
+    compile "org.apache.cxf:cxf-rt-ws-security:$cxf_version"
 
     implementation "com.squareup.okhttp3:okhttp:3.10.0"
     implementation "redis.clients:jedis:$jedis_version"
