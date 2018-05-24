@@ -365,8 +365,8 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
 }
 
-fun checkIfHashValueIsInRedis(jedis: Jedis,hashValue: String): Boolean =
-        jedis.get(hashValue) != null
+fun checkIfMsgidIsInRedis(jedis: Jedis, msgid: String): Boolean =
+        jedis.get(msgid) != null
 
 fun getHCPFodselsnummer(fellesformat: EIFellesformat): String? =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident

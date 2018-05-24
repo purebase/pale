@@ -27,7 +27,7 @@ class RedisTest{
 
         val jedis = Jedis(server.getHost(), server.getBindPort())
 
-        assertFalse(checkIfHashValueIsInRedis(jedis, msgid))
+        assertFalse(checkIfMsgidIsInRedis(jedis, msgid))
     }
 
     @Test
@@ -38,7 +38,7 @@ class RedisTest{
 
         jedis.set(msgid, inputMeldingFellesformat.mottakenhetBlokk.ediLoggId.toString())
 
-        assertTrue(checkIfHashValueIsInRedis(jedis, msgid))
+        assertTrue(checkIfMsgidIsInRedis(jedis, msgid))
     }
 
 

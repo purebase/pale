@@ -40,7 +40,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, legeerklaering: Legeerklari
     }
     fordeling = LegeerklaeringConstant.eiaOk.string
     avsenderMottaker = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
-    avsenderMottakerId = getHCPFodselsnummer(fellesformat)
+    avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
     opprettetAvNavn = LegeerklaeringConstant.eiaAuto.string
 }
 
