@@ -58,6 +58,12 @@ avro {
     fieldVisibility = "PRIVATE"
 }
 
+task printVersion() {
+    doLast {
+        println(version)
+    }
+}
+
 task generateJaxb2() {
     doLast {
         print("$projectDir/src/main/resources/binding.xjb")
