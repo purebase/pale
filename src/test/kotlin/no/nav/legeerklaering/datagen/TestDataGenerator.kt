@@ -1,9 +1,11 @@
-package no.nav.legeerklaering
+package no.nav.legeerklaering.datagen
 
 import com.devskiller.jfairy.Fairy
 import com.devskiller.jfairy.producer.company.Company
+import no.nav.legeerklaering.fellesformatJaxBContext
 import no.nav.legeerklaering.mapping.LegeerklaeringType
 import no.nav.legeerklaering.mapping.TypeTiltak
+import no.nav.legeerklaering.validatePersonAndDNumber
 import no.nav.legeerklaering.validation.personNumberDateFormat
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.*

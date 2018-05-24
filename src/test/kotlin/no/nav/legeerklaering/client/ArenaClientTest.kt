@@ -1,6 +1,7 @@
 package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.*
+import no.nav.legeerklaering.datagen.generatePersonNumber
 import no.nav.legeerklaering.mapping.ApprecError
 import no.nav.legeerklaering.validation.OutcomeType
 import no.nav.legeerklaering.validation.extractLegeerklaering
