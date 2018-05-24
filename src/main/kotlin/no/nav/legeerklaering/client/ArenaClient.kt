@@ -32,9 +32,22 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
     }
 
     eiaData = ArenaEiaInfo.EiaData().apply {
+
+        if (outcomeTypeList.isNotEmpty()) {
+            val systemsvarList = outcomeTypeList.map { it.toSystemsvar() }
+            systemSvar.addAll(systemsvarList)
+        }
+
         signaturDato = newInstance.newXMLGregorianCalendar(GregorianCalendar().apply {
             set(fellesformat.msgHead.msgInfo.genDate.year, fellesformat.msgHead.msgInfo.genDate.month,fellesformat.msgHead.msgInfo.genDate.day)
         })
 
     }
+}
+
+fun Outcome.toSystemsvar(): ArenaEiaInfo.EiaData.SystemSvar = ArenaEiaInfo.EiaData.SystemSvar().apply {
+    meldingsNr = outcomeType.messageNumber.toBigInteger()
+    meldingsTekst = formattedMessage
+    meldingsPrioritet = outcomeType.messagePriority.priorityNumber.toBigInteger()
+    meldingsType = outcomeType.messageType.type
 }
