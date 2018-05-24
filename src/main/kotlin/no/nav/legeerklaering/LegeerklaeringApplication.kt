@@ -320,6 +320,10 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 
     val samhandlerPraksis = runBlocking { samhandlerDeferred.await() }
 
+    if (outcomes.isEmpty()){
+        outcomes+= OutcomeType.LEGEERKLAERING_MOTTAT
+    }
+
     return outcomes.toResult(samhandlerPraksis.tss_ident)
 }
 

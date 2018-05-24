@@ -84,19 +84,6 @@ class ArenaClientTest{
     }
 
     @Test
-    fun shouldSetEiaDataSystemSvar() {
-        Assert.assertEquals(outcomes[0].outcomeType.messageNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsNr)
-        Assert.assertEquals(outcomes[0].formattedMessage, request.eiaData.systemSvar[0].meldingsTekst)
-        Assert.assertEquals(outcomes[0].outcomeType.messagePriority.priorityNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsPrioritet)
-        Assert.assertEquals(outcomes[0].outcomeType.messageType.type, request.eiaData.systemSvar[0].meldingsType)
-
-        Assert.assertEquals(outcomes[1].outcomeType.messageNumber.toBigInteger(), request.eiaData.systemSvar[1].meldingsNr)
-        Assert.assertEquals(outcomes[1].formattedMessage, request.eiaData.systemSvar[1].meldingsTekst)
-        Assert.assertEquals(outcomes[1].outcomeType.messagePriority.priorityNumber.toBigInteger(), request.eiaData.systemSvar[1].meldingsPrioritet)
-        Assert.assertEquals(outcomes[1].outcomeType.messageType.type, request.eiaData.systemSvar[1].meldingsType)
-    }
-
-    @Test
     fun shouldSetEiaDataSignaturDato() {
 
         val expectedCurrentDate = newInstance.newXMLGregorianCalendar(GregorianCalendar().apply {

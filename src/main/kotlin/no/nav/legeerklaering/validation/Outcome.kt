@@ -27,6 +27,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     ADDRESS_MISSING_TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
     NO_VALID_TSSID_PRACTICE_TYPE_TSS(77,"Finner ingen gyldig praksistype i TSS.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78,"Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
+    LEGEERKLAERING_MOTTAT(245, "Legeerklæring er mottatt.", Priority.NOTE, Type.FAGLIG),
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't
     // contain the signature date, and even if it doesn't we'd throw an exception and we wont let it through
     //SIGNATURE_DATE_MISSING(65, "Signaturdato mangler.", Priority.RETUR, Type.FAGLIG),
