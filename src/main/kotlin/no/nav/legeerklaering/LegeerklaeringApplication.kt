@@ -205,13 +205,18 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING })
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
-                log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
-                arenaProducer.send(session.createBytesMessage().apply {
-                    val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId)
-                    val arenaEiaInfoBytes = arenaEiaInfoMarshaller.toByteArray(arenaEiaInfo)
-                    writeBytes(arenaEiaInfoBytes)
-                    arenaProducer.send(this)
-                })
+                if(!validationResult.outcomes.any{it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6}) {
+                    log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
+                    arenaProducer.send(session.createBytesMessage().apply {
+                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId)
+                        val arenaEiaInfoBytes = arenaEiaInfoMarshaller.toByteArray(arenaEiaInfo)
+                        writeBytes(arenaEiaInfoBytes)
+                        arenaProducer.send(this)
+                    })
+                }
+                else{
+                    log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
+                }
 
                 log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createBytesMessage().apply {
