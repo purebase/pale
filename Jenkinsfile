@@ -42,11 +42,13 @@ pipeline {
                 slackStatus status: 'passed'
             }
         }
+        /*
         stage('deploy schemas to maven repo') {
             steps {
                 sh './gradlew publish'
             }
         }
+        */
         stage('extract application files') {
             steps {
                 sh './gradlew installDist'
