@@ -46,10 +46,5 @@ fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                         }
                     }
                 }
-                .doOnNext {
-                    (executionInfo, _) ->
-                    executionInfo.outcome.forEach {
-                        RULE_COUNTER.labels(it.outcomeType.name).inc()
-                    }
-                }
+                .doOnNext { (executionInfo, _) -> collectFlowStatistics(executionInfo.outcome) }
                 .firstElement().blockingGet().first.outcome

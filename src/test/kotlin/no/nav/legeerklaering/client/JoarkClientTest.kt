@@ -16,9 +16,8 @@ class JoarkClientTest {
     val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
     val behandlingsvedleggBytes: ByteArray = byteArrayOf()
     val fagmeldingBytes: ByteArray = byteArrayOf()
-    val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
-    val requestZeroOutcomes: LagreDokumentOgOpprettJournalpostRequest = createJoarkRequest(fellesformat, legeerklaering, fagmeldingBytes, null, false)
-    val requestWithOutcomes = createJoarkRequest(fellesformat, legeerklaering, fagmeldingBytes, behandlingsvedleggBytes, false)
+    val requestZeroOutcomes: LagreDokumentOgOpprettJournalpostRequest = createJoarkRequest(fellesformat, fagmeldingBytes, null, false)
+    val requestWithOutcomes = createJoarkRequest(fellesformat, fagmeldingBytes, behandlingsvedleggBytes, false)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
 

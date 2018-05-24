@@ -10,9 +10,10 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
 
-fun createJoarkRequest(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?, manuelBehandling: Boolean):
+fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?, manuelBehandling: Boolean):
         LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
+    val legeerklaering = extractLegeerklaering(fellesformat)
 
     journalpostDokumentInfoRelasjonListe.add(mapfellesformatToDokumentInfoRelasjon(fellesformat, false, fagmelding))
 

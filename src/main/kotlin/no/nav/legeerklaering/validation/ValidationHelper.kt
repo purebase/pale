@@ -2,6 +2,8 @@ package no.nav.legeerklaering.validation
 
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.toObservable
+import no.nav.legeerklaering.metrics.APPREC_ERROR_COUNTER
+import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.model.msghead.Ident
@@ -33,6 +35,15 @@ fun initFlow(fellesformat: EIFellesformat): Observable<RuleExecutionInfo<String?
                             outcome = mutableListOf()
                     )
                 }
+
+fun collectFlowStatistics(outcomes: List<Outcome>) {
+    outcomes.forEach {
+        RULE_COUNTER.labels(it.outcomeType.name).inc()
+        if (it.outcomeType.messagePriority == Priority.RETUR) {
+            APPREC_ERROR_COUNTER.labels(it.apprecError?.v ?: "Missing").inc()
+        }
+    }
+}
 
 fun extractDoctorIdentFromSender(fellesformat: EIFellesformat): Ident? =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {

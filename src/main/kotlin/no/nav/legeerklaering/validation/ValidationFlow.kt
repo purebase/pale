@@ -1,15 +1,13 @@
 package no.nav.legeerklaering.validation
 
 import no.nav.legeerklaering.mapping.ApprecError
-import no.nav.legeerklaering.mapping.ApprecStatus
-import no.nav.legeerklaering.mapping.createApprec
-import no.nav.legeerklaering.mapping.mapApprecErrorToAppRecCV
 import no.nav.legeerklaering.metrics.APPREC_ERROR_COUNTER
-import no.nav.legeerklaering.metrics.RULE_COUNTER
 import no.nav.legeerklaering.validatePersonAndDNumber
 import no.nav.legeerklaering.validatePersonAndDNumber11Digits
 import no.nav.model.fellesformat.EIFellesformat
 import java.time.LocalDateTime
+
+import no.nav.legeerklaering.validation.OutcomeType.*
 
 fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
         initFlow(fellesformat)
@@ -53,7 +51,6 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                     } else if (!validatePersonAndDNumber(it.doctorIdent.id)) {
                         it.outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(name,
                                 it.doctorIdent, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
-                        APPREC_ERROR_COUNTER.labels(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.v).inc()
                     }
                 }
                 .doOnNext {
@@ -62,7 +59,6 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                     if (surname == null || surname.trim().isEmpty()) {
                         it.outcome += OutcomeType.PATIENT_SURNAME_NOT_FOUND.toOutcome(
                                 apprecError = ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA)
-                        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA.v).inc()
                     }
                 }
                 .doOnNext {
@@ -71,7 +67,6 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                     if (firstName == null || firstName.trim().isEmpty()) {
                         it.outcome += OutcomeType.PATIENT_FIRST_NAME_NOT_FOUND.toOutcome(
                                 apprecError = ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA)
-                        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA.v).inc()
                     }
                 }
                 .doOnNext {
@@ -84,14 +79,10 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> =
                 .doOnNext {
                     if (extractSignatureDate(it.fellesformat).isAfter(LocalDateTime.now())) {
                         it.outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(
-                                fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
-                                fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
+                                it.fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
+                                it.fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
                                 apprecError = ApprecError.SIGNATURE_ERROR)
                     }
                 }
-                .doOnNext {
-                    it.outcome.forEach {
-                        RULE_COUNTER.labels(it.outcomeType.name).inc()
-                    }
-                }
+                .doOnNext { collectFlowStatistics(it.outcome) }
                 .firstElement().blockingGet().outcome

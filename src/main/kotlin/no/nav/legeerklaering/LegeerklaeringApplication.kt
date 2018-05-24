@@ -138,7 +138,6 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val bytes = ByteArray(it.bodyLength.toInt())
             it.readBytes(bytes)
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
-            val legeerklaering = fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
 
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
@@ -182,9 +181,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             }
 
             val validationResult = try {
-                validateMessage(fellesformat, legeerklaering, personV3, organisasjonEnhet, sarClient)
+                validateMessage(fellesformat, personV3, organisasjonEnhet, sarClient)
             } catch (e: Exception) {
-                log.error("Received exception", e)
+                log.error("Exception caught while validating message, $defaultKeyFormat", *defaultKeyValues, e)
                 throw e
             }
 
@@ -202,7 +201,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             } else {
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
                 val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
-                val joarkRequest = createJoarkRequest(fellesformat, legeerklaering , fagmelding, behandlingsvedlegg,
+                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg,
                         validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING })
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
@@ -248,7 +247,8 @@ data class ValidationResult(
 fun List<Outcome>.toResult(tssId: String? = null)
         = ValidationResult(tssId, this)
 
-fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring, personV3: PersonV3, orgnaisasjonEnhet: OrganisasjonEnhetV2, sarClient: SarClient): ValidationResult {
+fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasjonEnhet: OrganisasjonEnhetV2, sarClient: SarClient): ValidationResult {
+    val legeerklaering = extractLegeerklaering(fellesformat)
     val outcomes = mutableListOf<Outcome>()
 
     outcomes.addAll(validationFlow(fellesformat))
@@ -260,9 +260,9 @@ fun validateMessage(fellesformat: EIFellesformat, legeerklaering: Legeerklaring,
 
     val patientIdent = extractPersonIdent(legeerklaering)!!
     val patientIdentType = if (isDNR(patientIdent)) {
-        "DNR"
+        LegeerklaeringConstant.DNR.string
     } else {
-        "FNR"
+        LegeerklaeringConstant.FNR.string
     }
 
     val personDeferred = retryWithInterval(retryInterval, "hent_person") {
@@ -363,9 +363,6 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
 }
 
-fun checkIfMsgidIsInRedis(jedis: Jedis, msgid: String): Boolean =
-        jedis.get(msgid) != null
-
 fun getHCPFodselsnummer(fellesformat: EIFellesformat): String? =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident
-                .find { it.typeId.v.equals("FNR") }?.id
+                .find { it.typeId.v == "FNR" }?.id

@@ -15,10 +15,6 @@ fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> = initFlow(fellesfor
                 it.outcome += OutcomeType.BEHANDLER_IS_PATIENT
             }
         }
-        .doOnNext {
-            it.outcome.forEach {
-                RULE_COUNTER.labels(it.outcomeType.name).inc()
-            }
-        }
+        .doOnNext { collectFlowStatistics(it.outcome) }
         .firstElement().blockingGet().outcome
 

@@ -10,4 +10,5 @@ fun postNORG2Flow(fellesformat: EIFellesformat, navKontor: Organisasjonsenhet): 
                 it.outcome += OutcomeType.PERSON_HAS_NO_NAV_KONTOR.toOutcome(apprecError = ApprecError.MISSING_PATIENT_INFO)
             }
         }
+        .doOnNext { collectFlowStatistics(it.outcome) }
         .firstElement().blockingGet().outcome

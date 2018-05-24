@@ -1,6 +1,7 @@
 package no.nav.legeerklaering
 
 import com.devskiller.jfairy.Fairy
+import com.devskiller.jfairy.producer.company.Company
 import no.nav.legeerklaering.mapping.LegeerklaeringType
 import no.nav.legeerklaering.mapping.TypeTiltak
 import no.nav.legeerklaering.validation.personNumberDateFormat
@@ -16,9 +17,16 @@ import java.util.concurrent.ThreadLocalRandom
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
 
-val fairy: Fairy = Fairy.create(Locale.US)
+val fairy: Fairy = Fairy.create(Locale("no", "NO"))
 val random: Random = Random()
 val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
+
+fun Company.getCenterName(): String =
+        this.name.replace("AS", when (this.name.length % 3) {
+            0 -> "Legesenter AS"
+            1 -> "Legekontor AS"
+            else -> "AS"
+        })
 
 class TestDataGenerator {
     @Test
@@ -58,7 +66,7 @@ fun defaultFellesformat(): EIFellesformat {
                 msgId = UUID.randomUUID().toString()
                 sender = Sender().apply {
                     organisation = Organisation().apply {
-                        organisationName = organisationData.name
+                        organisationName = organisationData.getCenterName()
                         ident.add(generateOrganisationNumberIdent())
                         ident.add(generateHerIdent())
 
