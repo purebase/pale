@@ -48,7 +48,6 @@ pipeline {
                 sh './gradlew publish'
             }
         }
-        */
         stage('extract application files') {
             steps {
                 sh './gradlew installDist'
@@ -59,7 +58,6 @@ pipeline {
                 dockerUtils 'createPushImage'
             }
         }
-		/*
         stage('validate & upload nais.yaml to nexus m2internal') {
             steps {
                 nais 'validate'
