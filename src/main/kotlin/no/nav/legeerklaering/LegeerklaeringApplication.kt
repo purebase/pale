@@ -286,6 +286,23 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
                 ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
     }
 
+    val person = try {
+        runBlocking { personDeferred.await() }
+    } catch (e: HentPersonPersonIkkeFunnet) {
+        outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS
+        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
+        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.v).inc()
+        return outcomes.toResult()
+    } catch (e: HentPersonSikkerhetsbegrensning) {
+        outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {
+            "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
+            "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
+            else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
+        }
+        return outcomes.toResult()
+    }
+
     val geografiskTilknytningDeferred = retryWithInterval(retryInterval, "hent_geografisk_tilknytting") {
         personV3.hentGeografiskTilknytning(HentGeografiskTilknytningRequest().withAktoer(PersonIdent().withIdent(
                 NorskIdent()
@@ -303,23 +320,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
                 this.value = geografiskTilknytningDeferred.await().geografiskTilknytning
             }
         }).navKontor
-    }
-
-    val person = try {
-        runBlocking { personDeferred.await() }
-    } catch (e: HentPersonPersonIkkeFunnet) {
-        outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS
-        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
-        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.v).inc()
-        return outcomes.toResult()
-    } catch (e: HentPersonSikkerhetsbegrensning) {
-        outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {
-            "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
-            "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
-            else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
-        }
-        return outcomes.toResult()
     }
 
     if (outcomes.none { it.outcomeType.messagePriority == Priority.RETUR }) {
