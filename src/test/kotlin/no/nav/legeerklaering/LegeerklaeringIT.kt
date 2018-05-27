@@ -111,7 +111,7 @@ class LegeerklaeringIT {
             val apprecQueue = session.createQueue("apprec_queue")
             val backoutQueue = session.createQueue("backout_queue")
 
-            diagnosisWebserver = createHttpServer(diagnosisWebServerPort)
+            diagnosisWebserver = createHttpServer(diagnosisWebServerPort, "TEST")
 
             session.close()
             listen(pdfClient, jedis, personV3Client, organisasjonEnhetV2Client, journalbehandlingClient, sarClient, inputQueue, arenaQueue, apprecQueue, backoutQueue, queueConnection)

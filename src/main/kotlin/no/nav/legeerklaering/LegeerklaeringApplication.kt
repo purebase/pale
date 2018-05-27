@@ -267,8 +267,8 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 
     outcomes.addAll(preTPSFlow(fellesformat))
 
-    if (outcomes.map { it.outcomeType.messagePriority }.any { it == Priority.RETUR || it == Priority.MANUAL_PROCESSING })
-        return ValidationResult(null, outcomes)
+    if (outcomes.any { it.outcomeType.shouldReturnEarly() })
+        return outcomes.toResult()
 
     val patientIdent = extractPersonIdent(legeerklaering)!!
     val patientIdentType = if (isDNR(patientIdent)) {
@@ -298,8 +298,13 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {
             "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
             "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
-            else -> throw RuntimeException("Missing handling of FP3_EA/Egen ansatt")
+            else -> TODO("Missing handling of FP3_EA/Egen ansatt")
         }
+        return outcomes.toResult()
+    }
+
+    outcomes.addAll(postTPSFlow(fellesformat, person))
+    if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
         return outcomes.toResult()
     }
 
@@ -322,13 +327,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         }).navKontor
     }
 
-    if (outcomes.none { it.outcomeType.messagePriority == Priority.RETUR }) {
-        outcomes.addAll(postTPSFlow(fellesformat, person))
-    }
-
-    if (outcomes.none { it.outcomeType.messagePriority == Priority.RETUR }) {
-        outcomes.addAll(postNORG2Flow(fellesformat, runBlocking { navKontorDeferred.await() }))
-    }
+    outcomes.addAll(postNORG2Flow(fellesformat, runBlocking { navKontorDeferred.await() }))
 
     val samhandlerPraksis = runBlocking { samhandlerDeferred.await() }
 

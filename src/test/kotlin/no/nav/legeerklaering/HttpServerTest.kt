@@ -92,7 +92,7 @@ class HttpServerTest {
         @BeforeClass
         @JvmStatic
         fun setupClass() {
-            applicationEngine = createHttpServer(port)
+            applicationEngine = createHttpServer(port, "TEST")
         }
     }
 }

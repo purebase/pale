@@ -57,6 +57,9 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
 fun OutcomeType.toOutcome(vararg args: Any, apprecError: ApprecError? = null): Outcome
     = Outcome(this, args, apprecError = apprecError)
 
+fun OutcomeType.shouldReturnEarly(): Boolean =
+        messagePriority == Priority.RETUR || messagePriority == Priority.MANUAL_PROCESSING
+
 operator fun MutableList<Outcome>.plusAssign(outcomeType: OutcomeType) {
     this += outcomeType.toOutcome()
 }
