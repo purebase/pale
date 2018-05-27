@@ -19,17 +19,17 @@ val collectorRegistry: CollectorRegistry = CollectorRegistry.defaultRegistry
 private val log = LoggerFactory.getLogger("le.HttpServer")
 private val prometheusContentType = ContentType.parse(TextFormat.CONTENT_TYPE_004)
 
-data class SelftestStatus(val status: String)
+data class SelftestStatus(val status: String, val applicationVersion: String)
 
-fun createHttpServer(port: Int = 8080): ApplicationEngine = embeddedServer(Netty, port) {
+fun createHttpServer(port: Int = 8080, applicationVersion: String): ApplicationEngine = embeddedServer(Netty, port) {
     routing {
         accept(ContentType.Application.Json) {
             get("/is_alive") {
-                call.respondJson(SelftestStatus(status = "I'm alive"))
+                call.respondJson(SelftestStatus(status = "I'm alive", applicationVersion = applicationVersion))
             }
 
             get("/is_ready") {
-                call.respondJson(SelftestStatus(status = "I'm ready"))
+                call.respondJson(SelftestStatus(status = "I'm ready", applicationVersion = applicationVersion))
             }
         }
 

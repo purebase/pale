@@ -37,9 +37,11 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
+import redis.clients.jedis.JedisSentinelPool
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import javax.jms.*
 import javax.jms.Queue
 import javax.xml.bind.JAXBContext
@@ -51,6 +53,8 @@ val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
         .registerKotlinModule()
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+
+val redisMasterName = "mymaster"
 
 val fellesformatJaxBContext: JAXBContext = JAXBContext.newInstance(EIFellesformat::class.java, Legeerklaring::class.java)
 val arenaEiaInfoJaxBContext: JAXBContext = JAXBContext.newInstance(ArenaEiaInfo::class.java)
@@ -70,34 +74,37 @@ fun main(args: Array<String>) {
     DefaultExports.initialize()
     val fasitProperties = FasitProperties()
 
+    createHttpServer(applicationVersion = fasitProperties.appVersion)
+
     connectionFactory(fasitProperties).createConnection(fasitProperties.mqUsername, fasitProperties.mqPassword).use {
         connection ->
         connection.start()
-        Jedis().use {
+        val sentinels = setOf("rfs-${fasitProperties.appName}:26379")
+        JedisSentinelPool(redisMasterName, sentinels).resource.use {
             jedis ->
             val session = connection.createSession()
-            val inputQueue = session.createQueue(fasitProperties.legeerklaeringQueueName)
+            val inputQueue = session.createQueue(fasitProperties.inputQueueName)
             val arenaQueue = session.createQueue(fasitProperties.arenaQueueName)
-            val receiptQueue = session.createQueue(fasitProperties.mottakQueueUtsendingQueueName)
+            val receiptQueue = session.createQueue(fasitProperties.receiptQueueName)
             val backoutQueue = session.createQueue(fasitProperties.legeerklaeringBackoutQueueName)
             session.close()
 
             val personV3 = JaxWsProxyFactoryBean().apply {
-                address = fasitProperties.virksomhetPersonV3EndpointURL
+                address = fasitProperties.personV3EndpointURL
                 features.add(LoggingFeature())
                 serviceClass = PersonV3::class.java
             }.create() as PersonV3
             configureSTSFor(personV3, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
 
             val orgnaisasjonEnhet = JaxWsProxyFactoryBean().apply {
-                address = fasitProperties.virksomhetOrganisasjonEnhetV2EndpointURL
+                address = fasitProperties.organisasjonEnhetV2EndpointURL
                 features.add(LoggingFeature())
                 serviceClass = OrganisasjonEnhetV2::class.java
             }.create() as OrganisasjonEnhetV2
             configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
 
             val journalbehandling = JaxWsProxyFactoryBean().apply {
-                TODO("Implement fasit resources for joark")
+                address = fasitProperties.journalbehandlingEndpointURL
                 features.add(LoggingFeature())
                 serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
@@ -234,7 +241,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
         }
 
         if (messageId != null && ediLoggId != null) {
-            jedis.set(messageId, ediLoggId)
+            jedis.setex(messageId, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
         }
     }
 }

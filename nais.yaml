@@ -29,6 +29,7 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
+redis: true
 fasitResources:
   used:
     - alias: OrganisasjonEnhet_v2
