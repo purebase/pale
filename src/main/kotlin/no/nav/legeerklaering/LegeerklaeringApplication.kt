@@ -86,7 +86,7 @@ fun main(args: Array<String>) {
             val inputQueue = session.createQueue(fasitProperties.inputQueueName)
             val arenaQueue = session.createQueue(fasitProperties.arenaQueueName)
             val receiptQueue = session.createQueue(fasitProperties.receiptQueueName)
-            val backoutQueue = session.createQueue(fasitProperties.legeerklaeringBackoutQueueName)
+            val backoutQueue = session.createQueue(fasitProperties.paleBackoutQueueName)
             session.close()
 
             val personV3 = JaxWsProxyFactoryBean().apply {

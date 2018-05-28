@@ -4,7 +4,7 @@ pipeline {
     agent any
 
     environment {
-        APPLICATION_NAME = 'legeerklaering'
+        APPLICATION_NAME = 'pale'
         FASIT_ENV = 'q1'
         ZONE = 'fss'
         NAMESPACE = 'default'
@@ -42,12 +42,6 @@ pipeline {
                 slackStatus status: 'passed'
             }
         }
-        /*
-        stage('deploy schemas to maven repo') {
-            steps {
-                sh './gradlew publish'
-            }
-        }
         stage('extract application files') {
             steps {
                 sh './gradlew installDist'
@@ -76,7 +70,6 @@ pipeline {
                 deployApplication()
             }
         }
-		*/
     }
     post {
         always {
