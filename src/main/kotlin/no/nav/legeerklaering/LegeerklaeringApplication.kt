@@ -212,7 +212,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING })
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
-                if(!validationResult.outcomes.any{it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6}) {
+                if(validationResult.outcomes.none{ it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
                     log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createBytesMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId)
@@ -293,13 +293,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         val apprec = createApprec(fellesformat, ApprecStatus.avvist)
         apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
         APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.v).inc()
-        return outcomes.toResult()
-    } catch (e: HentPersonSikkerhetsbegrensning) {
-        outcomes += when (e.faultInfo.sikkerhetsbegrensning[0].value) {
-            "FP1_SFA" -> OutcomeType.PATIENT_HAS_SPERREKODE_6
-            "FP2_FA" -> OutcomeType.PATIENT_HAS_SPERREKODE_7
-            else -> TODO("Missing handling of FP3_EA/Egen ansatt")
-        }
         return outcomes.toResult()
     }
 

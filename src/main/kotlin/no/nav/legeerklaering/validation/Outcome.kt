@@ -58,7 +58,7 @@ fun OutcomeType.toOutcome(vararg args: Any, apprecError: ApprecError? = null): O
     = Outcome(this, args, apprecError = apprecError)
 
 fun OutcomeType.shouldReturnEarly(): Boolean =
-        messagePriority == Priority.RETUR || messagePriority == Priority.MANUAL_PROCESSING
+        messagePriority == Priority.RETUR
 
 operator fun MutableList<Outcome>.plusAssign(outcomeType: OutcomeType) {
     this += outcomeType.toOutcome()
