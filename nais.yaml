@@ -56,3 +56,5 @@ fasitResources:
       resourceType: Credential
     - alias: securityTokenService
       resourceType: BaseUrl
+    - alias: pale_channel
+      resourceType: Channel

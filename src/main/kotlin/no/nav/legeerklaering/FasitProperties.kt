@@ -4,6 +4,7 @@ data class FasitProperties(
         val mqHostname: String = getEnvVar("MQGATEWAY04_HOSTNAME"),
         val mqPort: Int = getEnvVar("MQGATEWAY04_PORT").toInt(),
         val mqQueueManagerName: String = getEnvVar("MQGATEWAY04_NAME"),
+        val mqChannelName: String = getEnvVar("PALE_CHANNEL_NAME"),
         val mqUsername: String = getEnvVar("SRVAPPSERVER_USERNAME", "srvappserver"),
         val mqPassword: String = getEnvVar("SRVAPPSERVER_PASSWORD", ""),
         val inputQueueName: String = getEnvVar("PALE_INPUT_QUEUENAME"),

@@ -373,6 +373,8 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     port = fasitProperties.mqPort
     queueManager = fasitProperties.mqQueueManagerName
     transportType = WMQConstants.WMQ_CM_CLIENT
+    sslCipherSuite = "TLS_RSA_AES_256_CBC_SHA"
+    channel = fasitProperties.mqChannelName
     ccsid = 1208
     setIntProperty(WMQConstants.JMS_IBM_ENCODING, MQC.MQENC_NATIVE)
     setIntProperty(WMQConstants.JMS_IBM_CHARACTER_SET, 1208)
