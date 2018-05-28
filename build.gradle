@@ -54,6 +54,7 @@ apply plugin: 'application'
 mainClassName = 'no.nav.legeerklaering.LegeerklaeringApplicationKt'
 
 applicationDefaultJvmArgs = [
+        '-Dcom.ibm.mq.cfg.useIBMCipherMappings=false',
         '-Djavax.net.ssl.trustStore=${NAV_TRUSTSTORE_PATH}',
         '-Djavax.net.ssl.trustStorePassword=${NAV_TRUSTSTORE_PASSWORD}',
         '-XX:+UnlockExperimentalVMOptions',
