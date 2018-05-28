@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         APPLICATION_NAME = 'pale'
-        FASIT_ENV = 'q1'
+        FASIT_ENV = 't12'
         ZONE = 'fss'
         NAMESPACE = 'default'
         COMMIT_HASH_SHORT = gitVars 'commitHashShort'
