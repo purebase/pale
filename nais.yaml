@@ -52,8 +52,6 @@ fasitResources:
       resourceType: Queue
       propertyMap:
         queueName: MOTTAK_QUEUE_UTSENDING_QUEUENAME
-    - alias: virksomhet:OrganisasjonEnhet_v2
-      resourceType: Webserviceendpoint
     - alias: srvpale
       resourceType: Credential
     - alias: securityTokenService
