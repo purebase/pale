@@ -59,6 +59,8 @@ fun extractSenderOrganisationNumber(fellesformat: EIFellesformat): String = fell
     it.typeId.v == "ENH"
 }!!.id
 
+fun extractSenderOrganisationName(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
+
 fun extractPersonIdent(legeerklaering: Legeerklaring): String?
         = legeerklaering.pasientopplysninger.pasient.fodselsnummer
 

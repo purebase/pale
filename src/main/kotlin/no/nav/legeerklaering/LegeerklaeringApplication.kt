@@ -26,12 +26,12 @@ import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhet
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Geografi
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorRequest
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
-import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonSikkerhetsbegrensning
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
+import org.apache.commons.text.similarity.LevenshteinDistance
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.slf4j.LoggerFactory
@@ -41,12 +41,15 @@ import redis.clients.jedis.JedisSentinelPool
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.lang.Math.abs
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.jms.*
 import javax.jms.Queue
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
+import kotlin.math.max
 
 
 val objectMapper: ObjectMapper = ObjectMapper()
@@ -309,7 +312,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     }
 
     val samhandlerDeferred = retryWithInterval(retryInterval, "kuhr_sar_hent_samhandler") {
-        findBestSamhandlerPraksisMatch(sarClient.getSamhandler(extractDoctorIdentFromSender(fellesformat)!!.id))
+        findBestSamhandlerPraksis(sarClient.getSamhandler(extractDoctorIdentFromSender(fellesformat)!!.id), fellesformat)
     }
 
     val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {
@@ -321,24 +324,54 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     }
 
     outcomes.addAll(postNORG2Flow(fellesformat, runBlocking { navKontorDeferred.await() }))
+    if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
+        return outcomes.toResult()
+    }
 
-    val samhandlerPraksis = runBlocking { samhandlerDeferred.await() }
+    val samhandlerPraksisMatch = runBlocking { samhandlerDeferred.await() }
+
+    if (samhandlerPraksisMatch == null) {
+        outcomes += OutcomeType.BEHANDLER_NOT_TSS
+    } else {
+        outcomes.addAll(postTSSFlow(fellesformat, samhandlerPraksisMatch.samhandlerPraksis))
+    }
+
 
     if (outcomes.isEmpty()){
         outcomes+= OutcomeType.LEGEERKLAERING_MOTTAT
     }
 
-    return outcomes.toResult(samhandlerPraksis.tss_ident)
+    return outcomes.toResult(samhandlerPraksisMatch?.samhandlerPraksis?.tss_ident)
 }
 
-fun findBestSamhandlerPraksisMatch(samhandlers: List<Samhandler>): SamhandlerPraksis {
+data class SamhandlerPraksisMatch(val samhandlerPraksis: SamhandlerPraksis, val percentageMatch: Double)
+
+fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFellesformat): SamhandlerPraksisMatch? {
     val aktiveSamhandlere = samhandlers.flatMap { it.samh_praksis }
             .filter {
                 it.samh_praksis_status_kode == "aktiv"
-            }.toList()
-    if (aktiveSamhandlere.size != 1)
-        return TODO("Implement better handling of multiple praksises")
-    return aktiveSamhandlere.first()
+            }
+            .filter {
+                it.samh_praksis_periode.any {
+                    it.gyldig_fra >= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til <= LocalDateTime.now())
+                }
+            }
+            .toList()
+    if (aktiveSamhandlere.size == 1)
+        return SamhandlerPraksisMatch(aktiveSamhandlere.first(), 100.0)
+
+    val orgName = extractSenderOrganisationName(fellesformat)
+    return aktiveSamhandlere
+            .map {
+                SamhandlerPraksisMatch(it, calculatePercentageStringMatch(it.navn, orgName))
+            }.sortedBy { it.percentageMatch }
+            .first()
+}
+
+fun calculatePercentageStringMatch(str1: String, str2: String): Double {
+    val maxDistance = max(str1.length, str2.length).toDouble()
+    val distance = LevenshteinDistance().apply(str2, str1).toDouble()
+    return (maxDistance - distance) / maxDistance
 }
 
 fun <T>retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {

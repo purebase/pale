@@ -12,7 +12,7 @@ fun postTPSFlow(fellesformat: EIFellesformat, personTPS: Person): List<Outcome> 
                 }
                 .doOnNext {
                     (executionInfo, person) ->
-                    when (person.diskresjonskode.value) {
+                    when (person.diskresjonskode?.value) {
                         // Sperret adresse, strengt fortrolig
                         "SPSF" -> executionInfo.outcome += OutcomeType.PATIENT_HAS_SPERREKODE_6
                         // Sperret adresse, fortrolig
