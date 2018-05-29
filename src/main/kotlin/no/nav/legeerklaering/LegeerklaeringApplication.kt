@@ -355,6 +355,12 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                     it.gyldig_fra >= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til <= LocalDateTime.now())
                 }
             }
+            //.filter {
+            //    it.samh_praksis_type_kode in arrayOf("LEVA", "LEKO", "FALE")
+            //}
+            //.filter {
+            //    it.samh_praksis_status_kode == "LE"
+            //}
             .toList()
     if (aktiveSamhandlere.size == 1)
         return SamhandlerPraksisMatch(aktiveSamhandlere.first(), 100.0)

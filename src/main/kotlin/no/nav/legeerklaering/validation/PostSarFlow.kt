@@ -17,7 +17,7 @@ fun postTSSFlow(fellesformat: EIFellesformat, samhandlerPraksis: SamhandlerPraks
                 }
                 .doOnNext {
                     (executionInfo, samhandlerPraksis) ->
-                    if (samhandlerPraksis.samh_praksis_type_kode != null && samhandlerPraksis.samh_praksis_type_kode == TODO()) {
+                    if (samhandlerPraksis.samh_praksis_type_kode in arrayOf("LEVA", "LEKO")) {
                         executionInfo.outcome += OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM
                     }
                 }
