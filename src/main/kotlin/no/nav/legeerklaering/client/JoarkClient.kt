@@ -1,11 +1,11 @@
 package no.nav.legeerklaering.client
 
 import no.nav.legeerklaering.LegeerklaeringConstant
-import no.nav.legeerklaering.getHCPFodselsnummer
+import no.nav.legeerklaering.metrics.MESSAGE_OUTCOME_MANUELL_COUNTER
+import no.nav.legeerklaering.metrics.MESSAGE_OUTCOME_OK_COUNTER
 import no.nav.legeerklaering.newInstance
 import no.nav.legeerklaering.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
-import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
@@ -37,8 +37,10 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     fagomradeKode = LegeerklaeringConstant.opp.string
 
     if (manuelBehandling){
+        MESSAGE_OUTCOME_MANUELL_COUNTER.inc()
         fordeling = LegeerklaeringConstant.eiaMan.string
     }
+    MESSAGE_OUTCOME_OK_COUNTER.inc()
     fordeling = LegeerklaeringConstant.eiaOk.string
     avsenderMottaker = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur

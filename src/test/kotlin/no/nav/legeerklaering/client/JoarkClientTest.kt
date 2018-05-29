@@ -4,7 +4,6 @@ import no.nav.legeerklaering.LegeerklaeringConstant
 import no.nav.legeerklaering.getHCPFodselsnummer
 import no.nav.legeerklaering.readToFellesformat
 import no.nav.model.fellesformat.EIFellesformat
-import no.nav.model.legeerklaering.Legeerklaring
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
 import org.junit.Assert
 import org.junit.Test

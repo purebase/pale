@@ -3,7 +3,7 @@ package no.nav.legeerklaering.metrics
 import io.prometheus.client.Counter
 import io.prometheus.client.Summary
 
-const val METRICS_NS = "bankkontonummerkanal"
+const val METRICS_NS = "legeerklaering"
 
 val RULE_COUNTER: Counter = Counter.Builder()
         .namespace(METRICS_NS)
@@ -33,3 +33,13 @@ val APPREC_ERROR_COUNTER: Counter = Counter.Builder()
         .name("apprec_error_counter")
         .labelNames("apprec_error_type")
         .help("Counts the number of apprec error we send back to emottak").register()
+
+val MESSAGE_OUTCOME_OK_COUNTER: Counter = Counter.Builder()
+        .namespace(METRICS_NS)
+        .name("message_outcome_ok_counter")
+        .help("Counts the number of messages that gets dont need manual casework").register()
+
+val MESSAGE_OUTCOME_MANUELL_COUNTER: Counter = Counter.Builder()
+        .namespace(METRICS_NS)
+        .name("message_outcome_manuell_counter")
+        .help("Counts the number of messages that goes to manual casework").register()
