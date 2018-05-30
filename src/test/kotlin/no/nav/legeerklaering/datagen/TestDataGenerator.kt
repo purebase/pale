@@ -298,7 +298,35 @@ fun generateOrganisationNumberIdent(): Ident = Ident().apply {
     }
 }
 
-fun generateOrganisationNumber(): String = random.nextInt(9999999).toString() // TODO: Generate a organization with a valid mod
+fun generateOrganisationNumber(): String {
+    return (999999900..999999999)
+    .map { "$it" }
+    .first {
+        validateOrgNumberMod11(it)
+    }
+}
+
+private fun validateOrgNumberMod11(orgNumber: String): Boolean {
+    val lookup1: IntArray = intArrayOf(3, 2, 7, 6, 5, 4, 3, 2 )
+    if (orgNumber.length != 9)
+        return false
+
+    var checksum1 = 0
+
+    for (i in 0..7) {
+        val currNum = orgNumber[i]-'0'
+        checksum1 += currNum * lookup1[i]
+    }
+
+    checksum1 %= 11
+
+    val checksum1Final = if (checksum1 == 0) { 0 } else { 11 - checksum1 }
+
+    if (checksum1Final == 10)
+        return false
+
+    return orgNumber[8]-'0' == checksum1Final
+}
 
 fun generatePersonNumber(bornDate: LocalDate): String {
     val personDate = bornDate.format(personNumberDateFormat)
