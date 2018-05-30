@@ -4,7 +4,7 @@ pipeline {
     agent any
 
     environment {
-        APPLICATION_NAME = 'pale'
+        APPLICATION_NAME = 'legeerklaering'
         FASIT_ENV = 't12'
         ZONE = 'fss'
         NAMESPACE = 'default'
