@@ -45,7 +45,7 @@ buildscript {
     }
 }
 
-group 'no.nav.legeerklaering'
+group 'no.nav.pale'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'idea'
@@ -54,7 +54,7 @@ apply plugin: 'kotlin'
 apply plugin: "com.commercehub.gradle.plugin.avro"
 apply plugin: 'application'
 
-mainClassName = 'no.nav.legeerklaering.LegeerklaeringApplicationKt'
+mainClassName = 'no.nav.pale.PaleApplicationKt'
 
 applicationDefaultJvmArgs = [
         '-Dcom.ibm.mq.cfg.useIBMCipherMappings=false',
@@ -103,7 +103,7 @@ task generateJaxb2() {
 
         ant.xjc(
                 destdir: jaxb2SourceDir,
-                package: 'no.nav.model.legeerklaering',
+                package: 'no.nav.model.pale',
                 schema: "$projectDir/src/main/resources/xsd/NAV-Legeerklaring-2008-06-06.xsd",
                 encoding: 'UTF-8',
                 fork: "true"

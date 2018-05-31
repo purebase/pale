@@ -1,5 +1,5 @@
 {
-    "namespace": "no.nav.legeerklaering.avro",
+    "namespace": "no.nav.pale.avro",
     "type": "record",
     "name": "DuplicateCheckedFellesformat",
     "fields": [
