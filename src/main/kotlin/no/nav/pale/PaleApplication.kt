@@ -76,6 +76,10 @@ fun main(args: Array<String>) {
     DefaultExports.initialize()
     val fasitProperties = FasitProperties()
 
+    System.setProperty("javax.net.ssl.keyStore", "mq_keystore.p12")
+    System.setProperty("javax.net.ssl.keyStorePassword", "changeit") // temporary, don't worry
+    System.setProperty("javax.net.ssl.keyStoreType", "pkcs12git ad")
+
     createHttpServer(applicationVersion = fasitProperties.appVersion)
 
     connectionFactory(fasitProperties).createConnection(fasitProperties.mqUsername, fasitProperties.mqPassword).use {
