@@ -3,43 +3,23 @@
 Repository for Legeerklaering. Application written in Kotlin used to receive legeerklæringer from external systems,
 doing some validation, then pushing it to our internal systems.
 
-## Technologies & Tools
+### Technologies & Tools
 
 * Kotlin
 * CXF
 * Gradle
+* Ktor
+* JUnit
 
-For deployment:
-* Docker (tested on 17.03.1-ce)
+### Getting started
+# Build and run tests
+./gradlew installDist
 
-## Notes on local development
+# Running locally
+The application can be ran locally using the integration test code using the class `no.nav.pale.PaleIT` in
+test. This will create a isolated runtime with every external calls mocked. To send a LE through it it needs to be
+packed in the fellesformat, and you can POST it to the diagnostics/rest mock server on the /input endpoint
 
-### Running locally with Docker
-
-Utvikler-image (Windows) no-go due to disabled virtualization flags. Need access to Linux image.
-Deployment on local machine is possible. Alternatively, provision a Linux server (or VDI) for 
-building the Docker images.
-
-* Build a JAR and output it in `target` subdirectory.
-* Build Docker image using Dockerfile.
-* Run the container and delete on exit.
-
-#### Compile and build JARs + startup scripts:
-
-`./gradlew clean installDist`
-
-#### Build docker container
-`docker build -f Dockerfile -t legeerklaering .`
-
-#### Run
-`docker run --rm -p 8080:8080 -it legeerklaering`
-
-#### If "port already allocated" errors, find and stop existing containers:
-`docker ps` then `docker stop <CONTAINER_NAMES>`
-
-### Testing against Kafka test-rig
-IPs and hostnames should be available on the #kafka Slack channel. Still WIP so they'll probably change. 
-You might want to consider using a docker image or running the open source confluent suite locally.
 
 ### Contact us
 #### Code/project related questions can be sent to 
