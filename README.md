@@ -1,6 +1,6 @@
-# Legeerklaering
+# Pale
 
-Repository for Legeerklaering. Application written in Kotlin used to receive legeerklæringer from external systems,
+Repository for Pale. Application written in Kotlin used to receive legeerklæringer from external systems,
 doing some validation, then pushing it to our internal systems.
 
 ### Technologies & Tools
