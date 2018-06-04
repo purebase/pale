@@ -125,7 +125,7 @@ fun defaultLogInfo(keyValues: Array<StructuredArgument>): String =
 fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonEnhet: OrganisasjonEnhetV2,
            journalbehandling: Journalbehandling, sarClient: SarClient, inputQueue: Queue, arenaQueue: Queue,
            receiptQueue: Queue, backoutQueue: Queue, connection: Connection) {
-    val session = connection.createSession()
+    val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
     val consumer = session.createConsumer(inputQueue)
     val arenaProducer = session.createProducer(arenaQueue)
     val receiptProducer = session.createProducer(receiptQueue)
@@ -134,7 +134,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
     var defaultKeyValues = arrayOf(keyValue("noMessageIdentifier", true))
     var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
-    QueueStatusCollector(connection.createSession(), inputQueue, arenaQueue, receiptQueue, backoutQueue)
+    QueueStatusCollector(connection.createSession(false, Session.AUTO_ACKNOWLEDGE), inputQueue, arenaQueue, receiptQueue, backoutQueue)
             .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
