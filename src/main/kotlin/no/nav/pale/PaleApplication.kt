@@ -8,10 +8,7 @@ import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
 import io.prometheus.client.hotspot.DefaultExports
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.*
 import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.pale.client.*
@@ -251,6 +248,10 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
         if (messageId != null && ediLoggId != null) {
             jedis.setex(messageId, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
         }
+    }
+
+    while (isActive) {
+        delay(100)
     }
 }
 
