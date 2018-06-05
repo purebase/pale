@@ -156,7 +156,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             }
 
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(inputMessageText)) as EIFellesformat
-
+            INCOMING_MESSAGE_COUNTER.inc()
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
