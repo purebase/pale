@@ -176,7 +176,8 @@ dependencies {
     // Communication libraries
     implementation "org.apache.cxf:cxf-rt-frontend-jaxws:$cxf_version"
     implementation "org.apache.cxf:cxf-rt-features-logging:$cxf_version"
-    compile "org.apache.cxf:cxf-rt-ws-security:$cxf_version"
+    implementation "org.apache.cxf:cxf-rt-transports-http:$cxf_version"
+    implementation "org.apache.cxf:cxf-rt-ws-security:$cxf_version"
 
     implementation "com.squareup.okhttp3:okhttp:3.10.0"
     implementation "redis.clients:jedis:$jedis_version"
@@ -212,5 +213,4 @@ dependencies {
 
     testImplementation 'org.mockito:mockito-core:2.18.3'
     testImplementation 'org.eclipse.jetty:jetty-servlet:9.4.10.v20180503'
-    testImplementation "org.apache.cxf:cxf-rt-transports-http:$cxf_version"
 }
