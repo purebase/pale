@@ -148,12 +148,12 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val fellesformat = if (it is BytesMessage) {
                 val bytes = ByteArray(it.bodyLength.toInt())
                 it.readBytes(bytes)
-                fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes))
+                fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
             } else if (it is TextMessage) {
-                fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(it.text))
+                fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(it.text)) as EIFellesformat
             } else {
                 throw RuntimeException("Incoming message needs to be a byte message or text message")
-            } as EIFellesformat
+            }
 
 
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
