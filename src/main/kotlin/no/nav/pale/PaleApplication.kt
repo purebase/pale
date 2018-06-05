@@ -149,13 +149,12 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 is BytesMessage -> {
                     val bytes = ByteArray(it.bodyLength.toInt())
                     it.readBytes(bytes)
-                    String(bytes, Charsets.UTF_8)
+                    String(bytes, Charsets.ISO_8859_1)
                 }
                 is TextMessage -> it.text
                 else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
-            log.info("Incomming messsage:" + inputMessageText)
 
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(inputMessageText)) as EIFellesformat
             INCOMING_MESSAGE_COUNTER.inc()
