@@ -155,6 +155,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
+            log.info("Incomming messsage:" + inputMessageText)
+
             val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(inputMessageText)) as EIFellesformat
             INCOMING_MESSAGE_COUNTER.inc()
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
