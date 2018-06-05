@@ -145,16 +145,17 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
         var messageId: String? = null
         var ediLoggId: String? = null
         try {
-            val fellesformat = if (it is BytesMessage) {
-                val bytes = ByteArray(it.bodyLength.toInt())
-                it.readBytes(bytes)
-                fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
-            } else if (it is TextMessage) {
-                fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(it.text)) as EIFellesformat
-            } else {
-                throw RuntimeException("Incoming message needs to be a byte message or text message")
+            val inputMessageText = when (it) {
+                is BytesMessage -> {
+                    val bytes = ByteArray(it.bodyLength.toInt())
+                    it.readBytes(bytes)
+                    String(bytes, Charsets.UTF_8)
+                }
+                is TextMessage -> it.text
+                else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
+            val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(inputMessageText)) as EIFellesformat
 
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
@@ -171,12 +172,12 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
             log.info("Received message from {}, $defaultKeyFormat",
-                    keyValue("size", bytes.size),
+                    keyValue("size", inputMessageText.length),
                     *defaultKeyValues)
 
             if (log.isDebugEnabled) {
                 log.debug("Incoming message {}, $defaultKeyFormat",
-                        keyValue("xmlMessage", bytes.toString(Charsets.UTF_8)),
+                        keyValue("xmlMessage", inputMessageText),
                         *defaultKeyValues)
             }
 
