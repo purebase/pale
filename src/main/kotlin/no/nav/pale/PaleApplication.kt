@@ -39,6 +39,7 @@ import redis.clients.jedis.JedisSentinelPool
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.StringReader
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.jms.*
@@ -144,12 +145,16 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
         var messageId: String? = null
         var ediLoggId: String? = null
         try {
-            if (it !is BytesMessage)
-                throw RuntimeException("Incoming message not a byte message?")
+            val fellesformat = if (it is BytesMessage) {
+                val bytes = ByteArray(it.bodyLength.toInt())
+                it.readBytes(bytes)
+                fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes))
+            } else if (it is TextMessage) {
+                fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(it.text))
+            } else {
+                throw RuntimeException("Incoming message needs to be a byte message or text message")
+            } as EIFellesformat
 
-            val bytes = ByteArray(it.bodyLength.toInt())
-            it.readBytes(bytes)
-            val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(ByteArrayInputStream(bytes)) as EIFellesformat
 
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
