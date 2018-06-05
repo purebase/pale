@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
     <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlxd="http://www.w3.org/2000/09/xmldsig#">
     <MsgInfo>
-        <Type V="LegerklÃ¦ring ved arbeidsufÃ¸rhet" DN="LEGEERKL"/>
+        <Type V="Legerklæring ved arbeidsuførhet" DN="LEGEERKL"/>
         <MIGversion>v1.2 2006-05-24</MIGversion>
         <GenDate>2017-12-29T03:49:45</GenDate>
         <MsgId>05565fb0-cd7e-410d-bc1f-e1e918df2eac</MsgId>
@@ -10,7 +11,7 @@
                 <OrganisationName>Kule helsetjenester AS</OrganisationName>
                 <Ident>
                     <Id>223456789</Id>
-                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (BrÃ¸nnÃ¸ysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
                 </Ident>
                 <Ident>
                     <Id>0123</Id>
@@ -36,7 +37,7 @@
                     </Ident>
                     <Ident>
                         <Id>04030350265</Id>
-                        <TypeId DN="FÃ¸dselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
+                        <TypeId DN="Fødselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
                     </Ident>
                     <Address>
                         <StreetAdr>Oppdiktet gate 9001</StreetAdr>
@@ -59,7 +60,7 @@
                 </Ident>
                 <Ident>
                     <Id>123456789</Id>
-                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (BrÃ¸nnÃ¸ysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
+                    <TypeId DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)" S="1.16.578.1.12.3.1.1.9051" V="ENH" />
                 </Ident>
                 <Address>
                     <StreetAdr />
@@ -73,7 +74,7 @@
             <GivenName>Daniel</GivenName>
             <Ident>
                 <Id>12128913767</Id>
-                <TypeId DN="FÃƒÂ¸dselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR" />
+                <TypeId DN="FÃ¸dselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR" />
             </Ident>
         </Patient>
     </MsgInfo>
@@ -117,11 +118,11 @@
                     </Pasientopplysninger>
                     <PlanUtredBehandle>
                         <NyVurdering>Trenger ikke ny vurdering</NyVurdering>
-                        <BehandlingsPlan>Trenger Ã¥ slappe av med litt fisking</BehandlingsPlan>
-                        <UtredningsPlan>Burde dra ut pÃ¥ fisketur for Ã¥ slappe av</UtredningsPlan>
+                        <BehandlingsPlan>Trenger å slappe av med litt fisking</BehandlingsPlan>
+                        <UtredningsPlan>Burde dra ut på fisketur for å slappe av</UtredningsPlan>
                         <NyeLegeopplysninger>Den gamle planen fungerte ikke</NyeLegeopplysninger>
                         <HenvistUtredning henvistDato="2017-11-05+01:00" antattVentetid="3">
-                            <Spesifikasjon>Dra pÃ¥ fisketur med en guide</Spesifikasjon>
+                            <Spesifikasjon>Dra på fisketur med en guide</Spesifikasjon>
                         </HenvistUtredning>
                     </PlanUtredBehandle>
                     <DiagnoseArbeidsuforhet arbeidsuforFra="2017-11-05+01:00">
@@ -143,7 +144,7 @@
                     <VurderingFunksjonsevne>
                         <Arbeidssituasjon arbeidssituasjon="4" annenArbeidssituasjon=""/>
                         <VurderingArbeidsevne gjenopptaArbeid="2" taAnnetArbeid="1" narTaAnnetArbeid="1" narGjenopptaArbeid="1">
-                            <IkkeGjore>Ikke tunge lÃ¸ft</IkkeGjore>
+                            <IkkeGjore>Ikke tunge løft</IkkeGjore>
                             <HensynAnnetYrke>Ingen dans</HensynAnnetYrke>
                         </VurderingArbeidsevne>
                         <KravArbeid>Ingen dans</KravArbeid>

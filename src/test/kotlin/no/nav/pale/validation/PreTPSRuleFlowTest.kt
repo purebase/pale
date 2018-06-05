@@ -1,9 +1,13 @@
 package no.nav.pale.validation
 
+import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.fellesformatJaxBContext
+import no.nav.pale.getResource
 import no.nav.pale.readToFellesformat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.StringReader
 
 class PreTPSRuleFlowTest {
 
