@@ -47,6 +47,7 @@ import javax.jms.Queue
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
+import javax.xml.transform.stream.StreamSource
 import kotlin.math.max
 
 
@@ -155,8 +156,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
-
-            val fellesformat = fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(inputMessageText)) as EIFellesformat
+            val fellesformat = fellesformatUnmarshaller.unmarshal(StreamSource(inputMessageText.byteInputStream()), EIFellesformat::class.java).value
             INCOMING_MESSAGE_COUNTER.inc()
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
