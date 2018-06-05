@@ -8,9 +8,7 @@ import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
 import io.prometheus.client.hotspot.DefaultExports
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.*
 import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.pale.client.*
@@ -72,7 +70,7 @@ private val log = LoggerFactory.getLogger("le-application")
 
 class PaleApplication
 
-fun main(args: Array<String>) {
+fun main(args: Array<String>) = runBlocking {
     DefaultExports.initialize()
     val fasitProperties = FasitProperties()
 
@@ -96,14 +94,16 @@ fun main(args: Array<String>) {
                 features.add(LoggingFeature())
                 serviceClass = PersonV3::class.java
             }.create() as PersonV3
-            configureSTSFor(personV3, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
+            configureSTSFor(personV3, fasitProperties.srvLegeerklaeringUsername,
+                    fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
 
             val orgnaisasjonEnhet = JaxWsProxyFactoryBean().apply {
                 address = fasitProperties.organisasjonEnhetV2EndpointURL
                 features.add(LoggingFeature())
                 serviceClass = OrganisasjonEnhetV2::class.java
             }.create() as OrganisasjonEnhetV2
-            configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
+            configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvLegeerklaeringUsername,
+                    fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
 
             val journalbehandling = JaxWsProxyFactoryBean().apply {
                 address = fasitProperties.journalbehandlingEndpointURL
@@ -111,9 +111,12 @@ fun main(args: Array<String>) {
                 serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
 
-            val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvLegeerklaeringUsername, fasitProperties.srvLegeerklaeringPassword)
+            val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvLegeerklaeringUsername,
+                    fasitProperties.srvLegeerklaeringPassword)
 
-            listen(PdfClient(fasitProperties.pdfGeneratorEndpointURL), jedis, personV3, orgnaisasjonEnhet, journalbehandling, sarClient, inputQueue, arenaQueue, receiptQueue, backoutQueue, connection)
+            listen(PdfClient(fasitProperties.pdfGeneratorEndpointURL), jedis, personV3, orgnaisasjonEnhet,
+                    journalbehandling, sarClient, inputQueue, arenaQueue, receiptQueue, backoutQueue, connection)
+                    .join()
         }
     }
 
@@ -124,8 +127,8 @@ fun defaultLogInfo(keyValues: Array<StructuredArgument>): String =
 
 fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonEnhet: OrganisasjonEnhetV2,
            journalbehandling: Journalbehandling, sarClient: SarClient, inputQueue: Queue, arenaQueue: Queue,
-           receiptQueue: Queue, backoutQueue: Queue, connection: Connection) {
-    val session = connection.createSession()
+           receiptQueue: Queue, backoutQueue: Queue, connection: Connection) = launch {
+    val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
     val consumer = session.createConsumer(inputQueue)
     val arenaProducer = session.createProducer(arenaQueue)
     val receiptProducer = session.createProducer(receiptQueue)
@@ -134,7 +137,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
     var defaultKeyValues = arrayOf(keyValue("noMessageIdentifier", true))
     var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
-    QueueStatusCollector(connection.createSession(), inputQueue, arenaQueue, receiptQueue, backoutQueue)
+    QueueStatusCollector(connection, inputQueue, arenaQueue, receiptQueue, backoutQueue)
             .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
@@ -245,6 +248,10 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
         if (messageId != null && ediLoggId != null) {
             jedis.setex(messageId, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
         }
+    }
+
+    while (isActive) {
+        delay(100)
     }
 }
 
@@ -403,7 +410,7 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     hostName = fasitProperties.mqHostname
     port = fasitProperties.mqPort
     queueManager = fasitProperties.mqQueueManagerName
-    //transportType = WMQConstants.WMQ_CM_CLIENT
+    transportType = WMQConstants.WMQ_CM_CLIENT
     //sslCipherSuite = "TLS_RSA_WITH_AES_256_CBC_SHA"
     channel = fasitProperties.mqChannelName
     ccsid = 1208
