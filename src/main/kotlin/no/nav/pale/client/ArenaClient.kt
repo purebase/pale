@@ -30,7 +30,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
         fnr = getHCPFodselsnummer(fellesformat)
         tssid = tssId
     }
-
+    /* TODO sjekke med arena om dette benyttes vi tror ikkje det
     eiaData = ArenaEiaInfo.EiaData().apply {
 
         if (outcomeTypeList.isNotEmpty()) {
@@ -43,6 +43,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
         })
 
     }
+    */
 }
 
 fun Outcome.toSystemsvar(): ArenaEiaInfo.EiaData.SystemSvar = ArenaEiaInfo.EiaData.SystemSvar().apply {

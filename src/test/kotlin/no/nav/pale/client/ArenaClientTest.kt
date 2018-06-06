@@ -10,6 +10,7 @@ import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.pale.Legeerklaring
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDate
 import java.util.*
@@ -84,6 +85,8 @@ class ArenaClientTest{
         Assert.assertEquals(tssid, request.legeData.tssid)
     }
 
+    //TODO se TODO sjekke med arena om dette benyttes vi tror ikkje det
+    @Ignore
     @Test
     fun shouldSetEiaDataSystemSvar() {
         Assert.assertEquals(outcomes[0].outcomeType.messageNumber.toBigInteger(), request.eiaData.systemSvar[0].meldingsNr)
@@ -97,6 +100,8 @@ class ArenaClientTest{
         Assert.assertEquals(outcomes[1].outcomeType.messageType.type, request.eiaData.systemSvar[1].meldingsType)
     }
 
+    //TODO se TODO sjekke med arena om dette benyttes vi tror ikkje det
+    @Ignore
     @Test
     fun shouldSetEiaDataSignaturDato() {
 
