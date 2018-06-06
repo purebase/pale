@@ -11,8 +11,8 @@ data class FasitProperties(
         val arenaQueueName: String = getEnvVar("EIA_QUEUE_ARENA_IA_OUTBOUND_QUEUENAME"), // Temporary until we know if we can change it
         val personV3EndpointURL: String = getEnvVar("VIRKSOMHET_PERSON_V3_ENDPOINTURL"),
         val organisasjonEnhetV2EndpointURL: String = getEnvVar("VIRKSOMHET_ORGANISASJONENHET_V2_ENDPOINTURL"),
-        val srvLegeerklaeringUsername: String = getEnvVar("SRVPALE_USERNAME"),
-        val srvLegeerklaeringPassword: String = getEnvVar("SRVPALE_PASSWORD"),
+        val srvPaleUsername: String = getEnvVar("SRVPALE_USERNAME"),
+        val srvPalePassword: String = getEnvVar("SRVPALE_PASSWORD"),
         val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "https://kuhr-sar-api"),
         val pdfGeneratorEndpointURL: String = getEnvVar("PDF_GENERATOR_ENDPOINTURL", "https://pdf-gen"),
         val paleBackoutQueueName: String = getEnvVar("PALE_BACKOUT_QUEUE_QUEUENAME"),

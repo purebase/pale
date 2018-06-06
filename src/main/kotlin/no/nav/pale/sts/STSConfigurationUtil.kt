@@ -17,7 +17,8 @@ var STS_REQUEST_SAML_POLICY = "classpath:sts/policies/requestSamlPolicy.xml"
 
 fun configureSTSFor(service: Any, username: String, password: String, endpoint: String) {
     val client = ClientProxy.getClient(service)
-    client.endpoint[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, username, password, endpoint, true)
+    client.requestContext[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, username, password, endpoint, true)
+    //client.endpoint[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, username, password, endpoint, true)
 
 }
 

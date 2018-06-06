@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.StringReader
@@ -96,16 +95,16 @@ fun main(args: Array<String>) = runBlocking {
                 features.add(LoggingFeature())
                 serviceClass = PersonV3::class.java
             }.create() as PersonV3
-            configureSTSFor(personV3, fasitProperties.srvLegeerklaeringUsername,
-                    fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
+            configureSTSFor(personV3, fasitProperties.srvPaleUsername,
+                    fasitProperties.srvPalePassword, fasitProperties.securityTokenServiceUrl)
 
             val orgnaisasjonEnhet = JaxWsProxyFactoryBean().apply {
                 address = fasitProperties.organisasjonEnhetV2EndpointURL
                 features.add(LoggingFeature())
                 serviceClass = OrganisasjonEnhetV2::class.java
             }.create() as OrganisasjonEnhetV2
-            configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvLegeerklaeringUsername,
-                    fasitProperties.srvLegeerklaeringPassword, fasitProperties.securityTokenServiceUrl)
+            configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvPaleUsername,
+                    fasitProperties.srvPalePassword, fasitProperties.securityTokenServiceUrl)
 
             val journalbehandling = JaxWsProxyFactoryBean().apply {
                 address = fasitProperties.journalbehandlingEndpointURL
@@ -113,8 +112,8 @@ fun main(args: Array<String>) = runBlocking {
                 serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
 
-            val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvLegeerklaeringUsername,
-                    fasitProperties.srvLegeerklaeringPassword)
+            val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvPaleUsername,
+                    fasitProperties.srvPalePassword)
 
             listen(PdfClient(fasitProperties.pdfGeneratorEndpointURL), jedis, personV3, orgnaisasjonEnhet,
                     journalbehandling, sarClient, inputQueue, arenaQueue, receiptQueue, backoutQueue, connection)
