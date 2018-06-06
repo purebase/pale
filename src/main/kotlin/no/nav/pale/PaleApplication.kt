@@ -38,7 +38,7 @@ import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.StringReader
+import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.jms.*
@@ -142,7 +142,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
-        var messageId: String? = null
+        var sha256String: String? = null
         var ediLoggId: String? = null
         try {
             val inputMessageText = when (it) {
@@ -160,13 +160,13 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-            messageId = fellesformat.msgHead.msgInfo.msgId
+            sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
             defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
                     keyValue("msgId", fellesformat.msgHead.msgInfo.msgId),
-                    keyValue("messageId", messageId)
+                    keyValue("messageId", sha256String)
             )
 
             defaultKeyFormat = defaultLogInfo(defaultKeyValues)
@@ -181,13 +181,12 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
-            println(messageId)
-            val jedisEdiLoggId = jedis.get(messageId)
-            val duplicate = jedisEdiLoggId != null
+            val jedisSha256String = jedis.get(sha256String)
+            val duplicate = jedisSha256String != null
             if (duplicate) {
                 val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                 apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisEdiLoggId,
+                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisSha256String,
                         *defaultKeyValues)
                 APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
                 receiptProducer.send(session.createBytesMessage().apply {
@@ -251,8 +250,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             backoutProducer.send(it)
         }
 
-        if (messageId != null && ediLoggId != null) {
-            jedis.setex(messageId, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
+        if (sha256String != null && ediLoggId != null) {
+            jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
         }
     }
 
@@ -427,3 +426,100 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
 fun getHCPFodselsnummer(fellesformat: EIFellesformat): String? =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident
                 .find { it.typeId.v == "FNR" }?.id
+
+
+fun sha256hashstring(legeerklaering: Legeerklaring): String {
+    val duplicateChekedFields =  StringBuilder()
+    duplicateChekedFields.append(legeerklaering.legeerklaringGjelder)
+    duplicateChekedFields.append(legeerklaering.legeerklaringGjelder.first().typeLegeerklaring)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.flereArbeidsforhold)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.fodselsnummer)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.trygdekontor)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.navn)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.navn.etternavn)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.navn.fornavn)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.navn.mellomnavn)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.yrkeskode)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.primartArbeidsforhold)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr.postalAddress)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr.postalAddress.first().streetAddress)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr.postalAddress.first().postalCode)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr.postalAddress.first().city)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr.postalAddress.first().country)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsAdr.teleinformasjon)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.virksomhetsBetegnelse)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.virksomhet.organisasjonsnummer)
+    duplicateChekedFields.append(legeerklaering.pasientopplysninger.pasient.arbeidsforhold.yrkesbetegnelse)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistBehandling)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistBehandling.henvistDato)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistBehandling.antattVentetid)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistBehandling.spesifikasjon)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistUtredning)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistUtredning.henvistDato)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistUtredning.antattVentetid)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.henvistUtredning.spesifikasjon)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.nyeLegeopplysninger)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.ikkeVidereBehandling)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.nyVurdering)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.behandlingsPlan)
+    duplicateChekedFields.append(legeerklaering.planUtredBehandle.utredningsPlan)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.arbeidsuforFra)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.diagnoseKodesystem)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.diagnoseKodesystem.kodesystem)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.diagnoseKodesystem.enkeltdiagnose)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.diagnoseKodesystem.enkeltdiagnose.first().diagnose)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.diagnoseKodesystem.enkeltdiagnose.first().kodeverdi)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.diagnoseKodesystem.enkeltdiagnose.first().sortering)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.vurderingYrkesskade)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.vurderingYrkesskade.borVurderes)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.vurderingYrkesskade.skadeDato)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.statusPresens)
+    duplicateChekedFields.append(legeerklaering.diagnoseArbeidsuforhet.symptomerBehandling)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.tiltak)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.aktueltTiltak)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.aktueltTiltak.first().typeTiltak)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.aktueltTiltak.first().hvilkeAndreTiltak)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.opplysninger)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.begrensningerTiltak)
+    duplicateChekedFields.append(legeerklaering.forslagTiltak.begrunnelseIkkeTiltak)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.arbeidssituasjon)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.arbeidssituasjon.get(0).arbeidssituasjon)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.arbeidssituasjon.get(0).annenArbeidssituasjon)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.funksjonsevne)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.kravArbeid)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne.gjenopptaArbeid)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne.narGjenopptaArbeid)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne.taAnnetArbeid)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne.narTaAnnetArbeid)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne.ikkeGjore)
+    duplicateChekedFields.append(legeerklaering.vurderingFunksjonsevne.vurderingArbeidsevne.hensynAnnetYrke)
+    duplicateChekedFields.append(legeerklaering.prognose)
+    duplicateChekedFields.append(legeerklaering.prognose.bedreArbeidsevne)
+    duplicateChekedFields.append(legeerklaering.prognose.antattVarighet)
+    duplicateChekedFields.append(legeerklaering.prognose.varighetFunksjonsnedsettelse)
+    duplicateChekedFields.append(legeerklaering.prognose.varighetNedsattArbeidsevne)
+    duplicateChekedFields.append(legeerklaering.arsakssammenhengLegeerklaring)
+    duplicateChekedFields.append(legeerklaering.forbeholdLegeerklaring)
+    duplicateChekedFields.append(legeerklaering.forbeholdLegeerklaring.tilbakeholdInnhold)
+    duplicateChekedFields.append(legeerklaering.forbeholdLegeerklaring.borTilbakeholdes)
+    duplicateChekedFields.append(legeerklaering.andreOpplysninger)
+    duplicateChekedFields.append(legeerklaering.andreOpplysninger.onskesKopi)
+    duplicateChekedFields.append(legeerklaering.andreOpplysninger.opplysning)
+    duplicateChekedFields.append(legeerklaering.kontakt)
+    duplicateChekedFields.append(legeerklaering.kontakt.first().kontakt)
+    duplicateChekedFields.append(legeerklaering.kontakt.first().annenInstans)
+    val bytes = duplicateChekedFields.toString().toByteArray()
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(bytes)
+    return digest.fold("", { str, it -> str + "%02x".format(it) })
+}
