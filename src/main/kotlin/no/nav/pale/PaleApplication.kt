@@ -160,7 +160,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-            sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
+
 
             defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
@@ -180,11 +180,12 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         keyValue("xmlMessage", inputMessageText),
                         *defaultKeyValues)
             }
-
-            val jedisSha256String = jedis.get(sha256String)
-            val duplicate = jedisSha256String != null
             //TODO turn back on duplicate check
-           /* if (duplicate) {
+            /*
+            val jedisSha256String = jedis.get(sha256hashstring(extractLegeerklaering(fellesformat)))
+            val duplicate = jedisSha256String != null
+
+            if (duplicate) {
                 val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                 apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
                 log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisSha256String,
