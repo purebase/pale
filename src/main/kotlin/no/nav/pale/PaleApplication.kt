@@ -32,13 +32,12 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbeh
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
-import org.apache.cxf.ws.security.SecurityConstants
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
-import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.StringWriter
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
@@ -209,14 +208,13 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             }
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR } || validationResult.tssId == null) {
-                receiptProducer.send(session.createBytesMessage().apply {
+                receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
                             .filter { it.outcomeType.messagePriority == Priority.RETUR }
                             .map { mapApprecErrorToAppRecCV(it.apprecError!!) }
                     )
-                    val apprecBytes = apprecMarshaller.toByteArray(apprec)
-                    writeBytes(apprecBytes)
+                    text = apprecMarshaller.toString(apprec)
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
             } else {
@@ -228,10 +226,11 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
 
                 if(validationResult.outcomes.none{ it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
                     log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
-                    arenaProducer.send(session.createBytesMessage().apply {
+                    arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId)
-                        val arenaEiaInfoBytes = arenaEiaInfoMarshaller.toByteArray(arenaEiaInfo)
-                        writeBytes(arenaEiaInfoBytes)
+                        val stringWriter = StringWriter()
+                        arenaEiaInfoMarshaller.marshal(arenaEiaInfo, stringWriter)
+                        text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
                         arenaProducer.send(this)
                     })
                 }
@@ -240,10 +239,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 }
 
                 log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
-                receiptProducer.send(session.createBytesMessage().apply {
+                receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.ok)
-                    val apprecBytes = apprecMarshaller.toByteArray(apprec)
-                    writeBytes(apprecBytes)
+                    text = apprecMarshaller.toString(apprec)
                     receiptProducer.send(this)
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.ok.dn).inc()
                 })
@@ -264,9 +262,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
     }
 }
 
-fun Marshaller.toByteArray(input: Any): ByteArray = ByteArrayOutputStream().use {
+fun Marshaller.toString(input: Any): String = StringWriter().use {
     marshal(input, it)
-    it.toByteArray()
+    it.toString()
 }
 
 data class ValidationResult(
