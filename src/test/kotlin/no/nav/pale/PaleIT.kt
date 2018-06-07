@@ -12,6 +12,8 @@ import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.runBlocking
 import no.nav.pale.client.PdfClient
 import no.nav.pale.client.Samhandler
 import no.nav.pale.client.SarClient
@@ -31,17 +33,25 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
 import org.junit.BeforeClass
+import org.junit.Test
 import org.mockito.Mockito.mock
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
-import javax.jms.ConnectionFactory
+import javax.jms.*
 import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 
 class PaleIT {
 
+    @Test
+    fun testFullFlow() {
+        produceMessage(IOUtils.toByteArray(PaleIT::class.java.getResourceAsStream("/legeerklaering.xml")))
+
+        val messageOnBoq = consumeMessage(backoutQueue)
+    }
+
     companion object {
-        val log = LoggerFactory.getLogger("le.pale-it")
+        val log = LoggerFactory.getLogger("pale-it")
         val personV3Mock: PersonV3 = mock(PersonV3::class.java)
         val organisasjonEnhetV2Mock: OrganisasjonEnhetV2 = mock(OrganisasjonEnhetV2::class.java)
         val journalbehandlingMock: Journalbehandling = mock(Journalbehandling::class.java)
@@ -55,6 +65,7 @@ class PaleIT {
 
         private lateinit var activeMQServer: ActiveMQServer
         private lateinit var connectionFactory: ConnectionFactory
+        private lateinit var queueConnection: Connection
         private lateinit var initialContext: InitialContext
 
         private lateinit var server: Server
@@ -62,10 +73,21 @@ class PaleIT {
         private lateinit var diagnosisWebserver: ApplicationEngine
         private lateinit var mockWebserver: ApplicationEngine
 
+        private lateinit var producer: MessageProducer
+        private lateinit var job: Job
+
+
+        lateinit var inputQueue: Queue
+        lateinit var arenaQueue: Queue
+        lateinit var apprecQueue: Queue
+        lateinit var backoutQueue: Queue
+
         private val redisServer = RedisServer.newRedisServer()
 
         @BeforeClass
+        @JvmStatic
         fun setup() {
+            println("Before class")
             redisServer.start()
 
             activeMQServer = ActiveMQServers.newActiveMQServer(ConfigurationImpl()
@@ -103,18 +125,46 @@ class PaleIT {
 
             val sarClient = SarClient(mockHttpServerUrl, "username", "password")
 
-            val queueConnection = connectionFactory.createConnection()
+            queueConnection = connectionFactory.createConnection()
             queueConnection.start()
             val session = queueConnection.createSession()
-            val inputQueue = session.createQueue("input_queue")
-            val arenaQueue = session.createQueue("arena_queue")
-            val apprecQueue = session.createQueue("apprec_queue")
-            val backoutQueue = session.createQueue("backout_queue")
+            inputQueue = session.createQueue("input_queue")
+            arenaQueue = session.createQueue("arena_queue")
+            apprecQueue = session.createQueue("apprec_queue")
+            backoutQueue = session.createQueue("backout_queue")
 
             diagnosisWebserver = createHttpServer(diagnosisWebServerPort, "TEST")
 
-            session.close()
-            listen(pdfClient, jedis, personV3Client, organisasjonEnhetV2Client, journalbehandlingClient, sarClient, inputQueue, arenaQueue, apprecQueue, backoutQueue, queueConnection)
+            producer = session.createProducer(inputQueue)
+
+            job = listen(pdfClient, jedis, personV3Client, organisasjonEnhetV2Client, journalbehandlingClient, sarClient,
+                    inputQueue, arenaQueue, apprecQueue, backoutQueue, queueConnection)
+        }
+
+        fun consumeMessage(queue: Queue): String {
+            val session = queueConnection.createSession()
+            val consumer = session.createConsumer(queue)
+            val message = consumer.receive()
+            return when (message) {
+                is BytesMessage -> {
+                    val bytes = ByteArray(message.bodyLength.toInt())
+                    message.readBytes(bytes)
+                    bytes.toString(Charsets.ISO_8859_1)
+                }
+                is TextMessage -> message.text
+                else -> throw RuntimeException("Invalid message type ${message::class.java}")
+            }
+        }
+
+        fun produceMessage(bytes: ByteArray) {
+                val session = queueConnection.createSession()
+                val inputQueue = session.createQueue("input_queue")
+                val bytesMessage = session.createBytesMessage()
+                bytesMessage.writeBytes(bytes)
+                val producer = session.createProducer(inputQueue)
+
+                producer.send(bytesMessage)
+                log.info("Pushed message to queue")
         }
 
         private fun createHttpMock() {
@@ -133,19 +183,7 @@ class PaleIT {
                                 is PartData.FileItem -> {
                                     val stream = part.streamProvider()
                                     val bytes = IOUtils.toByteArray(stream)
-
-                                    connectionFactory.createConnection().use {
-                                        it.start()
-
-                                        val session = it.createSession()
-                                        val inputQueue = session.createQueue("input_queue")
-                                        val bytesMessage = session.createBytesMessage()
-                                        bytesMessage.writeBytes(bytes)
-                                        val producer = session.createProducer(inputQueue)
-
-                                        producer.send(bytesMessage)
-                                        log.info("Pushed message to queue")
-                                    }
+                                    produceMessage(bytes)
                                 }
                             }
                         }
@@ -178,8 +216,13 @@ class PaleIT {
         }
 
         @AfterClass
+        @JvmStatic
         fun tearDown() {
             activeMQServer.stop(true)
+            runBlocking {
+                job.cancel()
+                job.join()
+            }
         }
 
         @JvmStatic
