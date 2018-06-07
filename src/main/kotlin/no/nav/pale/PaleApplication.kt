@@ -32,6 +32,7 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbeh
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
+import org.apache.cxf.ws.security.SecurityConstants
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
