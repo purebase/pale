@@ -307,10 +307,8 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     val person = try {
         runBlocking { personDeferred.await() }
     } catch (e: HentPersonPersonIkkeFunnet) {
-        outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS
-        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-        apprec.appRec.error += mapApprecErrorToAppRecCV(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
-        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.v).inc()
+        // TODO: Add tests for adding apprec on this error
+        outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS.toOutcome(apprecError = ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER)
         return outcomes.toResult()
     }
 
