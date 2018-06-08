@@ -13,7 +13,7 @@ data class FasitProperties(
         val organisasjonEnhetV2EndpointURL: String = getEnvVar("VIRKSOMHET_ORGANISASJONENHET_V2_ENDPOINTURL"),
         val srvPaleUsername: String = getEnvVar("SRVPALE_USERNAME"),
         val srvPalePassword: String = getEnvVar("SRVPALE_PASSWORD"),
-        val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "https://kuhr-sar-api"),
+        val kuhrSarApiEndpointURL: String = getEnvVar("KUHR_SAR_API_ENDPOINTURL", "http://kuhr-sar-api"),
         val pdfGeneratorEndpointURL: String = getEnvVar("PDF_GENERATOR_ENDPOINTURL", "https://pdf-gen"),
         val paleBackoutQueueName: String = getEnvVar("PALE_BACKOUT_QUEUE_QUEUENAME"),
         val securityTokenServiceUrl: String = getEnvVar("SECURITYTOKENSERVICE_URL"),
