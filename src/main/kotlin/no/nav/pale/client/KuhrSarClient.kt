@@ -19,7 +19,7 @@ class SarClient(private val url: String, private val username: String, private v
     fun getSamhandler(ident: String): List<Samhandler> {
         val request = Request.Builder()
                 .get()
-                .header("Authentication", Credentials.basic(username, password))
+                .header("Authorization", Credentials.basic(username, password))
                 .url(HttpUrl.parse(url)!!
                         .newBuilder()
                         .addPathSegments("/rest/sar/samh")
