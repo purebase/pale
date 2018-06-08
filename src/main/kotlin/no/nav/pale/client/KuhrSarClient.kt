@@ -87,6 +87,7 @@ data class SamhandlerPraksis(
         val arbeids_postnr: String,
         val arbeids_adresse_linje_1: String?,
         val arbeids_adresse_linje_2: String?,
+        val arbeids_adresse_linje_3: String?,
         val tss_ident: String,
         val navn: String,
         val ident: String,
