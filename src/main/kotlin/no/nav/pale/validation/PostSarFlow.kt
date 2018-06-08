@@ -1,12 +1,11 @@
 package no.nav.pale.validation
 
 import no.nav.pale.client.SamhandlerPraksis
-import no.nav.model.fellesformat.EIFellesformat
 
-fun postTSSFlow(fellesformat: EIFellesformat, samhandlerPraksis: SamhandlerPraksis): List<Outcome> {
+fun postSARFlow(samhandlerPraksis: SamhandlerPraksis): List<Outcome> {
     val outcome = mutableListOf<Outcome>()
     if (samhandlerPraksis.arbeids_adresse_linje_1 == null || samhandlerPraksis.arbeids_adresse_linje_1.isEmpty()) {
-        outcome += OutcomeType.ADDRESS_MISSING_TSS
+        outcome += OutcomeType.ADDRESS_MISSING_SAR
     }
 
     if (samhandlerPraksis.samh_praksis_type_kode in arrayOf("LEVA", "LEKO")) {

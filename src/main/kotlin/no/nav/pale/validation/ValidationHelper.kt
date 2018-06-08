@@ -32,10 +32,6 @@ fun extractDoctorIdentFromSender(fellesformat: EIFellesformat): Ident? =
 fun extractDoctorIdentFromSignature(fellesformat: EIFellesformat): String =
         fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
 
-fun extractSenderOrganisationNumber(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation.ident.find {
-    it.typeId.v == "ENH"
-}!!.id
-
 fun extractSenderOrganisationName(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
 
 fun extractPersonIdent(legeerklaering: Legeerklaring): String?
@@ -47,8 +43,6 @@ fun extractPatientSurname(legeerklaering: Legeerklaring): String? =
 fun extractPatientFirstName(legeerklaering: Legeerklaring): String? =
         legeerklaering.pasientopplysninger.pasient.navn.fornavn
 
-fun extractPatientMiddleName(legeerklaering: Legeerklaring): String? =
-        legeerklaering.pasientopplysninger.pasient.navn.mellomnavn
 
 fun extractBornDate(personIdent: String): LocalDate =
         LocalDate.parse(personIdent.substring(0, 6).let {

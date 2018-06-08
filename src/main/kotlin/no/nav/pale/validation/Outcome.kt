@@ -14,7 +14,7 @@ data class Outcome(val outcomeType: OutcomeType, val args: Array<out Any>, val a
 
 enum class OutcomeType(val messageNumber: Int, val messageText: String, val messagePriority: Priority, val messageType: Type) {
     PATIENT_PERSON_NUMBER_NOT_FOUND(13, "Pasientens fødselsnummer finnes ikke i skjema", Priority.RETUR, Type.FAGLIG),
-    BEHANDLER_NOT_TSS(18,"Behandler er ikke registrert i TSS.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
+    BEHANDLER_NOT_SAR(18,"Behandler er ikke registrert i SAR.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
     PERSON_NUMBER_NOT_FOUND(30,"Fødselsnummeret eller D-nummeret til %s" + " finnes ikke i skjemaet.", Priority.RETUR, Type.FAGLIG),
     INVALID_PERSON_NUMBER_OR_D_NUMBER(31, "Fødselsnummeret eller D-nummeret %s til %s er feil.", Priority.RETUR, Type.FAGLIG),
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
@@ -24,14 +24,14 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.",  Priority.MANUAL_PROCESSING, Type.FAGLIG),
     BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_TSS(75,"Behandler har angitt D-nummer, men TSS fant gyldig F-nummer.",Priority.NOTE, Type.FAGLIG),
-    ADDRESS_MISSING_TSS(76,"Adresse mangler i TSS.", Priority.NOTE, Type.FAGLIG),
+    ADDRESS_MISSING_SAR(76,"Adresse mangler i SAR.", Priority.NOTE, Type.FAGLIG),
 
-    // Find best result from sar
-    NO_VALID_TSSID_PRACTICE_TYPE_TSS(77,"Finner ingen gyldig praksistype i TSS.", Priority.NOTE, Type.FAGLIG),
+    // Find best result from KUHR sar
+    NO_VALID_TSSID_PRACTICE_TYPE_SAR(77,"Finner ingen gyldig praksistype i SAR.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78,"Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
-    UNCERTAIN_RESPONSE_TSS_SHOULD_VERIFIED(141,"Usikkert svar fra TSS, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
+    UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED(141,"Usikkert svar fra SAR, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
 
-    // Arena requires this outcome on successful messages
+    // Arena requires this outcome on successful messages if no other outcomes
     LEGEERKLAERING_MOTTAT(245, "Legeerklæring er mottatt.", Priority.NOTE, Type.FAGLIG),
     // This should be completely useless but exists in the old code, the message will be denied earlier if it doesn't
     // contain the signature date, and even if it doesn't we'd throw an exception and we wont let it through

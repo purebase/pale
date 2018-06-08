@@ -342,9 +342,9 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     val samhandlerPraksisMatch = runBlocking { samhandlerDeferred.await() }
 
     if (samhandlerPraksisMatch == null) {
-        outcomes += OutcomeType.BEHANDLER_NOT_TSS
+        outcomes += OutcomeType.BEHANDLER_NOT_SAR
     } else {
-        outcomes.addAll(postTSSFlow(fellesformat, samhandlerPraksisMatch.samhandlerPraksis))
+        outcomes.addAll(postSARFlow(samhandlerPraksisMatch.samhandlerPraksis))
     }
 
 
