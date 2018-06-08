@@ -58,3 +58,5 @@ fasitResources:
       resourceType: BaseUrl
     - alias: pale_channel
       resourceType: Channel
+    - alias: srvpale_preprod_tmp
+      resourceType: Credential
