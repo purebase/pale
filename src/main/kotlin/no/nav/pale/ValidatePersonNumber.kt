@@ -3,7 +3,7 @@ package no.nav.pale
 val lookup1: IntArray = intArrayOf(3, 7, 6, 1, 8, 9, 4, 5, 2, 0)
 val lookup2: IntArray = intArrayOf(5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
 
-private fun validatePersonDNumberMod11(personNumber: String): Boolean {
+fun validatePersonDNumberMod11(personNumber: String): Boolean {
     if (personNumber.length != 11)
         return false
 
@@ -11,7 +11,7 @@ private fun validatePersonDNumberMod11(personNumber: String): Boolean {
     var checksum2 = 0
 
     for (i in 0..9) {
-        val currNum = personNumber[i]-'0'
+        val currNum = (personNumber[i]-'0')
         checksum1 += currNum * lookup1[i]
         checksum2 += currNum * lookup2[i]
     }
@@ -19,13 +19,12 @@ private fun validatePersonDNumberMod11(personNumber: String): Boolean {
     checksum1 %= 11
     checksum2 %= 11
 
-    val checksum1Final = if (checksum1 == 0) { 0 } else { 11 - checksum1 }
-    val checksum2Final = if (checksum2 == 0) { 0 } else { 11 - checksum2 }
+    val checksum1Final = if (checksum1 == 0) 0 else 11 - checksum1
+    val checksum2Final = if (checksum2 == 0) 0 else 11 - checksum2
 
-    if (checksum1Final == 10)
-        return false
-
-    return personNumber[9]-'0' == checksum1Final && personNumber[10]-'0' == checksum2Final
+    return checksum1Final != 10
+            && personNumber[9]-'0' == checksum1Final
+            && personNumber[10]-'0' == checksum2Final
 }
 
 private fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
