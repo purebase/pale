@@ -16,7 +16,7 @@ import io.prometheus.client.exporter.common.TextFormat
 import org.slf4j.LoggerFactory
 
 val collectorRegistry: CollectorRegistry = CollectorRegistry.defaultRegistry
-private val log = LoggerFactory.getLogger("le.HttpServer")
+private val log = LoggerFactory.getLogger("pale.HttpServer")
 private val prometheusContentType = ContentType.parse(TextFormat.CONTENT_TYPE_004)
 
 data class SelftestStatus(val status: String, val applicationVersion: String)

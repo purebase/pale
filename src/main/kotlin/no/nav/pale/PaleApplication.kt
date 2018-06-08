@@ -67,7 +67,7 @@ val apprecMarshaller: Marshaller = apprecJaxBContext.createMarshaller()
 val newInstance: DatatypeFactory = DatatypeFactory.newInstance()
 val retryInterval = arrayOf(1000L * 60, 2000L * 60, 2000L * 60, 5000L * 60)
 
-private val log = LoggerFactory.getLogger("le-application")
+private val log = LoggerFactory.getLogger("pale-application")
 
 class PaleApplication
 
