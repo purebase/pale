@@ -50,7 +50,7 @@ data class Samhandler(
         val ikke_godkjent_for_refusjon: String,
         val godkjent_egenandel_refusjon: String,
         val godkjent_for_fil: String,
-        val breg_hovedenhet: SamhandlerBregHovedenhet,
+        val breg_hovedenhet: SamhandlerBregHovedenhet?,
         val endringslogg_tidspunkt_siste: LocalDateTime?,
         val samh_ident: List<SamhandlerIdent>,
         val samh_praksis: List<SamhandlerPraksis>,
