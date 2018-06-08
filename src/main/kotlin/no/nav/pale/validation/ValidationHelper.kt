@@ -1,7 +1,5 @@
 package no.nav.pale.validation
 
-import io.reactivex.Observable
-import io.reactivex.rxkotlin.toObservable
 import no.nav.pale.metrics.APPREC_ERROR_COUNTER
 import no.nav.pale.metrics.RULE_COUNTER
 import no.nav.model.fellesformat.EIFellesformat
@@ -14,27 +12,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
-
-data class RuleExecutionInfo<P, D>(
-        val fellesformat: EIFellesformat,
-        val legeerklaering: Legeerklaring,
-        val patientIdent: P,
-        val doctorIdent: D,
-        val outcome: MutableList<Outcome>
-)
-
-fun initFlow(fellesformat: EIFellesformat): Observable<RuleExecutionInfo<String?, Ident?>> =
-        listOf(fellesformat).toObservable()
-                .map {
-                    val legeerklaering = extractLegeerklaering(it)
-                    RuleExecutionInfo(
-                            fellesformat = it,
-                            legeerklaering = legeerklaering,
-                            patientIdent = extractPersonIdent(legeerklaering),
-                            doctorIdent = extractDoctorIdentFromSender(it),
-                            outcome = mutableListOf()
-                    )
-                }
 
 fun collectFlowStatistics(outcomes: List<Outcome>) {
     outcomes.forEach {
