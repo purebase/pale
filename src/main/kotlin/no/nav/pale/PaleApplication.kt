@@ -387,7 +387,7 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
             .map {
                 SamhandlerPraksisMatch(it, calculatePercentageStringMatch(it.navn, orgName))
             }.sortedBy { it.percentageMatch }
-            .first()
+            .firstOrNull()
 }
 
 fun calculatePercentageStringMatch(str1: String, str2: String): Double {
