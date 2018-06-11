@@ -32,8 +32,12 @@ resources:
 redis: true
 fasitResources:
   used:
-    - alias: virksomhet:OrganisasjonEnhet_v2
-      resourceType: Webserviceendpoint
+#    - alias: virksomhet:OrganisasjonEnhet_v2
+#      resourceType: Webserviceendpoint
+    - alias: pale_organisasjon_enhet_v2_override
+      resourceType: BaseUrl
+      propertyMap:
+        url: VIRKSOMHET_ORGANISASJONENHET_V2_ENDPOINTURL
     - alias: virksomhet:Person_v3
       resourceType: Webserviceendpoint
     - alias: mqGateway04
