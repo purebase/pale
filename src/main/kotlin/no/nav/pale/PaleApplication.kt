@@ -112,10 +112,10 @@ fun main(args: Array<String>) = runBlocking {
                 serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
 
-            val sarClient = SarClient(fasitProperties.kuhrSarApiEndpointURL, fasitProperties.srvPalePreprodTMPUsername,
+            val sarClient = SarClient(fasitProperties.kuhrSarApiURL, fasitProperties.srvPalePreprodTMPUsername,
                     fasitProperties.srvPalePreprodTMPPassword)
 
-            listen(PdfClient(fasitProperties.pdfGeneratorEndpointURL), jedis, personV3, orgnaisasjonEnhet,
+            listen(PdfClient(fasitProperties.pdfGeneratorURL), jedis, personV3, orgnaisasjonEnhet,
                     journalbehandling, sarClient, inputQueue, arenaQueue, receiptQueue, backoutQueue, connection)
                     .join()
         }
