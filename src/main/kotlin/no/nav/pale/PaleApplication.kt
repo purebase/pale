@@ -207,7 +207,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 throw e
             }
 
-            if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR } || validationResult.tssId == null) {
+            if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -227,7 +227,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                 if(validationResult.outcomes.none{ it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
                     log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
-                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId)
+                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId,null, validationResult.navkontor )
                         val stringWriter = StringWriter()
                         arenaEiaInfoMarshaller.marshal(arenaEiaInfo, stringWriter)
                         text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
@@ -269,11 +269,12 @@ fun Marshaller.toString(input: Any): String = StringWriter().use {
 
 data class ValidationResult(
         val tssId: String?,
-        val outcomes: List<Outcome>
+        val outcomes: List<Outcome>,
+        val navkontor: String?
 )
 
-fun List<Outcome>.toResult(tssId: String? = null)
-        = ValidationResult(tssId, this)
+fun List<Outcome>.toResult(tssId: String? = null,navkontor: String? = null)
+        = ValidationResult(tssId, this, navkontor)
 
 fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasjonEnhet: OrganisasjonEnhetV2, sarClient: SarClient): ValidationResult {
     val legeerklaering = extractLegeerklaering(fellesformat)

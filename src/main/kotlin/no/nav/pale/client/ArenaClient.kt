@@ -9,7 +9,7 @@ import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import java.util.*
 
-fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outcome>, tssId: String, sperrekode: Int? = null): ArenaEiaInfo = ArenaEiaInfo().apply {
+fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outcome>, tssId: String?, sperrekode: Int? = null,navkontor : String?): ArenaEiaInfo = ArenaEiaInfo().apply {
     val legeerklaering = extractLegeerklaering(fellesformat)
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
     ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
@@ -20,7 +20,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
     pasientData = ArenaEiaInfo.PasientData().apply {
         fnr = legeerklaering.pasientopplysninger.pasient.fodselsnummer
         isSperret = false
-        tkNummer = ""
+        tkNummer = navkontor
         if (sperrekode != null && (sperrekode == 6 || sperrekode == 7)){
             spesreg = sperrekode
         }
