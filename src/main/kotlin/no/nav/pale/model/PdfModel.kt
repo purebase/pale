@@ -50,7 +50,7 @@ data class Fagmelding(
 
 data class Pasient(
         val fornavn: String,
-        val mellomnavn: String,
+        val mellomnavn: String?,
         val etternavn: String,
         val foedselsnummer: String,
         val navKontor: String,

@@ -27,7 +27,7 @@ class ArenaClientTest{
     )
     private val tssid = "12454"
     private val navkontor = "0301"
-    private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid, null,navkontor)
+    private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid, null, navkontor)
 
     @Test
     fun shouldSetEdiloggId() {
