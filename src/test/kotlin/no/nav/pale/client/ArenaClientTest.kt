@@ -26,7 +26,8 @@ class ArenaClientTest{
             OutcomeType.CHILD_OF_PATIENT.toOutcome()
     )
     private val tssid = "12454"
-    private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid)
+    private val navkontor = "0301"
+    private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, outcomes, tssid, null,navkontor)
 
     @Test
     fun shouldSetEdiloggId() {
@@ -65,7 +66,7 @@ class ArenaClientTest{
 
     @Test
     fun shouldSetPasientDataTkNummer() {
-        Assert.assertEquals("", request.pasientData.tkNummer)
+        Assert.assertEquals(navkontor, request.pasientData.tkNummer)
     }
 
     @Test
