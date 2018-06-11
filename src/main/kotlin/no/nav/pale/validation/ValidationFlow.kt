@@ -18,15 +18,12 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
     if (patientIdent == null || patientIdent.trim().isEmpty()) {
         outcome += OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(
                 apprecError = ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA)
-        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA.v).inc()
     } else if (!validatePersonAndDNumber11Digits(patientIdent)) {
         outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(patientName, patientIdent,
                 patientIdent.length, apprecError = ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG)
-        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG.v).inc()
     } else if (!validatePersonAndDNumber(patientIdent)) {
         outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(patientName,
                 patientIdent, apprecError = ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG)
-        APPREC_ERROR_COUNTER.labels(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG.v).inc()
     }
 
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
