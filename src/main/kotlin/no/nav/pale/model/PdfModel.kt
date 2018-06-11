@@ -63,9 +63,9 @@ data class Pasient(
 
 data class Arbeidsgiver(
         val navn: String,
-        val adresse: String,
-        val postnummer: Int,
-        val poststed: String
+        val adresse: String?,
+        val postnummer: Int?,
+        val poststed: String?
 )
 
 data class SykdomsOpplysninger (

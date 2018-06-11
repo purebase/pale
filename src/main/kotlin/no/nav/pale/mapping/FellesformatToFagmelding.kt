@@ -142,7 +142,9 @@ fun legeerklaeringToPasient(legeerklaering: Legeerklaring): Pasient {
             arbeidsgiver = Arbeidsgiver(
                     navn = patient.arbeidsforhold.virksomhet.virksomhetsBetegnelse,
                     adresse = postalAddress.streetAddress,
-                    postnummer = postalAddress.postalCode.toInt(),
+                    postnummer = postalAddress.postalCode.let {
+                        if (it == null || it.isEmpty()) null else it.toInt()
+                    },
                     poststed = postalAddress.city
             )
     )
