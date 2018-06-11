@@ -43,7 +43,6 @@ fun createHttpServer(port: Int = 8080, applicationVersion: String): ApplicationE
             }
 
             get("/prometheus") {
-                log.info("Responding to prometheus request.")
                 val names = call.request.queryParameters.getAll("name[]")?.toSet() ?: setOf()
                 call.respondWrite(prometheusContentType) {
                     TextFormat.write004(this, collectorRegistry.filteredMetricFamilySamples(names))
