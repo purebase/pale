@@ -93,9 +93,12 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
             signatur = Signatur(
                     dato = ZonedDateTime.now(),
                     navn = "${healthcareProfessional.familyName}, ${healthcareProfessional.givenName} ${healthcareProfessional.middleName}",
-                    adresse = healthcareProfessional.address.streetAdr,
-                    postnummer = healthcareProfessional.address.postalCode.toInt(),
-                    poststed = healthcareProfessional.address.city,
+                    //adresse = healthcareProfessional.address.streetAdr,
+                    //postnummer = healthcareProfessional.address.postalCode.toInt(),
+                    //poststed = healthcareProfessional.address.city,
+                    adresse = fellesformat.msgHead.msgInfo.sender.organisation.address.streetAdr,
+                    postnummer = fellesformat.msgHead.msgInfo.sender.organisation.address.postalCode.toInt(),
+                    poststed = fellesformat.msgHead.msgInfo.sender.organisation.address.city,
                     signatur = "",
                     tlfNummer = healthcareProfessional.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v
             )
