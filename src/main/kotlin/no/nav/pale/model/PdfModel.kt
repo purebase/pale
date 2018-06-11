@@ -87,7 +87,7 @@ data class Plan(
         val behandling: Henvisning?,
         val utredningsplan: String,
         val behandlingsplan: String,
-        val vurderingAvTidligerePlan: String,
+        val vurderingAvTidligerePlan: String?,
         val naarSpoerreOmNyeLegeopplysninger: String,
         val videreBehandlingIkkeAktuellGrunn: String?
 )
@@ -120,11 +120,11 @@ data class FunksjonsOgArbeidsevne(
         val kanGjenopptaTidligereArbeid: Boolean,
         val kanGjenopptaTidligereArbeidNaa: Boolean,
         val kanGjenopptaTidligereArbeidEtterBehandling: Boolean,
-        val kanIkkeINaaverendeArbeid: String,
+        val kanIkkeINaaverendeArbeid: String?,
         val kanTaAnnetArbeid: Boolean,
         val kanTaAnnetArbeidNaa: Boolean,
         val kanTaAnnetArbeidEtterBehandling: Boolean,
-        val kanIkkeIAnnetArbeid: String
+        val kanIkkeIAnnetArbeid: String?
 )
 
 data class Prognose(
