@@ -326,8 +326,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         findBestSamhandlerPraksis(sarClient.getSamhandler(extractDoctorIdentFromSender(fellesformat)!!.id), fellesformat)
     }
 
-    //TODO rember to include ME
-    /*
     val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {
         orgnaisasjonEnhet.finnNAVKontor(FinnNAVKontorRequest().apply {
             this.geografiskTilknytning = Geografi().apply {
@@ -342,7 +340,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
         return outcomes.toResult()
     }
-    */
 
     val samhandlerPraksisMatch = runBlocking { samhandlerDeferred.await() }
 
