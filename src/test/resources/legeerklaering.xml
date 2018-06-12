@@ -18,9 +18,9 @@
                     <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
                 </Ident>
                 <Address>
-                    <StreetAdr/>
-                    <PostalCode/>
-                    <City/>
+                    <StreetAdr>Oppdiktet gate 203</StreetAdr>
+                    <PostalCode>1234</PostalCode>
+                    <City>Oslo</City>
                 </Address>
                 <Organisation/>
                 <HealthcareProfessional>
