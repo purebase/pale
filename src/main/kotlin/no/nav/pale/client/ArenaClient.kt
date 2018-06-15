@@ -7,6 +7,7 @@ import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.mapping.formatName
 import java.util.*
 
 fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outcome>, tssId: String?, sperrekode: Int? = null,navkontor : String?): ArenaEiaInfo = ArenaEiaInfo().apply {
@@ -26,7 +27,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
         }
     }
     legeData = ArenaEiaInfo.LegeData().apply {
-        navn = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
+        navn = hcp.formatName()
         fnr = getHCPFodselsnummer(fellesformat)
         tssid = tssId
     }
