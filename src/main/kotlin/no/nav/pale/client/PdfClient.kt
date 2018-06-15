@@ -16,7 +16,7 @@ class PdfClient(private val baseUrl: String) {
     fun generatePDFBase64(pdfType: PdfType, domainObject: Any): ByteArray {
         val request = Request.Builder()
                 .post(RequestBody.create(MediaType.parse("application/json"), objectMapper.writeValueAsBytes(domainObject)))
-                .url("$baseUrl/${pdfType.pdfGenName()}")
+                .url("$baseUrl/v1/genpdf/pale/${pdfType.pdfGenName()}")
                 .build()
 
         val response = client.newCall(request).execute()
@@ -39,4 +39,4 @@ enum class PdfType {
 }
 
 fun PdfType.pdfGenName(): String =
-        "legeerklaering_${name.toLowerCase()}"
+        name.toLowerCase()

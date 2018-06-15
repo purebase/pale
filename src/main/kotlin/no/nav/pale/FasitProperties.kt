@@ -16,7 +16,7 @@ data class FasitProperties(
         val srvPalePreprodTMPUsername: String = getEnvVar("SRVPALE_PREPROD_TMP_USERNAME"),
         val srvPalePreprodTMPPassword: String = getEnvVar("SRVPALE_PREPROD_TMP_PASSWORD"),
         val kuhrSarApiURL: String = getEnvVar("KUHR_SAR_API_URL", "http://kuhr-sar-api"),
-        val pdfGeneratorURL: String = getEnvVar("PDF_GENERATOR_URL", "https://pdf-gen"),
+        val pdfGeneratorURL: String = getEnvVar("PDF_GENERATOR_URL", "http://pdf-gen/api"),
         val paleBackoutQueueName: String = getEnvVar("PALE_BACKOUT_QUEUE_QUEUENAME"),
         val securityTokenServiceUrl: String = getEnvVar("SECURITYTOKENSERVICE_URL"),
         val receiptQueueName: String = getEnvVar("MOTTAK_QUEUE_UTSENDING_QUEUENAME"),
