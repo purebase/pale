@@ -1,5 +1,6 @@
 package no.nav.pale
 
+import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.mapping.mapFellesformatToFagmelding
 import no.nav.pale.model.*
 import org.junit.Test
@@ -116,7 +117,8 @@ class PdfModelTest {
     @Test
     fun testFellesformatToFagmelding() {
         val fellesformat = readToFellesformat("/legeerklaering.xml")
-        val pdfModel = mapFellesformatToFagmelding(fellesformat)
+        //val pdfModel = mapFellesformatToFagmelding(fellesformat)
+        val pdfModel = mapFellesformatToFagmelding(defaultFellesformat())
 
         println(TimeZone.getDefault().id)
         println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra.zone.id)

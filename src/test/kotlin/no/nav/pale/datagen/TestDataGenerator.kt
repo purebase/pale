@@ -49,6 +49,7 @@ fun defaultFellesformat(): EIFellesformat {
     val organisationData = fairy.company()
     val orgAddr = fairy.person().address
     val navAddr = fairy.person().address
+    val navOffice = "NAV Oslo"
 
     val doctor = fairy.person()
     val doctorPersonNumber = generatePersonNumber(doctor.dateOfBirth)
@@ -120,119 +121,129 @@ fun defaultFellesformat(): EIFellesformat {
                 }
             }
             document.add(Document().apply {
-                content = EIFellesformat.Content().apply {
-                    any.add(Legeerklaring().apply {
-                        val workplace = fairy.person()
-                        legeerklaringGjelder.add(LegeerklaringGjelder().apply {
-                            typeLegeerklaring = generateLegeerklaeringType().toBigInteger()
-                        })
-                        pasientopplysninger = Pasientopplysninger().apply {
-                            flereArbeidsforhold = ThreadLocalRandom.current().
-                                    nextInt(0, 2 + 1).toBigInteger()
-                            pasient = Pasient().apply {
-                                navn = TypeNavn().apply {
-                                    fornavn = patientData.firstName
-                                    mellomnavn = patientData.middleName
-                                    etternavn = patientData.lastName
-                                }
-                                arbeidsforhold = Arbeidsforhold().apply {
-                                    primartArbeidsforhold = 1.toBigInteger()
-                                    virksomhet = Virksomhet().apply {
-                                        virksomhetsAdr = TypeAdresse().apply {
-                                            adressetype = TypeAdressetype.RES
-                                            postalAddress.add(TypePostalAddress().apply {
-                                                streetAddress = workplace.address.addressLine1
-                                                postalCode = workplace.address.postalCode
-                                                city = workplace.address.city
-                                                country = "Norge"
-                                            })
-                                            teleinformasjon.add(Teleinformasjon().apply {
-                                                typeTelekom = TypeTelekomtype.MC
-                                                value = workplace.telephoneNumber
-                                            })
-                                            yrkesbetegnelse = "Dokumentforfalsker"
-                                            personAdr.add(TypeAdresse().apply {
-                                                adressetype = TypeAdressetype.H
+                refDoc = RefDoc().apply {
+                    content = RefDoc.Content().apply {
+                        any.add(Legeerklaring().apply {
+                            val workplace = fairy.person()
+                            legeerklaringGjelder.add(LegeerklaringGjelder().apply {
+                                typeLegeerklaring = generateLegeerklaeringType().toBigInteger()
+                            })
+                            pasientopplysninger = Pasientopplysninger().apply {
+                                flereArbeidsforhold = ThreadLocalRandom.current().nextInt(0, 2 + 1).toBigInteger()
+                                pasient = Pasient().apply {
+                                    navn = TypeNavn().apply {
+                                        fornavn = patientData.firstName
+                                        mellomnavn = patientData.middleName
+                                        etternavn = patientData.lastName
+                                        fodselsnummer = patientPersonNumber
+                                        trygdekontor = navOffice
+                                    }
+                                    arbeidsforhold = Arbeidsforhold().apply {
+                                        primartArbeidsforhold = 1.toBigInteger()
+                                        virksomhet = Virksomhet().apply {
+                                            virksomhetsAdr = TypeAdresse().apply {
+                                                adressetype = TypeAdressetype.RES
                                                 postalAddress.add(TypePostalAddress().apply {
-                                                    streetAddress = patientData.address.addressLine1
-                                                    postalCode = patientData.address.postalCode
-                                                    city = patientData.address.city
-                                                    country = "Norway"
+                                                    streetAddress = workplace.address.addressLine1
+                                                    postalCode = workplace.address.postalCode
+                                                    city = workplace.address.city
+                                                    country = "Norge"
                                                 })
-                                            })
-                                        }
-                                    }
-                                    planUtredBehandle = PlanUtredBehandle().apply {
-                                        nyVurdering = fairy.textProducer().paragraph()
-                                        behandlingsPlan = fairy.textProducer().paragraph()
-                                        utredningsPlan = fairy.textProducer().paragraph()
-                                        nyeLegeopplysninger = fairy.textProducer().paragraph()
-                                        henvistUtredning = HenvistUtredning().apply {
-                                            henvistDato = datatypeFactory.newXMLGregorianCalendar()
-                                            antattVentetid = random.nextInt(10).toBigInteger()
-                                            spesifikasjon = fairy.textProducer().paragraph()
-                                        }
-                                    }
-                                    diagnoseArbeidsuforhet = DiagnoseArbeidsuforhet().apply {
-                                        arbeidsuforFra = datatypeFactory.newXMLGregorianCalendar()
-                                        diagnoseKodesystem = DiagnoseKodesystem().apply {
-                                            kodesystem = ThreadLocalRandom.current().
-                                                    nextInt(0, 2 + 1).toBigInteger()
-                                            enkeltdiagnose.add(Enkeltdiagnose().apply {
-                                                diagnose = "82-01-Le"
-                                                kodeverdi = "K74"
-                                                sortering = 0.toBigInteger()
-                                            })
-                                            enkeltdiagnose.add(Enkeltdiagnose().apply {
-                                                diagnose = "Nyresvikt kronisk"
-                                                kodeverdi = "U99"
-                                                sortering = 1.toBigInteger()
-                                            })
-                                            vurderingYrkesskade = VurderingYrkesskade().apply {
-                                                borVurderes = random.nextBoolean().toBigInteger()
-                                                skadeDato = datatypeFactory.newXMLGregorianCalendar()
+                                                teleinformasjon.add(Teleinformasjon().apply {
+                                                    typeTelekom = TypeTelekomtype.MC
+                                                    value = workplace.telephoneNumber
+                                                })
+                                                yrkesbetegnelse = "Dokumentforfalsker"
+                                                personAdr.add(TypeAdresse().apply {
+                                                    adressetype = TypeAdressetype.H
+                                                    postalAddress.add(TypePostalAddress().apply {
+                                                        streetAddress = patientData.address.addressLine1
+                                                        postalCode = patientData.address.postalCode
+                                                        city = patientData.address.city
+                                                        country = "Norway"
+                                                    })
+                                                })
                                             }
-                                            statusPresens = fairy.textProducer().paragraph()
-                                            symptomerBehandling = fairy.textProducer().paragraph()
+                                            virksomhetsBetegnelse = workplace.company.name
                                         }
-                                        forslagTiltak = ForslagTiltak().apply {
-                                            aktueltTiltak.addAll(generateTypeTiltak())
-                                            opplysninger = fairy.textProducer().paragraph()
-                                            begrensningerTiltak = fairy.textProducer().paragraph()
+                                        planUtredBehandle = PlanUtredBehandle().apply {
+                                            nyVurdering = fairy.textProducer().paragraph()
+                                            behandlingsPlan = fairy.textProducer().paragraph()
+                                            utredningsPlan = fairy.textProducer().paragraph()
+                                            nyeLegeopplysninger = fairy.textProducer().paragraph()
+                                            henvistUtredning = HenvistUtredning().apply {
+                                                henvistDato = datatypeFactory.newXMLGregorianCalendar()
+                                                antattVentetid = random.nextInt(10).toBigInteger()
+                                                spesifikasjon = fairy.textProducer().paragraph()
+                                            }
                                         }
-                                        vurderingFunksjonsevne = VurderingFunksjonsevne().apply {
-                                            arbeidssituasjon += Arbeidssituasjon().apply {
-                                                vurderingArbeidsevne = VurderingArbeidsevne().apply {
-                                                    gjenopptaArbeid = random.nextBoolean().toBigInteger()
-                                                    taAnnetArbeid = random.nextBoolean().toBigInteger()
-                                                    narTaAnnetArbeid = random.nextBoolean().toBigInteger()
-                                                    narGjenopptaArbeid = random.nextBoolean().toBigInteger()
-                                                    ikkeGjore = fairy.textProducer().paragraph()
-                                                    hensynAnnetYrke = fairy.textProducer().paragraph()
+                                        diagnoseArbeidsuforhet = DiagnoseArbeidsuforhet().apply {
+                                            arbeidsuforFra = datatypeFactory.newXMLGregorianCalendar()
+                                            diagnoseKodesystem = DiagnoseKodesystem().apply {
+                                                kodesystem = ThreadLocalRandom.current().nextInt(0, 2 + 1).toBigInteger()
+                                                enkeltdiagnose.add(Enkeltdiagnose().apply {
+                                                    diagnose = "82-01-Le"
+                                                    kodeverdi = "K74"
+                                                    sortering = 0.toBigInteger()
+                                                })
+                                                enkeltdiagnose.add(Enkeltdiagnose().apply {
+                                                    diagnose = "Nyresvikt kronisk"
+                                                    kodeverdi = "U99"
+                                                    sortering = 1.toBigInteger()
+                                                })
+                                                vurderingYrkesskade = VurderingYrkesskade().apply {
+                                                    borVurderes = random.nextBoolean().toBigInteger()
+                                                    skadeDato = datatypeFactory.newXMLGregorianCalendar()
                                                 }
-                                                kravArbeid = fairy.textProducer().paragraph()
-                                                funksjonsevne = fairy.textProducer().paragraph()
+                                                statusPresens = fairy.textProducer().paragraph()
+                                                symptomerBehandling = fairy.textProducer().paragraph()
                                             }
-                                            prognose = Prognose().apply {
-                                                bedreArbeidsevne = random.nextBoolean().toBigInteger()
-                                                varighetFunksjonsnedsettelse = fairy.textProducer().paragraph()
-                                                varighetNedsattArbeidsevne = fairy.textProducer().paragraph()
+                                            forslagTiltak = ForslagTiltak().apply {
+                                                aktueltTiltak.addAll(generateTypeTiltak())
+                                                opplysninger = fairy.textProducer().paragraph()
+                                                begrensningerTiltak = fairy.textProducer().paragraph()
                                             }
-                                            andreOpplysninger = AndreOpplysninger().apply {
-                                                onskesKopi = random.nextBoolean().toBigInteger()
-                                                opplysning = fairy.textProducer().paragraph()
-                                            }
-                                            forbeholdLegeerklaring = ForbeholdLegeerklaring().apply {
-                                                tilbakeholdInnhold = random.nextBoolean().toBigInteger()
+                                            vurderingFunksjonsevne = VurderingFunksjonsevne().apply {
+                                                arbeidssituasjon += Arbeidssituasjon().apply {
+                                                    vurderingArbeidsevne = VurderingArbeidsevne().apply {
+                                                        gjenopptaArbeid = random.nextBoolean().toBigInteger()
+                                                        taAnnetArbeid = random.nextBoolean().toBigInteger()
+                                                        narTaAnnetArbeid = random.nextBoolean().toBigInteger()
+                                                        narGjenopptaArbeid = random.nextBoolean().toBigInteger()
+                                                        ikkeGjore = fairy.textProducer().paragraph()
+                                                        hensynAnnetYrke = fairy.textProducer().paragraph()
+                                                    }
+                                                    kravArbeid = fairy.textProducer().paragraph()
+                                                    arbeidssituasjon = 1.toBigInteger() // TODO: 1, 2, 4 and 5
+                                                    funksjonsevne = fairy.textProducer().paragraph()
+                                                }
+                                                prognose = Prognose().apply {
+                                                    bedreArbeidsevne = random.nextBoolean().toBigInteger()
+                                                    varighetFunksjonsnedsettelse = fairy.textProducer().paragraph()
+                                                    varighetNedsattArbeidsevne = fairy.textProducer().paragraph()
+                                                    antattVarighet = Random().nextInt(10).toString()
+                                                }
+                                                andreOpplysninger = AndreOpplysninger().apply {
+                                                    onskesKopi = random.nextBoolean().toBigInteger()
+                                                    opplysning = fairy.textProducer().paragraph()
+                                                }
+                                                forbeholdLegeerklaring = ForbeholdLegeerklaring().apply {
+                                                    tilbakeholdInnhold = random.nextBoolean().toBigInteger()
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                    })
+                            arsakssammenhengLegeerklaring = fairy.textProducer().paragraph()
+
+                        })
+
+
+                    }
                 }
             })
+
         }
         mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
             ediLoggId = UUID.randomUUID().toString()
@@ -300,10 +311,10 @@ fun generateOrganisationNumberIdent(): Ident = Ident().apply {
 
 fun generateOrganisationNumber(): String {
     return (999999900..999999999)
-    .map { "$it" }
-    .first {
-        validateOrgNumberMod11(it)
-    }
+            .map { "$it" }
+            .first {
+                validateOrgNumberMod11(it)
+            }
 }
 
 private fun validateOrgNumberMod11(orgNumber: String): Boolean {
