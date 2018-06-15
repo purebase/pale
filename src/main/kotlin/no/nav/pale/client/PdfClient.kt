@@ -7,10 +7,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import java.io.IOException
-import java.util.*
 
 class PdfClient(private val baseUrl: String) {
-    private val base64Encoder: Base64.Encoder = Base64.getEncoder()
     private val client: OkHttpClient = OkHttpClient()
 
     fun generatePDFBase64(pdfType: PdfType, domainObject: Any): ByteArray {
@@ -23,7 +21,7 @@ class PdfClient(private val baseUrl: String) {
         if (response.isSuccessful) {
             val bytes = response.body()?.bytes()
             if (bytes != null) {
-                return base64Encoder.encode(bytes)
+                return bytes
             }
             throw IOException("Received no body from the PDF generator")
         } else {
