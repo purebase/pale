@@ -32,6 +32,10 @@ import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbeh
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.apache.cxf.ext.logging.LoggingFeature
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
+import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
+import org.apache.wss4j.common.ext.WSPasswordCallback
+import org.apache.wss4j.dom.WSConstants
+import org.apache.wss4j.dom.handler.WSHandlerConstants
 import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
@@ -43,6 +47,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.jms.*
 import javax.jms.Queue
+import javax.security.auth.callback.CallbackHandler
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
@@ -106,9 +111,19 @@ fun main(args: Array<String>) = runBlocking {
             configureSTSFor(orgnaisasjonEnhet, fasitProperties.srvPaleUsername,
                     fasitProperties.srvPalePassword, fasitProperties.securityTokenServiceUrl)
 
+            val interceptorProperties = mapOf(
+                    WSHandlerConstants.USER to fasitProperties.srvPaleUsername,
+                    WSHandlerConstants.ACTION to WSHandlerConstants.USERNAME_TOKEN,
+                    WSHandlerConstants.PASSWORD_TYPE to WSConstants.PW_TEXT,
+                    WSHandlerConstants.PW_CALLBACK_REF to CallbackHandler {
+                        (it[0] as WSPasswordCallback).password = fasitProperties.srvPalePassword
+                    }
+            )
+
             val journalbehandling = JaxWsProxyFactoryBean().apply {
                 address = fasitProperties.journalbehandlingEndpointURL
                 features.add(LoggingFeature())
+                outInterceptors.add(WSS4JOutInterceptor(interceptorProperties))
                 serviceClass = Journalbehandling::class.java
             }.create() as Journalbehandling
 
