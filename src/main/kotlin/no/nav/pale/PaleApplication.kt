@@ -447,7 +447,7 @@ fun getHCPFodselsnummer(fellesformat: EIFellesformat): String? =
 
 
 fun sha256hashstring(legeerklaering: Legeerklaring): String {
-    val bytes = legeerklaering.toString().toByteArray()
+    val bytes = objectMapper.writeValueAsBytes(legeerklaering)
     val md = MessageDigest.getInstance("SHA-256")
     val digest = md.digest(bytes)
     return digest.fold("", { str, it -> str + "%02x".format(it) })
