@@ -5,6 +5,7 @@ import no.nav.pale.model.BehandlingsvedleggSender
 import no.nav.pale.model.Merknad
 import no.nav.pale.validation.*
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.model.msghead.HealthcareProfessional
 import java.time.ZonedDateTime
 
 fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: List<Outcome>): Behandlingsvedlegg {
@@ -25,11 +26,7 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
                     signaturId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur,
                     signaturNavn = fellesformat.mottakenhetBlokk.avsender,
                     avsenderId = extractDoctorIdentFromSender(fellesformat)?.id,
-                    avsenderNavn = if (hcp.middleName == null) {
-                        "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()}"
-                    } else {
-                        "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
-                    },
+                    avsenderNavn = hcp.formatName(),
                     tlfNummer = hcp.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v,
                     organisasjonsId = "${orgIdent.id} (${orgIdent.typeId.v}",
                     organisasjonsNavn = org.organisationName,
@@ -42,6 +39,13 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
                     merknadNotis = outcomes.filter { it.outcomeType.messagePriority == Priority.NOTE }.toMerknader()
             )
     )
+}
+
+// TODO: Add test for this
+fun HealthcareProfessional.formatName(): String = if (middleName == null) {
+    "${familyName.toUpperCase()} ${givenName.toUpperCase()}"
+} else {
+    "${familyName.toUpperCase()} ${givenName.toUpperCase()} ${middleName.toUpperCase()}"
 }
 
 fun List<Outcome>.toMerknader():List<Merknad> =

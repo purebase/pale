@@ -6,6 +6,7 @@ import no.nav.pale.metrics.MESSAGE_OUTCOME_OK_COUNTER
 import no.nav.pale.newInstance
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.mapping.formatName
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
 import java.util.*
 
@@ -42,7 +43,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     }
     MESSAGE_OUTCOME_OK_COUNTER.inc()
     fordeling = PaleConstant.eiaOk.string
-    avsenderMottaker = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
+    avsenderMottaker = hcp.formatName()
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
     opprettetAvNavn = PaleConstant.eiaAuto.string
 }
