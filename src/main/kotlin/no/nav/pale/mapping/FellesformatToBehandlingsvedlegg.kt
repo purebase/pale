@@ -25,7 +25,11 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
                     signaturId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur,
                     signaturNavn = fellesformat.mottakenhetBlokk.avsender,
                     avsenderId = extractDoctorIdentFromSender(fellesformat)?.id,
-                    avsenderNavn = "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}",
+                    avsenderNavn = if (hcp.middleName == null) {
+                        "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()}"
+                    } else {
+                        "${hcp.familyName.toUpperCase()} ${hcp.givenName.toUpperCase()} ${hcp.middleName.toUpperCase()}"
+                    },
                     tlfNummer = hcp.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v,
                     organisasjonsId = "${orgIdent.id} (${orgIdent.typeId.v}",
                     organisasjonsNavn = org.organisationName,
