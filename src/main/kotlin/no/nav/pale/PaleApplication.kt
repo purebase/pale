@@ -195,25 +195,22 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         keyValue("xmlMessage", inputMessageText),
                         *defaultKeyValues)
             }
-            //TODO turn back on duplicate check
-            /*
+
             val jedisSha256String = jedis.get(sha256hashstring(extractLegeerklaering(fellesformat)))
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
-                val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisSha256String,
-                        *defaultKeyValues)
-                APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
-                receiptProducer.send(session.createBytesMessage().apply {
-                    val apprecBytes = apprecMarshaller.toByteArray(apprec)
-                    writeBytes(apprecBytes)
-                    APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
+                receiptProducer.send(session.createTextMessage().apply {
+                    val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                    apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+                    log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisSha256String,
+                            *defaultKeyValues)
+                    text = apprecMarshaller.toString(apprec)
+                    APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
                 })
                 return@setMessageListener
             }
-            */
+
 
             val validationResult = try {
                 validateMessage(fellesformat, personV3, organisasjonEnhet, sarClient)
@@ -223,6 +220,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             }
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
+                log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -230,6 +228,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                             .map { mapApprecErrorToAppRecCV(it.apprecError!!) }
                     )
                     text = apprecMarshaller.toString(apprec)
+                    receiptProducer.send(this)
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
             } else {
@@ -253,7 +252,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
                 }
 
-                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
+                log.info("Sending OK apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.ok)
                     text = apprecMarshaller.toString(apprec)
