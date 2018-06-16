@@ -200,6 +200,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
+                log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
