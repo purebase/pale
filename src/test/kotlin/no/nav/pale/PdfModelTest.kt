@@ -3,6 +3,7 @@ package no.nav.pale
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.mapping.mapFellesformatToFagmelding
 import no.nav.pale.model.*
+import no.nav.pale.utils.readToFellesformat
 import org.junit.Test
 import java.time.ZonedDateTime
 import java.util.*

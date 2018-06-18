@@ -5,7 +5,7 @@ import no.nav.pale.mapping.ApprecError
 import no.nav.pale.mapping.ApprecStatus
 import no.nav.pale.mapping.createApprec
 import no.nav.pale.mapping.mapApprecErrorToAppRecCV
-import no.nav.pale.readToFellesformat
+import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

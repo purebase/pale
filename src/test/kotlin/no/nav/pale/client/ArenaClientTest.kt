@@ -9,6 +9,7 @@ import no.nav.pale.validation.toOutcome
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.pale.Legeerklaring
+import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test

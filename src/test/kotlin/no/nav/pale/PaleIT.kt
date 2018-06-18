@@ -14,11 +14,16 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.runBlocking
+import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.client.PdfClient
 import no.nav.pale.client.Samhandler
 import no.nav.pale.client.SarClient
+import no.nav.pale.utils.randomPort
+import no.nav.pale.validation.extractDoctorIdentFromSender
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
+import no.nav.tjeneste.virksomhet.person.v3.HentPersonResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl
 import org.apache.activemq.artemis.core.server.ActiveMQServer
@@ -32,11 +37,15 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
+import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import org.mockito.Mockito.mock
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Paths
 import javax.jms.*
 import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
@@ -44,11 +53,19 @@ import javax.xml.ws.Endpoint
 class PaleIT {
 
     @Test
-    fun testFullFlow() {
+    fun testFullFlowExceptionSendMessageToBOQ() {
         produceMessage(IOUtils.toByteArray(PaleIT::class.java.getResourceAsStream("/legeerklaering.xml")))
 
         val messageOnBoq = consumeMessage(backoutQueue)
+
+        assertEquals("Should be",
+                String(Files.readAllBytes(Paths.get(
+                        PaleIT::class.java.getResource("/legeerklaering.xml").toURI())),
+                        Charset.forName("ISO-8859-1")),
+                messageOnBoq)
+
     }
+
 
     companion object {
         val log = LoggerFactory.getLogger("pale-it")
@@ -237,4 +254,5 @@ class PaleIT {
             })
         }
     }
+    
 }

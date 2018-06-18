@@ -2,6 +2,7 @@ package no.nav.pale
 
 import io.ktor.server.engine.ApplicationEngine
 import no.nav.pale.metrics.*
+import no.nav.pale.utils.randomPort
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody

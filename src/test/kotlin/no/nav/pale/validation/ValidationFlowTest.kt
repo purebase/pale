@@ -1,6 +1,6 @@
 package no.nav.pale.validation
 
-import no.nav.pale.readToFellesformat
+import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test

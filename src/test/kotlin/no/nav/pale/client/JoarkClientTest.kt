@@ -2,7 +2,7 @@ package no.nav.pale.client
 
 import no.nav.pale.PaleConstant
 import no.nav.pale.getHCPFodselsnummer
-import no.nav.pale.readToFellesformat
+import no.nav.pale.utils.readToFellesformat
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
 import org.junit.Assert

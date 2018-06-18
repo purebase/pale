@@ -1,6 +1,6 @@
 package no.nav.pale.validation
 
-import no.nav.pale.readToFellesformat
+import no.nav.pale.utils.readToFellesformat
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import org.junit.Assert
 import org.junit.Test

@@ -1,11 +1,12 @@
-package no.nav.pale
+package no.nav.pale.utils
 
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.PaleApplication
+import no.nav.pale.fellesformatUnmarshaller
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.URISyntaxException
 import javax.xml.transform.stream.StreamSource
-
 
 @Throws(IOException::class, URISyntaxException::class)
 fun readToFellesformat(resource: String): EIFellesformat {
