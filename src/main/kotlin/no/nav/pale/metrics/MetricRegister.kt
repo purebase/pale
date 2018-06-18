@@ -19,7 +19,7 @@ val WS_CALL_TIME: Summary = Summary.Builder()
 
 val INPUT_MESSAGE_TIME: Summary = Summary.build()
         .namespace(METRICS_NS)
-        .name("legeerklaering_time")
+        .name("input_time")
         .help("Amount of messages received from emottak").register()
 
 val APPREC_STATUS_COUNTER: Counter = Counter.Builder()
