@@ -196,7 +196,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
-            val jedisSha256String = jedis.get(sha256String)
+            //TODO it works, turn back on when going to Q1
+            /*val jedisSha256String = jedis.get(sha256String)
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
@@ -214,7 +215,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             }
             else if (ediLoggId != null){
                 jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
-            }
+            }*/
 
 
             val validationResult = try {
