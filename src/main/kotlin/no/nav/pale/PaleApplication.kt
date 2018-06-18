@@ -196,7 +196,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
+            log.info("Sha256String incoming" + sha256hashstring(extractLegeerklaering(fellesformat)))
             val jedisSha256String = jedis.get(sha256hashstring(extractLegeerklaering(fellesformat)))
+            log.info("Sha256String in jedis" + jedisSha256String)
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
