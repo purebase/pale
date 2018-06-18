@@ -175,7 +175,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
 
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-
+            sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
             defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
@@ -196,9 +196,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         *defaultKeyValues)
             }
 
-            log.info("Sha256String incoming" + sha256hashstring(extractLegeerklaering(fellesformat)))
-            val jedisSha256String = jedis.get(sha256hashstring(extractLegeerklaering(fellesformat)))
-            log.info("Sha256String in jedis" + jedisSha256String)
+            val jedisSha256String = jedis.get(sha256String)
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
@@ -212,6 +210,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
                 })
                 return@setMessageListener
+            }
+            else if (ediLoggId != null){
+                jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
             }
 
 
@@ -269,9 +270,6 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             backoutProducer.send(it)
         }
 
-        if (sha256String != null && ediLoggId != null) {
-            jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
-        }
     }
 
     while (isActive) {
