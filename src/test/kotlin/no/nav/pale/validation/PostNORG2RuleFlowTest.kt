@@ -16,7 +16,7 @@ class PostNORG2RuleFlowTest {
             enhetNavn =  "NAV Sagene"
         }
 
-        val outcomeList = postNORG2Flow(fellesformat, navKontor)
+        val outcomeList = postNORG2Flow(navKontor)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PERSON_HAS_NO_NAV_KONTOR }
 
         Assert.assertEquals(OutcomeType.PERSON_HAS_NO_NAV_KONTOR, outcome?.outcomeType)
@@ -29,7 +29,7 @@ class PostNORG2RuleFlowTest {
             enhetNavn =  "NAV Sagene"
         }
 
-        val outcomeList = postNORG2Flow(fellesformat, navKontor)
+        val outcomeList = postNORG2Flow(navKontor)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PERSON_HAS_NO_NAV_KONTOR }
 
         Assert.assertEquals(null, outcome?.outcomeType)

@@ -2,7 +2,6 @@ package no.nav.pale.validation
 
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.ApprecError
-import no.nav.pale.metrics.APPREC_ERROR_COUNTER
 import no.nav.pale.validatePersonAndDNumber
 import no.nav.pale.validatePersonAndDNumber11Digits
 import java.time.LocalDateTime

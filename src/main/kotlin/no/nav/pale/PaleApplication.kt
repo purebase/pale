@@ -208,6 +208,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                             *defaultKeyValues)
                     text = apprecMarshaller.toString(apprec)
                     APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
+                    APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
                 return@setMessageListener
             }
@@ -233,6 +234,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     )
                     text = apprecMarshaller.toString(apprec)
                     receiptProducer.send(this)
+                    for (error in apprec.appRec.error) {
+                        APPREC_ERROR_COUNTER.labels(error.dn).inc()
+                    }
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
             } else {
@@ -352,7 +356,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 
 
 
-    outcomes.addAll(postNORG2Flow(fellesformat, runBlocking { navKontorDeferred.await() }))
+    outcomes.addAll(postNORG2Flow(runBlocking { navKontorDeferred.await() }))
     if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
         return outcomes.toResult()
     }
