@@ -1,8 +1,7 @@
 package no.nav.pale.client
 
 import no.nav.pale.PaleConstant
-import no.nav.pale.metrics.MESSAGE_OUTCOME_MANUELL_COUNTER
-import no.nav.pale.metrics.MESSAGE_OUTCOME_OK_COUNTER
+import no.nav.pale.metrics.MESSAGE_OUTCOME_COUNTER
 import no.nav.pale.newInstance
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
@@ -38,10 +37,10 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     fagomradeKode = PaleConstant.opp.string
 
     if (manuelBehandling){
-        MESSAGE_OUTCOME_MANUELL_COUNTER.inc()
+        MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
         fordeling = PaleConstant.eiaMan.string
     }
-    MESSAGE_OUTCOME_OK_COUNTER.inc()
+    MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
     fordeling = PaleConstant.eiaOk.string
     avsenderMottaker = hcp.formatName()
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
