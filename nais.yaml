@@ -32,7 +32,7 @@ resources:
 redis: true
 fasitResources:
   used:
-      alias: virksomhet:OrganisasjonEnhet_v2
+    - alias: virksomhet:OrganisasjonEnhet_v2
       resourceType: Webserviceendpoint
 #    - alias: pale_organisasjon_enhet_v2_override
 #      resourceType: BaseUrl
