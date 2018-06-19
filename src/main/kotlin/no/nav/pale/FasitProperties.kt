@@ -8,7 +8,7 @@ data class FasitProperties(
         val mqUsername: String = getEnvVar("SRVAPPSERVER_USERNAME", "srvappserver"),
         val mqPassword: String = getEnvVar("SRVAPPSERVER_PASSWORD", ""),
         val inputQueueName: String = getEnvVar("PALE_INPUT_QUEUENAME"),
-        val arenaQueueName: String = getEnvVar("EIA_QUEUE_ARENA_IA_OUTBOUND_QUEUENAME"), // Temporary until we know if we can change it
+        val arenaQueueName: String = getEnvVar("ARENA_OUTBOUND_QUEUENAME"), // Temporary until we know if we can change it
         val personV3EndpointURL: String = getEnvVar("VIRKSOMHET_PERSON_V3_ENDPOINTURL"),
         val organisasjonEnhetV2EndpointURL: String = getEnvVar("VIRKSOMHET_ORGANISASJONENHET_V2_ENDPOINTURL"),
         val srvPaleUsername: String = getEnvVar("SRVPALE_USERNAME"),
