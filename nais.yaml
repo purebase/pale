@@ -52,7 +52,7 @@ fasitResources:
         queueName: ARENA_OUTBOUND_QUEUENAME
 #    - alias: eia_queue_arena_ia_outbound
 #      resourceType: Queue
-    - alias: pale_appre
+    - alias: pale_apprec
       resourceType: Queue
       propertyMap:
         queueName: MOTTAK_QUEUE_UTSENDING_QUEUENAME
