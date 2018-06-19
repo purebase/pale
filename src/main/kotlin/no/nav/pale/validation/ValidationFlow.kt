@@ -27,6 +27,7 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
 
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
     val name = "${hcp.familyName} ${hcp.givenName} ${hcp.middleName}"
+    val doctorPersonNumberFromLegeerklaering = extractDoctorIdentFromSignature(fellesformat)
     if (doctorIdent?.id == null || doctorIdent.id.trim().isEmpty()) {
         outcome += OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome(name,
                 apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
@@ -36,6 +37,8 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
     } else if (!validatePersonAndDNumber(doctorIdent.id)) {
         outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(name,
                 doctorIdent, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
+    } else if (doctorPersonNumberFromLegeerklaering != doctorIdent.id) {
+        outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
     }
 
     val surname = extractPatientSurname(legeerklaering)
@@ -51,10 +54,6 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
                 apprecError = ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA)
     }
 
-    val doctorPersonNumberFromLegeerklaering = extractDoctorIdentFromSignature(fellesformat)
-    if (doctorPersonNumberFromLegeerklaering != doctorIdent!!.id) {
-        outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
-    }
 
     if (extractSignatureDate(fellesformat).isAfter(LocalDateTime.now())) {
         outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(

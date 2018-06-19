@@ -153,7 +153,8 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
     var defaultKeyValues = arrayOf(keyValue("noMessageIdentifier", true))
     var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
-    QueueStatusCollector(connection, inputQueue, arenaQueue, receiptQueue, backoutQueue)
+    //Excluded arenaQueue due to no read rights
+    QueueStatusCollector(connection, inputQueue, receiptQueue, backoutQueue)
             .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
