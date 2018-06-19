@@ -214,7 +214,8 @@ fun defaultFellesformat(): EIFellesformat {
                                                         hensynAnnetYrke = fairy.textProducer().paragraph()
                                                     }
                                                     kravArbeid = fairy.textProducer().paragraph()
-                                                    arbeidssituasjon = 1.toBigInteger() // TODO: 1, 2, 4 and 5
+                                                    val arbeidssituasjonList = listOf(1, 2, 4, 5)
+                                                    arbeidssituasjon = arbeidssituasjonList.randomElement()?.toBigInteger()
                                                     funksjonsevne = fairy.textProducer().paragraph()
                                                 }
                                                 prognose = Prognose().apply {
@@ -347,3 +348,6 @@ fun generatePersonNumber(bornDate: LocalDate): String {
                 validatePersonAndDNumber(it)
             }
 }
+fun List<Int>.randomElement()
+        = if (this.isEmpty()) null else this[Random().nextInt(this.size)]
+
