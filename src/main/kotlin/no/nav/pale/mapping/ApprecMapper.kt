@@ -54,7 +54,11 @@ fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFe
 }
 
 fun HealthcareProfessional.intoHCPerson(): HCPerson = HCPerson().apply {
-    name = "$familyName $givenName $middleName"
+    if (middleName.equals(null) /*|| middleName.equals("null")*/)
+    {
+        middleName = ""
+    }
+    name = "$familyName $givenName $middleName".trim()
     id = ident.first().id
     typeId = ident.first().typeId.intoAppRecCS()
     additionalId += ident.drop(1)

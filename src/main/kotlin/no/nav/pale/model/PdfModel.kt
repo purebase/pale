@@ -71,7 +71,7 @@ data class Arbeidsgiver(
 data class SykdomsOpplysninger (
         val hoveddiagnose: Diagnose,
         val bidiagnose: List<Diagnose>,
-        val arbeidsufoerFra: ZonedDateTime,
+        val arbeidsufoerFra: ZonedDateTime?,
         val sykdomsHistorie: String,
         val statusPresens: String,
         val boerNavKontoretVurdereOmDetErEnYrkesskade: Boolean
