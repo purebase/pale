@@ -59,3 +59,5 @@ fasitResources:
       resourceType: BaseUrl
     - alias: pale_channel
       resourceType: Channel
+    - alias: joark_journalbehandling_ws_endpoint
+      resourceType: BaseUrl

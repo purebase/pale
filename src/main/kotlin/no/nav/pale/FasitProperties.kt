@@ -18,7 +18,7 @@ data class FasitProperties(
     val paleBackoutQueueName: String = getEnvVar("PALE_BACKOUT_QUEUE_QUEUENAME"),
     val securityTokenServiceUrl: String = getEnvVar("SECURITYTOKENSERVICE_URL"),
     val receiptQueueName: String = getEnvVar("MOTTAK_QUEUE_UTSENDING_QUEUENAME"),
-    val journalbehandlingEndpointURL: String = getEnvVar("JOURNALBEHANDLING_ENDPOINTURL"),
+    val journalbehandlingEndpointURL: String = getEnvVar("JOARK_JOURNALBEHANDLING_WS_ENDPOINT_URL"),
     val appName: String = getEnvVar("APP_NAME"),
     val appVersion: String = getEnvVar("APP_VERSION")
 )
