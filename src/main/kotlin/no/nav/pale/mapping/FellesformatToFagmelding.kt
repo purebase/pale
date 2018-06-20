@@ -122,7 +122,7 @@ fun mapEnkeltDiagnoseToDiagnose(enkeltdiagnose: Enkeltdiagnose): Diagnose =
 fun mapLegeerklaeringToSykdomDiagnose(diagnose: DiagnoseArbeidsuforhet): SykdomsOpplysninger = SykdomsOpplysninger(
         hoveddiagnose = mapEnkeltDiagnoseToDiagnose(diagnose.diagnoseKodesystem.enkeltdiagnose[0]),
         bidiagnose = diagnose.diagnoseKodesystem.enkeltdiagnose.drop(1).map { mapEnkeltDiagnoseToDiagnose(it) },
-        arbeidsufoerFra = diagnose.arbeidsuforFra.toGregorianCalendar().toZonedDateTime(),
+        arbeidsufoerFra = diagnose.arbeidsuforFra?.toGregorianCalendar()?.toZonedDateTime(),
         sykdomsHistorie = diagnose.symptomerBehandling,
         statusPresens = diagnose.statusPresens,
         boerNavKontoretVurdereOmDetErEnYrkesskade = diagnose.vurderingYrkesskade.borVurderes.toInt() == 1

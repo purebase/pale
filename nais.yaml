@@ -2,6 +2,7 @@ image: "repo.adeo.no:5443/integrasjon/pale"
 replicas:
   min: 1
   max: 4
+  cpuThresholdPercentage: 70
 port: 8080
 healthcheck:
   liveness:
