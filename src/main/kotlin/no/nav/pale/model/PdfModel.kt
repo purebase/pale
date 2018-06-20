@@ -88,7 +88,7 @@ data class Plan(
     val utredningsplan: String,
     val behandlingsplan: String,
     val vurderingAvTidligerePlan: String?,
-    val naarSpoerreOmNyeLegeopplysninger: String,
+    val naarSpoerreOmNyeLegeopplysninger: String?,
     val videreBehandlingIkkeAktuellGrunn: String?
 )
 

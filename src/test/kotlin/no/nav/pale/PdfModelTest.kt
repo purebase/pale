@@ -128,7 +128,6 @@ class PdfModelTest {
 
     @Test
     fun testFellesformatToFagmelding() {
-        val fellesformat = readToFellesformat("/legeerklaering.xml")
         val pdfModel = mapFellesformatToFagmelding(defaultFellesformat())
 
         println(TimeZone.getDefault().id)
