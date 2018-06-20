@@ -34,15 +34,14 @@ fun extractDoctorIdentFromSignature(fellesformat: EIFellesformat): String =
 
 fun extractSenderOrganisationName(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
 
-fun extractPersonIdent(legeerklaering: Legeerklaring): String?
-        = legeerklaering.pasientopplysninger.pasient.fodselsnummer
+fun extractPersonIdent(legeerklaering: Legeerklaring): String? =
+        legeerklaering.pasientopplysninger.pasient.fodselsnummer
 
 fun extractPatientSurname(legeerklaering: Legeerklaring): String? =
         legeerklaering.pasientopplysninger.pasient.navn.etternavn
 
 fun extractPatientFirstName(legeerklaering: Legeerklaring): String? =
         legeerklaering.pasientopplysninger.pasient.navn.fornavn
-
 
 fun extractBornDate(personIdent: String): LocalDate =
         LocalDate.parse(personIdent.substring(0, 6).let {
@@ -53,8 +52,8 @@ fun extractBornDate(personIdent: String): LocalDate =
             }
         }, personNumberDateFormat)
 
-fun isDNR(personIdent: String): Boolean
-    = personIdent[0] > '3'
+fun isDNR(personIdent: String): Boolean =
+    personIdent[0] > '3'
 
 fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person, doctorPersonnumber: String): Familierelasjon? =
         patient.harFraRolleI.find {

@@ -8,18 +8,52 @@ import com.ibm.mq.jms.MQConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import com.ibm.msg.client.wmq.compat.base.internal.MQC
 import io.prometheus.client.hotspot.DefaultExports
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.keyValue
-import no.nav.pale.client.*
-import no.nav.pale.mapping.*
-import no.nav.pale.metrics.*
 import no.nav.pale.sts.configureSTSFor
-import no.nav.pale.validation.*
 import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
-import no.nav.model.fellesformat.*
+import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.pale.Legeerklaring
+import no.nav.pale.client.PdfClient
+import no.nav.pale.client.PdfType
+import no.nav.pale.client.Samhandler
+import no.nav.pale.client.SamhandlerPraksis
+import no.nav.pale.client.SarClient
+import no.nav.pale.client.createArenaEiaInfo
+import no.nav.pale.client.createJoarkRequest
+import no.nav.pale.mapping.ApprecError
+import no.nav.pale.mapping.ApprecStatus
+import no.nav.pale.mapping.createApprec
+import no.nav.pale.mapping.mapApprecErrorToAppRecCV
+import no.nav.pale.mapping.mapFellesformatToBehandlingsVedlegg
+import no.nav.pale.mapping.mapFellesformatToFagmelding
+import no.nav.pale.metrics.APPREC_ERROR_COUNTER
+import no.nav.pale.metrics.APPREC_STATUS_COUNTER
+import no.nav.pale.metrics.INCOMING_MESSAGE_COUNTER
+import no.nav.pale.metrics.INPUT_MESSAGE_TIME
+import no.nav.pale.metrics.QueueStatusCollector
+import no.nav.pale.metrics.WS_CALL_TIME
+import no.nav.pale.validation.Outcome
+import no.nav.pale.validation.OutcomeType
+import no.nav.pale.validation.Priority
+import no.nav.pale.validation.extractDoctorIdentFromSender
+import no.nav.pale.validation.extractLegeerklaering
+import no.nav.pale.validation.extractPersonIdent
+import no.nav.pale.validation.extractSenderOrganisationName
+import no.nav.pale.validation.isDNR
+import no.nav.pale.validation.postNORG2Flow
+import no.nav.pale.validation.postSARFlow
+import no.nav.pale.validation.postTPSFlow
+import no.nav.pale.validation.preTPSFlow
+import no.nav.pale.validation.shouldReturnEarly
+import no.nav.pale.validation.toOutcome
+import no.nav.pale.validation.validationFlow
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Geografi
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorRequest
@@ -45,15 +79,17 @@ import java.io.StringWriter
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-import javax.jms.*
+import javax.jms.BytesMessage
+import javax.jms.Connection
 import javax.jms.Queue
+import javax.jms.Session
+import javax.jms.TextMessage
 import javax.security.auth.callback.CallbackHandler
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
 import javax.xml.transform.stream.StreamSource
 import kotlin.math.max
-
 
 val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
@@ -135,15 +171,24 @@ fun main(args: Array<String>) = runBlocking {
                     .join()
         }
     }
-
 }
 
 fun defaultLogInfo(keyValues: Array<StructuredArgument>): String =
-        (0..(keyValues.size-1)).joinToString(", ", "(", ")") { "{}" }
+        (0..(keyValues.size - 1)).joinToString(", ", "(", ")") { "{}" }
 
-fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonEnhet: OrganisasjonEnhetV2,
-           journalbehandling: Journalbehandling, sarClient: SarClient, inputQueue: Queue, arenaQueue: Queue,
-           receiptQueue: Queue, backoutQueue: Queue, connection: Connection) = launch {
+fun listen(
+    pdfClient: PdfClient,
+    jedis: Jedis,
+    personV3: PersonV3,
+    organisasjonEnhet: OrganisasjonEnhetV2,
+    journalbehandling: Journalbehandling,
+    sarClient: SarClient,
+    inputQueue: Queue,
+    arenaQueue: Queue,
+    receiptQueue: Queue,
+    backoutQueue: Queue,
+    connection: Connection
+) = launch {
     val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
     val consumer = session.createConsumer(inputQueue)
     val arenaProducer = session.createProducer(arenaQueue)
@@ -153,7 +198,7 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
     var defaultKeyValues = arrayOf(keyValue("noMessageIdentifier", true))
     var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
-    //Excluded arenaQueue due to no read rights
+    // Excluded arenaQueue due to no read rights
     QueueStatusCollector(connection, inputQueue, receiptQueue, backoutQueue)
             .register<QueueStatusCollector>()
 
@@ -212,11 +257,9 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
                 return@setMessageListener
-            }
-            else if (ediLoggId != null){
+            } else if (ediLoggId != null) {
                 jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
             }
-
 
             val validationResult = try {
                 validateMessage(fellesformat, personV3, organisasjonEnhet, sarClient)
@@ -247,17 +290,16 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
                         validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING })
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
-                if(validationResult.outcomes.none{ it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
+                if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
                     log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
-                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId,null, validationResult.navkontor )
+                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId, null, validationResult.navkontor )
                         val stringWriter = StringWriter()
                         arenaEiaInfoMarshaller.marshal(arenaEiaInfo, stringWriter)
                         text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
                         arenaProducer.send(this)
                     })
-                }
-                else{
+                } else {
                     log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
                 }
 
@@ -274,7 +316,6 @@ fun listen(pdfClient: PdfClient, jedis: Jedis, personV3: PersonV3, organisasjonE
             log.error("Exception caught while handling message, sending to backout $defaultKeyFormat", *defaultKeyValues, e)
             backoutProducer.send(it)
         }
-
     }
 
     while (isActive) {
@@ -288,13 +329,13 @@ fun Marshaller.toString(input: Any): String = StringWriter().use {
 }
 
 data class ValidationResult(
-        val tssId: String?,
-        val outcomes: List<Outcome>,
-        val navkontor: String?
+    val tssId: String?,
+    val outcomes: List<Outcome>,
+    val navkontor: String?
 )
 
-fun List<Outcome>.toResult(tssId: String? = null,navkontor: String? = null)
-        = ValidationResult(tssId, this, navkontor)
+fun List<Outcome>.toResult(tssId: String? = null, navkontor: String? = null) =
+        ValidationResult(tssId, this, navkontor)
 
 fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasjonEnhet: OrganisasjonEnhetV2, sarClient: SarClient): ValidationResult {
     val legeerklaering = extractLegeerklaering(fellesformat)
@@ -355,8 +396,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         }).navKontor
     }
 
-
-
     outcomes.addAll(postNORG2Flow(runBlocking { navKontorDeferred.await() }))
     if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
         return outcomes.toResult()
@@ -365,14 +404,13 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     val samhandlerPraksisMatch = runBlocking { samhandlerDeferred.await() }
 
     if (samhandlerPraksisMatch == null) {
-        outcomes += OutcomeType.BEHANDLER_NOT_SAR
+        outcomes += OutcomeType.BEHANDLER_NOT_SAR.toOutcome()
     } else {
         outcomes.addAll(postSARFlow(samhandlerPraksisMatch.samhandlerPraksis))
     }
 
-
     if (outcomes.isEmpty()){
-        outcomes+= OutcomeType.LEGEERKLAERING_MOTTAT
+        outcomes+= OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome()
     }
 
     return outcomes.toResult(samhandlerPraksisMatch?.samhandlerPraksis?.tss_ident)
@@ -390,12 +428,12 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                     it.gyldig_fra >= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til <= LocalDateTime.now())
                 }
             }
-            //.filter {
+            // .filter {
             //    it.samh_praksis_type_kode in arrayOf("LEVA", "LEKO", "FALE")
-            //}
-            //.filter {
+            // }
+            // .filter {
             //    it.samh_praksis_status_kode == "LE"
-            //}
+            // }
             .toList()
     if (aktiveSamhandlere.size == 1)
         return SamhandlerPraksisMatch(aktiveSamhandlere.first(), 100.0)
@@ -414,7 +452,7 @@ fun calculatePercentageStringMatch(str1: String, str2: String): Double {
     return (maxDistance - distance) / maxDistance
 }
 
-fun <T>retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {
+fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {
     return async {
         for (time in interval) {
             try {
@@ -433,13 +471,12 @@ fun <T>retryWithInterval(interval: Array<Long>, callName: String, blocking: susp
     }
 }
 
-
 fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().apply {
     hostName = fasitProperties.mqHostname
     port = fasitProperties.mqPort
     queueManager = fasitProperties.mqQueueManagerName
     transportType = WMQConstants.WMQ_CM_CLIENT
-    //sslCipherSuite = "TLS_RSA_WITH_AES_256_CBC_SHA"
+    // sslCipherSuite = "TLS_RSA_WITH_AES_256_CBC_SHA"
     channel = fasitProperties.mqChannelName
     ccsid = 1208
     setIntProperty(WMQConstants.JMS_IBM_ENCODING, MQC.MQENC_NATIVE)
@@ -449,7 +486,6 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
 fun getHCPFodselsnummer(fellesformat: EIFellesformat): String? =
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident
                 .find { it.typeId.v == "FNR" }?.id
-
 
 fun sha256hashstring(legeerklaering: Legeerklaring): String {
     val bytes = objectMapper.writeValueAsBytes(legeerklaering)

@@ -6,9 +6,12 @@ import no.nav.pale.newInstance
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.formatName
-import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.*
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.Bruker
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.DokumentInfo
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.Fildetaljer
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.JournalpostDokumentInfoRelasjon
+import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
 import java.util.*
-
 
 fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, behandlingsvedlegg: ByteArray?, manuelBehandling: Boolean):
         LagreDokumentOgOpprettJournalpostRequest = LagreDokumentOgOpprettJournalpostRequest().apply {
@@ -17,7 +20,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
 
     journalpostDokumentInfoRelasjonListe.add(mapfellesformatToDokumentInfoRelasjon(fellesformat, false, fagmelding))
 
-    if(behandlingsvedlegg != null) {
+    if (behandlingsvedlegg != null) {
         journalpostDokumentInfoRelasjonListe.add(mapfellesformatToDokumentInfoRelasjon(fellesformat, true, behandlingsvedlegg))
     }
 
@@ -31,12 +34,12 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     mottattDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     innhold = PaleConstant.legeerklæring.string
     journalForendeEnhetId = null
-    journalposttypeKode =  PaleConstant.journalposttypeKodeI.string
+    journalposttypeKode = PaleConstant.journalposttypeKodeI.string
     journalstatusKode = PaleConstant.journalstatusKodeMO.string
     dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     fagomradeKode = PaleConstant.opp.string
 
-    if (manuelBehandling){
+    if (manuelBehandling) {
         MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
         fordeling = PaleConstant.eiaMan.string
     }
@@ -46,7 +49,6 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
     opprettetAvNavn = PaleConstant.eiaAuto.string
 }
-
 
 fun mapfellesformatToDokumentInfoRelasjon(fellesformat: EIFellesformat, behandlingsvedlegg: Boolean, pdfDocumentBase64: ByteArray):
         JournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
@@ -74,10 +76,10 @@ fun mapfellesformatToDokumentInfoRelasjon(fellesformat: EIFellesformat, behandli
         organInternt = behandlingsvedlegg
         versjon = 1
     }
-    if(behandlingsvedlegg) {
+    if (behandlingsvedlegg) {
         tilknyttetJournalpostSomKode = PaleConstant.vedlegg.string
     }
-    tilknyttetJournalpostSomKode =  PaleConstant.houveddokument.string
-    tilknyttetAvNavn =  PaleConstant.eiaAuto.string
+    tilknyttetJournalpostSomKode = PaleConstant.houveddokument.string
+    tilknyttetAvNavn = PaleConstant.eiaAuto.string
     versjon = 1
 }

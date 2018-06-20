@@ -13,7 +13,7 @@ class PostNORG2RuleFlowTest {
     fun shouldCreateOutcomeTypePersonHasNoNavKontorWhenEmptyEnghetId() {
         val navKontor = Organisasjonsenhet().apply {
             enhetId = ""
-            enhetNavn =  "NAV Sagene"
+            enhetNavn = "NAV Sagene"
         }
 
         val outcomeList = postNORG2Flow(navKontor)
@@ -26,7 +26,7 @@ class PostNORG2RuleFlowTest {
     fun shouldNotCreateOutcomeTypePersonHasNoNavKontor() {
         val navKontor = Organisasjonsenhet().apply {
             enhetId = "1234"
-            enhetNavn =  "NAV Sagene"
+            enhetNavn = "NAV Sagene"
         }
 
         val outcomeList = postNORG2Flow(navKontor)
@@ -34,5 +34,4 @@ class PostNORG2RuleFlowTest {
 
         Assert.assertEquals(null, outcome?.outcomeType)
     }
-
 }

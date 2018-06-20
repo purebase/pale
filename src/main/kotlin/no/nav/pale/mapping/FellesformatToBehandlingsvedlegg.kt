@@ -3,9 +3,13 @@ package no.nav.pale.mapping
 import no.nav.pale.model.Behandlingsvedlegg
 import no.nav.pale.model.BehandlingsvedleggSender
 import no.nav.pale.model.Merknad
-import no.nav.pale.validation.*
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.HealthcareProfessional
+import no.nav.pale.validation.Outcome
+import no.nav.pale.validation.Priority
+import no.nav.pale.validation.extractDoctorIdentFromSender
+import no.nav.pale.validation.extractLegeerklaering
+import no.nav.pale.validation.extractPersonIdent
 import java.time.ZonedDateTime
 
 fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: List<Outcome>): Behandlingsvedlegg {
@@ -48,5 +52,5 @@ fun HealthcareProfessional.formatName(): String = if (middleName == null) {
     "${familyName.toUpperCase()} ${givenName.toUpperCase()} ${middleName.toUpperCase()}"
 }
 
-fun List<Outcome>.toMerknader():List<Merknad> =
+fun List<Outcome>.toMerknader(): List<Merknad> =
         this.map { Merknad(it.formattedMessage, it.outcomeType.messageNumber) }

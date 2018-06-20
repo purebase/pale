@@ -24,35 +24,21 @@ buildscript {
     ext.commons_text_version = "1.3"
 
 
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven {
-            name "JCenter Gradle Plugins"
-            url  "https://dl.bintray.com/gradle/gradle-plugins"
-        }
-
-        maven {
-            name "Gradle plugin portal"
-            url "https://plugins.gradle.org/m2/"
-        }
-
-    }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.14.0"
-    }
 }
+plugins {
+    id 'org.jmailen.kotlinter' version '1.12.0'
+    id 'com.github.ben-manes.versions' version '0.18.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.2.50'
+    id 'application'
+    id 'java'
+    id 'idea'
+    id "com.commercehub.gradle.plugin.avro" version "0.9.1"
+}
+
 
 group 'no.nav.pale'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'idea'
-apply plugin: 'java'
-apply plugin: 'kotlin'
-apply plugin: "com.commercehub.gradle.plugin.avro"
-apply plugin: 'application'
 
 mainClassName = 'no.nav.pale.PaleApplicationKt'
 

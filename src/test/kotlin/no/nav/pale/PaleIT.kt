@@ -14,14 +14,11 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.runBlocking
-import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.client.PdfClient
 import no.nav.pale.client.Samhandler
 import no.nav.pale.client.SarClient
 import no.nav.pale.utils.randomPort
-import no.nav.pale.validation.extractDoctorIdentFromSender
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
-import no.nav.tjeneste.virksomhet.person.v3.HentPersonResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
@@ -63,9 +60,7 @@ class PaleIT {
                         PaleIT::class.java.getResource("/legeerklaering.xml").toURI())),
                         Charset.forName("ISO-8859-1")),
                 messageOnBoq)
-
     }
-
 
     companion object {
         val log = LoggerFactory.getLogger("pale-it")
@@ -92,7 +87,6 @@ class PaleIT {
 
         private lateinit var producer: MessageProducer
         private lateinit var job: Job
-
 
         lateinit var inputQueue: Queue
         lateinit var arenaQueue: Queue
@@ -254,5 +248,4 @@ class PaleIT {
             })
         }
     }
-    
 }

@@ -237,14 +237,10 @@ fun defaultFellesformat(): EIFellesformat {
                                 }
                             }
                             arsakssammenhengLegeerklaring = fairy.textProducer().paragraph()
-
                         })
-
-
                     }
                 }
             })
-
         }
         mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
             ediLoggId = UUID.randomUUID().toString()
@@ -326,7 +322,7 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
     var checksum1 = 0
 
     for (i in 0..7) {
-        val currNum = orgNumber[i]-'0'
+        val currNum = orgNumber[i] - '0'
         checksum1 += currNum * lookup1[i]
     }
 
@@ -337,7 +333,7 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
     if (checksum1Final == 10)
         return false
 
-    return orgNumber[8]-'0' == checksum1Final
+    return orgNumber[8] - '0' == checksum1Final
 }
 
 fun generatePersonNumber(bornDate: LocalDate): String {
@@ -348,6 +344,5 @@ fun generatePersonNumber(bornDate: LocalDate): String {
                 validatePersonAndDNumber(it)
             }
 }
-fun List<Int>.randomElement()
-        = if (this.isEmpty()) null else this[Random().nextInt(this.size)]
-
+fun List<Int>.randomElement() =
+        if (this.isEmpty()) null else this[Random().nextInt(this.size)]

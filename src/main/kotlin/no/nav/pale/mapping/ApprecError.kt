@@ -1,6 +1,6 @@
 package no.nav.pale.mapping
 
-enum class ApprecError(val v: String, val dn: String, val s: String){
+enum class ApprecError(val v: String, val dn: String, val s: String) {
     SIGNATURE_ERROR("S01", "Feil på signatur", "2.16.578.1.12.4.1.1.8221"),
     MISSING_PATIENT_INFO("E36", "Pasientopplysninger er utilstrekkelige", "2.16.578.1.12.4.1.1.8221"),
     BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
@@ -17,5 +17,5 @@ enum class ApprecError(val v: String, val dn: String, val s: String){
             "2.16.578.1.12.4.1.1.8222"),
     DUPLICAT("54", "Duplikat! - Denne legeerklæringen meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
             "2.16.578.1.12.4.1.1.8222")
-    //All available apprecs for legeerklæring(OID=8222) are here: https://volven.no/produkt.asp?id=335023&catID=3&subID=8
+    // All available apprecs for legeerklæring(OID=8222) are here: https://volven.no/produkt.asp?id=335023&catID=3&subID=8
 }

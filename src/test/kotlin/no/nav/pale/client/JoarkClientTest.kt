@@ -19,7 +19,6 @@ class JoarkClientTest {
     val requestWithOutcomes = createJoarkRequest(fellesformat, fagmeldingBytes, behandlingsvedleggBytes, false)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
-
     @Test
     fun shouldSetbegrensetPartsinnsynFraTredjePartOnFagmelding() {
 
@@ -30,14 +29,14 @@ class JoarkClientTest {
     @Test
     fun shouldSetFilnavnToEdiloggidFagmelding() {
 
-        Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId+".pdf",
+        Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId + ".pdf",
                 requestZeroOutcomes.journalpostDokumentInfoRelasjonListe[0].dokumentInfo.fildetaljerListe[0].filnavn)
     }
 
     @Test
     fun shouldSetFilnavnToEdiloggidBehandlingsvedlegg() {
 
-          Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId+"-behandlingsvedlegg.pdf",
+          Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId + "-behandlingsvedlegg.pdf",
                   requestWithOutcomes.journalpostDokumentInfoRelasjonListe[1].dokumentInfo.fildetaljerListe[0].filnavn)
     }
 
@@ -243,7 +242,7 @@ class JoarkClientTest {
     @Test
     fun shouldSetavsenderMottaker() {
 
-        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
+        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase() + " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase(), requestZeroOutcomes.avsenderMottaker)
     }

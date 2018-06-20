@@ -11,7 +11,7 @@ fun validatePersonDNumberMod11(personNumber: String): Boolean {
     var checksum2 = 0
 
     for (i in 0..9) {
-        val currNum = (personNumber[i]-'0')
+        val currNum = (personNumber[i] - '0')
         checksum1 += currNum * lookup1[i]
         checksum2 += currNum * lookup2[i]
     }
@@ -22,9 +22,9 @@ fun validatePersonDNumberMod11(personNumber: String): Boolean {
     val checksum1Final = if (checksum1 == 0) 0 else 11 - checksum1
     val checksum2Final = if (checksum2 == 0) 0 else 11 - checksum2
 
-    return checksum1Final != 10
-            && personNumber[9]-'0' == checksum1Final
-            && personNumber[10]-'0' == checksum2Final
+    return checksum1Final != 10 &&
+            personNumber[9] - '0' == checksum1Final &&
+            personNumber[10] - '0' == checksum2Final
 }
 
 private fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
@@ -34,7 +34,6 @@ private fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
 
 fun validatePersonAndDNumber(personNumber: String): Boolean =
         validatePersonDNumberMod11(personNumber) && validatePersonAndPersonDNumberRange(personNumber)
-
 
 fun validatePersonAndDNumber11Digits(personNumber: String): Boolean =
         personNumber.length == 11

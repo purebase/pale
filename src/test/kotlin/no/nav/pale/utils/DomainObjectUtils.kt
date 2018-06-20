@@ -7,18 +7,17 @@ import no.nav.tjeneste.virksomhet.person.v3.HentPersonResponse
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 
 class DomainObjectUtils {
-    fun createHentPersonResponse(fellesformat: EIFellesformat,relationType: RelationType):
-            HentPersonResponse = HentPersonResponse().apply{
+    fun createHentPersonResponse(fellesformat: EIFellesformat, relationType: RelationType):
+            HentPersonResponse = HentPersonResponse().apply {
         response.apply {
             person.apply {
                 val familierelasjon = familierelasjon( relationType.kodeverkVerdi, fellesformat)
                 harFraRolleI.add(familierelasjon)
             }
         }
-
     }
 
-    fun familierelasjon(faimilierelasjon: String, fellesformat: EIFellesformat): Familierelasjon =  Familierelasjon().apply {
+    fun familierelasjon(faimilierelasjon: String, fellesformat: EIFellesformat): Familierelasjon = Familierelasjon().apply {
         tilRolle = Familierelasjoner().apply {
             value = faimilierelasjon
         }

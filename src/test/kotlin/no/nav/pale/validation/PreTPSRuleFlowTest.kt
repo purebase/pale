@@ -1,6 +1,5 @@
 package no.nav.pale.validation
 
-
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -26,7 +25,6 @@ class PreTPSRuleFlowTest {
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_IS_OVER_70 }
 
         Assert.assertEquals(OutcomeType.PATIENT_IS_OVER_70, outcome?.outcomeType)
-
     }
 
     @Test
@@ -37,7 +35,5 @@ class PreTPSRuleFlowTest {
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_IS_PATIENT }
 
         Assert.assertEquals(OutcomeType.BEHANDLER_IS_PATIENT, outcome?.outcomeType)
-
     }
-
 }

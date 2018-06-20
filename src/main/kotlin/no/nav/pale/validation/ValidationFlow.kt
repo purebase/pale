@@ -47,13 +47,11 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
                 apprecError = ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA)
     }
 
-
     val firstName = extractPatientFirstName(legeerklaering)
     if (firstName == null || firstName.trim().isEmpty()) {
         outcome += OutcomeType.PATIENT_FIRST_NAME_NOT_FOUND.toOutcome(
                 apprecError = ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA)
     }
-
 
     if (extractSignatureDate(fellesformat).isAfter(LocalDateTime.now())) {
         outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(

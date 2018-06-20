@@ -1,6 +1,5 @@
 package no.nav.pale.validation
 
-
 import no.nav.pale.validatePersonAndDNumber
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -37,5 +36,4 @@ class ValidatePersonNumberTest {
     fun shouldFailWhenChecksum1FinalIs10() {
         assertFalse(validatePersonAndDNumber("30083104414"))
     }
-
 }

@@ -6,8 +6,12 @@ import no.nav.pale.model.Pasient
 import no.nav.pale.model.Prognose
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
-import no.nav.model.pale.*
 import no.nav.model.msghead.MsgHeadCS
+import no.nav.model.pale.AktueltTiltak
+import no.nav.model.pale.Arbeidssituasjon
+import no.nav.model.pale.DiagnoseArbeidsuforhet
+import no.nav.model.pale.Enkeltdiagnose
+import no.nav.model.pale.Legeerklaring
 import java.time.ZonedDateTime
 
 fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
@@ -93,9 +97,9 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
             signatur = Signatur(
                     dato = ZonedDateTime.now(),
                     navn = "${healthcareProfessional.familyName}, ${healthcareProfessional.givenName} ${healthcareProfessional.middleName}",
-                    //adresse = healthcareProfessional.address.streetAdr,
-                    //postnummer = healthcareProfessional.address.postalCode.toInt(),
-                    //poststed = healthcareProfessional.address.city,
+                    // adresse = healthcareProfessional.address.streetAdr,
+                    // postnummer = healthcareProfessional.address.postalCode.toInt(),
+                    // poststed = healthcareProfessional.address.city,
                     adresse = fellesformat.msgHead.msgInfo.sender.organisation.address.streetAdr,
                     postnummer = fellesformat.msgHead.msgInfo.sender.organisation.address.postalCode.toInt(),
                     poststed = fellesformat.msgHead.msgInfo.sender.organisation.address.city,
@@ -115,7 +119,6 @@ enum class PhoneType(val v: String, val dn: String) {
     }
 }
 
-
 fun mapEnkeltDiagnoseToDiagnose(enkeltdiagnose: Enkeltdiagnose): Diagnose =
         Diagnose(tekst = enkeltdiagnose.diagnose, kode = enkeltdiagnose.kodeverdi)
 
@@ -127,7 +130,6 @@ fun mapLegeerklaeringToSykdomDiagnose(diagnose: DiagnoseArbeidsuforhet): Sykdoms
         statusPresens = diagnose.statusPresens,
         boerNavKontoretVurdereOmDetErEnYrkesskade = diagnose.vurderingYrkesskade.borVurderes.toInt() == 1
 )
-
 
 fun legeerklaeringToPasient(legeerklaering: Legeerklaring): Pasient {
     val patient = legeerklaering.pasientopplysninger.pasient

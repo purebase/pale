@@ -20,8 +20,8 @@ fun configureSTSFor(service: Any, username: String, password: String, endpoint: 
     client.requestContext[SecurityConstants.STS_CLIENT] = createSystemUserSTSClient(client, username, password, endpoint, true)
 }
 
-fun createSystemUserSTSClient(client: Client, username: String, password: String, loc: String, cacheTokenInEndpoint: Boolean): STSClient
-        = STSClientWSTrust13And14(client.bus).apply {
+fun createSystemUserSTSClient(client: Client, username: String, password: String, loc: String, cacheTokenInEndpoint: Boolean): STSClient =
+        STSClientWSTrust13And14(client.bus).apply {
     location = loc
     properties = mapOf(
             SecurityConstants.USERNAME to username,
@@ -43,8 +43,6 @@ fun createSystemUserSTSClient(client: Client, username: String, password: String
     val endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null, soapMessage)
     policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, soapMessage))
 }
-
-
 
 class STSClientWSTrust13And14(b: Bus?) : STSClient(b) {
     override fun useSecondaryParameters(): Boolean = false

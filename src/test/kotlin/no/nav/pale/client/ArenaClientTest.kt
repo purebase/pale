@@ -16,9 +16,7 @@ import org.junit.Test
 import java.time.LocalDate
 import java.util.*
 
-
-
-class ArenaClientTest{
+class ArenaClientTest {
 
     private val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
     private val legeerklaring: Legeerklaring = extractLegeerklaering(fellesformat)
@@ -72,7 +70,7 @@ class ArenaClientTest{
 
     @Test
     fun shouldSetLegeDataNavn() {
-        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase()+ " " +
+        Assert.assertEquals(fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName.toUpperCase() + " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName.toUpperCase() + " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName.toUpperCase(), request.legeData.navn)
     }
@@ -87,7 +85,7 @@ class ArenaClientTest{
         Assert.assertEquals(tssid, request.legeData.tssid)
     }
 
-    //TODO se TODO sjekke med arena om dette benyttes vi tror ikkje det
+    // TODO se TODO sjekke med arena om dette benyttes vi tror ikkje det
     @Ignore
     @Test
     fun shouldSetEiaDataSystemSvar() {
@@ -102,20 +100,18 @@ class ArenaClientTest{
         Assert.assertEquals(outcomes[1].outcomeType.messageType.type, request.eiaData.systemSvar[1].meldingsType)
     }
 
-    //TODO se TODO sjekke med arena om dette benyttes vi tror ikkje det
+    // TODO se TODO sjekke med arena om dette benyttes vi tror ikkje det
     @Ignore
     @Test
     fun shouldSetEiaDataSignaturDato() {
 
         val expectedCurrentDate = newInstance.newXMLGregorianCalendar(GregorianCalendar().apply {
             set(fellesformat.msgHead.msgInfo.genDate.year,
-                    fellesformat.msgHead.msgInfo.genDate.month,fellesformat.msgHead.msgInfo.genDate.day)
+                    fellesformat.msgHead.msgInfo.genDate.month, fellesformat.msgHead.msgInfo.genDate.day)
         })
 
         Assert.assertEquals(expectedCurrentDate.day, request.eiaData.signaturDato.day)
         Assert.assertEquals(expectedCurrentDate.hour, request.eiaData.signaturDato.hour)
         Assert.assertEquals(expectedCurrentDate.minute, request.eiaData.signaturDato.minute)
-
     }
-
 }

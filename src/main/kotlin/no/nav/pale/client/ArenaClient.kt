@@ -2,15 +2,13 @@ package no.nav.pale.client
 
 import no.nav.pale.PaleConstant
 import no.nav.pale.getHCPFodselsnummer
-import no.nav.pale.newInstance
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.formatName
-import java.util.*
 
-fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outcome>, tssId: String?, sperrekode: Int? = null,navkontor : String?): ArenaEiaInfo = ArenaEiaInfo().apply {
+fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outcome>, tssId: String?, sperrekode: Int? = null, navkontor: String?): ArenaEiaInfo = ArenaEiaInfo().apply {
     val legeerklaering = extractLegeerklaering(fellesformat)
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
     ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
@@ -22,7 +20,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, outcomeTypeList: List<Outco
         fnr = legeerklaering.pasientopplysninger.pasient.fodselsnummer
         isSperret = false
         tkNummer = navkontor
-        if (sperrekode != null && (sperrekode == 6 || sperrekode == 7)){
+        if (sperrekode != null && (sperrekode == 6 || sperrekode == 7)) {
             spesreg = sperrekode
         }
     }

@@ -7,11 +7,7 @@ import org.junit.Test
 import java.util.*
 import javax.xml.datatype.DatatypeFactory
 
-
-
-
 class PostTPSRuleFlowTest {
-
 
     val fellesformat = readToFellesformat("/legeerklaering.xml")
 
@@ -35,7 +31,6 @@ class PostTPSRuleFlowTest {
         val patient = Person().apply {
             val familierelasjon = familierelasjon("EKTE")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
@@ -50,7 +45,6 @@ class PostTPSRuleFlowTest {
         val patient = Person().apply {
             val familierelasjon = familierelasjon("SAMB")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
@@ -65,7 +59,6 @@ class PostTPSRuleFlowTest {
         val patient = Person().apply {
             val familierelasjon = familierelasjon("REPA")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
@@ -80,13 +73,11 @@ class PostTPSRuleFlowTest {
         val patientFARA = Person().apply {
             val familierelasjon = familierelasjon("FARA")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val patientMORA = Person().apply {
             val familierelasjon = familierelasjon("MORA")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val outcomeListFARA = postTPSFlow(fellesformat, patientFARA)
@@ -98,14 +89,12 @@ class PostTPSRuleFlowTest {
         assertEquals(OutcomeType.PARENT_TO_PATIENT, outcomeMORA?.outcomeType)
     }
 
-
     @Test
     fun shouldCreateOutcomeTypeBarnAvPasient() {
 
         val patient = Person().apply {
             val familierelasjon = familierelasjon("BARN")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
@@ -120,7 +109,6 @@ class PostTPSRuleFlowTest {
         val patient = Person().apply {
             val familierelasjon = familierelasjon("GLAD")
             harFraRolleI.add(familierelasjon)
-
         }
 
         val outcomeList = postTPSFlow(fellesformat, patient)
@@ -128,8 +116,6 @@ class PostTPSRuleFlowTest {
 
         assertEquals(OutcomeType.MARIED_LIVES_SEPERATED, outcome?.outcomeType)
     }
-
-
 
     @Test
     fun shouldCreateRuntimeExceptionWhenPersonHarFraRollItilRolleValueIsNull() {
@@ -151,15 +137,13 @@ class PostTPSRuleFlowTest {
                         }
                     }
                 }
-
             }
             harFraRolleI.add(familierelasjon)
         }
 
         try {
             postTPSFlow(fellesformat, patient)
-        }
-        catch (e: RuntimeException) {
+        } catch (e: RuntimeException) {
             assertEquals("relations.tilRolle.value must not be null", e.message)
         }
     }
@@ -173,8 +157,6 @@ class PostTPSRuleFlowTest {
                     value = "UTVA"
                 }
             }
-
-
         }
         val outcomeList = postTPSFlow(fellesformat, patient)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_EMIGRATED }
@@ -182,8 +164,7 @@ class PostTPSRuleFlowTest {
         assertEquals(OutcomeType.PATIENT_EMIGRATED, outcome?.outcomeType)
     }
 
-
-    fun familierelasjon(faimilierelasjon: String): Familierelasjon  =  Familierelasjon().apply {
+    fun familierelasjon(faimilierelasjon: String): Familierelasjon = Familierelasjon().apply {
         tilRolle = Familierelasjoner().apply {
             value = faimilierelasjon
         }

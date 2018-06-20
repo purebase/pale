@@ -18,4 +18,3 @@ fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> {
     collectFlowStatistics(outcome)
     return outcome
 }
-

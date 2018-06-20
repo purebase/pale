@@ -1,8 +1,15 @@
 package no.nav.pale.mapping
 
+import no.nav.model.apprec.AdditionalId
+import no.nav.model.apprec.AppRec
+import no.nav.model.apprec.AppRecCS
+import no.nav.model.apprec.AppRecCV
+import no.nav.model.apprec.HCP
+import no.nav.model.apprec.HCPerson
+import no.nav.model.apprec.Inst
+import no.nav.model.apprec.OriginalMsgId
 import no.nav.pale.PaleConstant
 import no.nav.pale.newInstance
-import no.nav.model.apprec.*
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.HealthcareProfessional
 import no.nav.model.msghead.Ident

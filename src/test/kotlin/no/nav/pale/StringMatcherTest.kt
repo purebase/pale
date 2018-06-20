@@ -1,4 +1,3 @@
 package no.nav.pale
 
-class StringMatcherTest {
-}
+class StringMatcherTest

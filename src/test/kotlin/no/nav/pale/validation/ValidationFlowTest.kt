@@ -5,7 +5,7 @@ import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class ValidationFlowTest{
+class ValidationFlowTest {
 
     @Test
     fun shouldCreatePatientPersonNumberNotFound() {
@@ -15,7 +15,6 @@ class ValidationFlowTest{
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND }
 
         Assert.assertEquals(OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND, outcome?.outcomeType)
-
     }
 
     @Test
@@ -34,14 +33,12 @@ class ValidationFlowTest{
     fun shouldCreateOutcomePatientPersonNumberNot11Digits() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPersonnummerIkke11Tegn.xml")
         val name = extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
-                " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn +
-                " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn
+                " " + extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn +
+                " " + extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn
         val fnr = extractPersonIdent(extractLegeerklaering(fellesformat))
         val fnrlengt = extractPersonIdent(extractLegeerklaering(fellesformat))!!.length
 
-
         val excpectederknadsTekst = "$name sitt fødselsnummer eller D-nummer $fnr er ikke 11 tegn. Det er $fnrlengt tegn langt."
-
 
         val outcome = validationFlow(fellesformat).find { it.outcomeType == OutcomeType.PERSON_NUMBER_NOT_11_DIGITS }
 
@@ -52,7 +49,7 @@ class ValidationFlowTest{
     @Test
     fun shouldCreateOutcomeDoctorPersonNumberNot11Digits() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPersonnummerIkke11Tegn.xml")
-        val name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
+        val name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName +
                 " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 " " +
@@ -60,9 +57,7 @@ class ValidationFlowTest{
         val fnr = extractDoctorIdentFromSender(fellesformat)
         val personNumberLength = extractDoctorIdentFromSender(fellesformat)!!.id.length
 
-
         val excpectederknadsTekst = "$name sitt fødselsnummer eller D-nummer $fnr er ikke 11 tegn. Det er $personNumberLength tegn langt."
-
 
         val outcome = validationFlow(fellesformat).findLast { it.outcomeType == OutcomeType.PERSON_NUMBER_NOT_11_DIGITS }
 
@@ -74,12 +69,11 @@ class ValidationFlowTest{
     fun shouldCreateOutcomePasientInvaldigPersonOrDnummber() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringInvalidFodselsnumer.xml")
         val name = extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
-                " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn +
-                " "+ extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn
+                " " + extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.fornavn +
+                " " + extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.mellomnavn
         val fnr = extractPersonIdent(extractLegeerklaering(fellesformat))
 
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret $name til $fnr er feil."
-
 
         val outcome = validationFlow(fellesformat).find { it.outcomeType == OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER }
 
@@ -90,7 +84,7 @@ class ValidationFlowTest{
     @Test
     fun shouldCreateOutcomeDoctorInvaldigPersonOrDnummber() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringInvalidFodselsnumer.xml")
-        val name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName+
+        val name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName +
                 " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 " " +
@@ -98,7 +92,6 @@ class ValidationFlowTest{
         val fnr = extractDoctorIdentFromSender(fellesformat)
 
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret $name til $fnr er feil."
-
 
         val outcome = validationFlow(fellesformat).findLast { it.outcomeType == OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER }
 
@@ -137,7 +130,7 @@ class ValidationFlowTest{
     fun shouldCreateOutcomeDoctorSignatureSchemaToNew() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringDoctorSignatureSchemaToNew.xml")
 
-        val messagerecived =  fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
+        val messagerecived = fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
         val messagesign = fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
         val excpectederknadsTekst = "Melding mottatt til behandling i dag $messagerecived er signert med dato $messagesign, og avvises"
 

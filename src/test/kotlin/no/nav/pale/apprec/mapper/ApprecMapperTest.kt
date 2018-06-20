@@ -15,19 +15,18 @@ import javax.xml.datatype.DatatypeFactory
 class ApprecMapperTest {
 
     val inputMeldingFellesformat = readToFellesformat("/legeerklaering.xml")
-    val apprecStatusOK =  ApprecStatus.ok
-    val apprecStatusAvvist =  ApprecStatus.avvist
+    val apprecStatusOK = ApprecStatus.ok
+    val apprecStatusAvvist = ApprecStatus.avvist
     val apprecFellesformatOK = createApprec(inputMeldingFellesformat, apprecStatusOK)
     val apprecFellesformatDuplikat = createApprec(inputMeldingFellesformat, apprecStatusAvvist)
     val apprecFellesformaBehanderlPersonNumberNotValid = createApprec(inputMeldingFellesformat, apprecStatusAvvist)
     val expectedCurrentDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
 
     @Before
-    fun setup(){
+    fun setup() {
         apprecFellesformatDuplikat.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
         apprecFellesformaBehanderlPersonNumberNotValid.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
     }
-
 
     @Test
     fun shouldCreateApprecWithMottakenhetBlokkEdiLoggId() {
@@ -64,7 +63,6 @@ class ApprecMapperTest {
 
         assertEquals(PaleConstant.APPRECVersionV1_0.string, apprecFellesformatOK.appRec.miGversion)
     }
-
 
     @Test
     fun shouldCreateApprecOKWithMGenDate() {
@@ -158,7 +156,6 @@ class ApprecMapperTest {
 
         assertEquals(apprecStatusOK.dn, apprecFellesformatOK.appRec.status.dn)
     }
-
 
     @Test
     fun shouldCreateApprecDuplikatWithStatusDnIsAvist() {
