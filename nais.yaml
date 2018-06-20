@@ -43,7 +43,7 @@ fasitResources:
       resourceType: QueueManager
     - alias: pale_input
       resourceType: Queue
-    - alias: pale_backout_queue
+    - alias: mottak_queue_utsending
       resourceType: Queue
     - alias: pale_arena_queue
       resourceType: Queue
