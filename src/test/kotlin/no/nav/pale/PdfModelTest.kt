@@ -122,7 +122,7 @@ class PdfModelTest {
         val pdfModel = mapFellesformatToFagmelding(defaultFellesformat())
 
         println(TimeZone.getDefault().id)
-        println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra.zone.id)
+        println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra?.zone?.id)
         println(pdfModel.signatur.dato.zone.id)
         println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra)
         println(objectMapper.writeValueAsString(pdfModel))
