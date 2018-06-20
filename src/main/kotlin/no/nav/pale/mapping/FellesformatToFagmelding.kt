@@ -75,7 +75,7 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     iIntektsgivendeArbeid = ArbeidssituasjonType.InntektsgivendeArbeid in funksjonsevne.arbeidssituasjon,
                     hjemmearbeidende = ArbeidssituasjonType.Hjemmearbeidende in funksjonsevne.arbeidssituasjon,
                     student = ArbeidssituasjonType.Student in funksjonsevne.arbeidssituasjon,
-                    annetArbeid = funksjonsevne.arbeidssituasjon?.find { it.arbeidssituasjon.toInt() == ArbeidssituasjonType.Annet.type }?.annenArbeidssituasjon,
+                    annetArbeid = funksjonsevne.arbeidssituasjon?.find { it.arbeidssituasjon.toInt() == ArbeidssituasjonType.Annet?.type }?.annenArbeidssituasjon,
                     kravTilArbeid = funksjonsevne.kravArbeid,
                     kanGjenopptaTidligereArbeid = funksjonsevne.vurderingArbeidsevne.gjenopptaArbeid.toInt() == 1,
                     kanGjenopptaTidligereArbeidNaa = funksjonsevne.vurderingArbeidsevne.narGjenopptaArbeid.toInt() == 1,
