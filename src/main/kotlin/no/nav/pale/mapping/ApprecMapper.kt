@@ -54,7 +54,7 @@ fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFe
 }
 
 fun HealthcareProfessional.intoHCPerson(): HCPerson = HCPerson().apply {
-    if (middleName.equals(null) /*|| middleName.equals("null")*/)
+    if (middleName == null /*|| middleName.equals("null")*/)
     {
         middleName = ""
     }
