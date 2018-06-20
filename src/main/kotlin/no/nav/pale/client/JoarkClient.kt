@@ -53,7 +53,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
 fun mapfellesformatToDokumentInfoRelasjon(fellesformat: EIFellesformat, behandlingsvedlegg: Boolean, pdfDocumentBase64: ByteArray):
         JournalpostDokumentInfoRelasjon = JournalpostDokumentInfoRelasjon().apply {
     dokumentInfo = DokumentInfo().apply {
-        begrensetPartsinnsynFraTredjePart = extractLegeerklaering(fellesformat).forbeholdLegeerklaring.tilbakeholdInnhold.toInt() != 2
+        begrensetPartsinnsynFraTredjePart = extractLegeerklaering(fellesformat).forbeholdLegeerklaring?.tilbakeholdInnhold?.toInt() != 2
 
         fildetaljerListe.add(Fildetaljer().apply {
             fil = pdfDocumentBase64
