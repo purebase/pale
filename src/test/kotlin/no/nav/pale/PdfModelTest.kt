@@ -14,7 +14,6 @@ import no.nav.pale.model.Plan
 import no.nav.pale.model.Prognose
 import no.nav.pale.model.Signatur
 import no.nav.pale.model.SykdomsOpplysninger
-import no.nav.pale.utils.readToFellesformat
 import org.junit.Test
 import java.time.ZonedDateTime
 import java.util.TimeZone
