@@ -2,11 +2,22 @@ package no.nav.pale
 
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.mapping.mapFellesformatToFagmelding
-import no.nav.pale.model.*
+import no.nav.pale.model.Arbeidsgiver
+import no.nav.pale.model.Diagnose
+import no.nav.pale.model.Fagmelding
+import no.nav.pale.model.ForslagTilTiltak
+import no.nav.pale.model.FunksjonsOgArbeidsevne
+import no.nav.pale.model.Henvisning
+import no.nav.pale.model.Kontakt
+import no.nav.pale.model.Pasient
+import no.nav.pale.model.Plan
+import no.nav.pale.model.Prognose
+import no.nav.pale.model.Signatur
+import no.nav.pale.model.SykdomsOpplysninger
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Test
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.TimeZone
 
 class PdfModelTest {
 
@@ -118,7 +129,6 @@ class PdfModelTest {
     @Test
     fun testFellesformatToFagmelding() {
         val fellesformat = readToFellesformat("/legeerklaering.xml")
-        // val pdfModel = mapFellesformatToFagmelding(fellesformat)
         val pdfModel = mapFellesformatToFagmelding(defaultFellesformat())
 
         println(TimeZone.getDefault().id)

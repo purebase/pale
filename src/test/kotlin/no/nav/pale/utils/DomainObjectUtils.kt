@@ -4,7 +4,11 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.RelationType
 import no.nav.pale.validation.extractDoctorIdentFromSender
 import no.nav.tjeneste.virksomhet.person.v3.HentPersonResponse
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
 
 class DomainObjectUtils {
     fun createHentPersonResponse(fellesformat: EIFellesformat, relationType: RelationType):

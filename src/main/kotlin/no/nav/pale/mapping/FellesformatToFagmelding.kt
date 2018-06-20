@@ -1,6 +1,5 @@
 package no.nav.pale.mapping
 
-import no.nav.pale.model.*
 import no.nav.pale.model.Kontakt
 import no.nav.pale.model.Pasient
 import no.nav.pale.model.Prognose
@@ -12,6 +11,15 @@ import no.nav.model.pale.Arbeidssituasjon
 import no.nav.model.pale.DiagnoseArbeidsuforhet
 import no.nav.model.pale.Enkeltdiagnose
 import no.nav.model.pale.Legeerklaring
+import no.nav.pale.model.Arbeidsgiver
+import no.nav.pale.model.Diagnose
+import no.nav.pale.model.Fagmelding
+import no.nav.pale.model.ForslagTilTiltak
+import no.nav.pale.model.FunksjonsOgArbeidsevne
+import no.nav.pale.model.Henvisning
+import no.nav.pale.model.Plan
+import no.nav.pale.model.Signatur
+import no.nav.pale.model.SykdomsOpplysninger
 import java.time.ZonedDateTime
 
 fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {

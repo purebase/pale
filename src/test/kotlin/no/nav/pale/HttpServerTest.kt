@@ -1,12 +1,17 @@
 package no.nav.pale
 
 import io.ktor.server.engine.ApplicationEngine
-import no.nav.pale.metrics.*
+import no.nav.pale.metrics.APPREC_ERROR_COUNTER
+import no.nav.pale.metrics.APPREC_STATUS_COUNTER
+import no.nav.pale.metrics.INPUT_MESSAGE_TIME
+import no.nav.pale.metrics.RULE_COUNTER
+import no.nav.pale.metrics.WS_CALL_TIME
 import no.nav.pale.utils.randomPort
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
-import org.junit.Assert.*
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Test
 

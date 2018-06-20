@@ -1,10 +1,18 @@
 package no.nav.pale.validation
 
 import no.nav.pale.utils.readToFellesformat
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.*
+import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
 
 class PostTPSRuleFlowTest {

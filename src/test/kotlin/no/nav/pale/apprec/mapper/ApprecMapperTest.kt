@@ -9,7 +9,7 @@ import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
 
 class ApprecMapperTest {
@@ -104,7 +104,7 @@ class ApprecMapperTest {
 
     @Test
     fun shouldCreateApprecOKWithApprecSenderHCPInstAdditionalIdFirstId() {
-         assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[1].id, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].id)
+        assertEquals(inputMeldingFellesformat.msgHead.msgInfo.receiver.organisation.ident[1].id, apprecFellesformatOK.appRec.sender.hcp.inst.additionalId[0].id)
     }
 
     @Test

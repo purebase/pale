@@ -20,7 +20,6 @@ import no.nav.pale.client.SarClient
 import no.nav.pale.utils.randomPort
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl
 import org.apache.activemq.artemis.core.server.ActiveMQServer
@@ -43,7 +42,12 @@ import redis.clients.jedis.Jedis
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
-import javax.jms.*
+import javax.jms.ConnectionFactory
+import javax.jms.Connection
+import javax.jms.Queue
+import javax.jms.MessageProducer
+import javax.jms.TextMessage
+import javax.jms.BytesMessage
 import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 

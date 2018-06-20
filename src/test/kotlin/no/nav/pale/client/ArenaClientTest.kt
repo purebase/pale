@@ -1,6 +1,5 @@
 package no.nav.pale.client
 
-import no.nav.pale.*
 import no.nav.pale.datagen.generatePersonNumber
 import no.nav.pale.mapping.ApprecError
 import no.nav.pale.validation.OutcomeType
@@ -9,12 +8,15 @@ import no.nav.pale.validation.toOutcome
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.pale.Legeerklaring
+import no.nav.pale.PaleConstant
+import no.nav.pale.getHCPFodselsnummer
+import no.nav.pale.newInstance
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test
 import java.time.LocalDate
-import java.util.*
+import java.util.GregorianCalendar
 
 class ArenaClientTest {
 

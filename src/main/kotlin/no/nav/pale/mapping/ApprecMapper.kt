@@ -15,7 +15,7 @@ import no.nav.model.msghead.HealthcareProfessional
 import no.nav.model.msghead.Ident
 import no.nav.model.msghead.MsgHeadCV
 import no.nav.model.msghead.Organisation
-import java.util.*
+import java.util.GregorianCalendar
 
 fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFellesformat {
     val fellesformatApprec = EIFellesformat().apply {

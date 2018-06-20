@@ -7,7 +7,7 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.meldinger.v1.LagreDokumentOgOpprettJournalpostRequest
 import org.junit.Assert
 import org.junit.Test
-import java.util.*
+import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
 
 class JoarkClientTest {
@@ -36,8 +36,8 @@ class JoarkClientTest {
     @Test
     fun shouldSetFilnavnToEdiloggidBehandlingsvedlegg() {
 
-          Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId + "-behandlingsvedlegg.pdf",
-                  requestWithOutcomes.journalpostDokumentInfoRelasjonListe[1].dokumentInfo.fildetaljerListe[0].filnavn)
+        Assert.assertEquals(fellesformat.mottakenhetBlokk.ediLoggId + "-behandlingsvedlegg.pdf",
+                requestWithOutcomes.journalpostDokumentInfoRelasjonListe[1].dokumentInfo.fildetaljerListe[0].filnavn)
     }
 
     @Test

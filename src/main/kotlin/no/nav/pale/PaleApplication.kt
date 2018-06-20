@@ -59,7 +59,10 @@ import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Geografi
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorRequest
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Informasjonsbehov
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningRequest
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonRequest
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
@@ -409,8 +412,8 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         outcomes.addAll(postSARFlow(samhandlerPraksisMatch.samhandlerPraksis))
     }
 
-    if (outcomes.isEmpty()){
-        outcomes+= OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome()
+    if (outcomes.isEmpty()) {
+        outcomes += OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome()
     }
 
     return outcomes.toResult(samhandlerPraksisMatch?.samhandlerPraksis?.tss_ident)
