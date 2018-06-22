@@ -57,11 +57,11 @@ data class Samhandler(
     val samh_praksis: List<SamhandlerPraksis>,
     val samh_avtale: List<SamhandlerAvtale>,
     val samh_direkte_oppgjor_avtale: List<SamhandlerDirekteOppgjoerAvtale>,
-    val samh_fbv_godkjent_avd: List<SamhandlerUnderAvdelingFBVGodkjent>,
-    val samh_kommentar: List<SamhandlerKommentar>,
-    val samh_saerskilte_takster: List<SamhandlerSaerskileTakster>,
-    val samh_vikar: List<SamhandlerVikar>,
-    val samh_email: List<SamhEmail>
+    val samh_fbv_godkjent_avd: List<SamhandlerUnderAvdelingFBVGodkjent>?,
+    val samh_kommentar: List<SamhandlerKommentar>?,
+    val samh_saerskilte_takster: List<SamhandlerSaerskileTakster>?,
+    val samh_vikar: List<SamhandlerVikar>?,
+    val samh_email: List<SamhEmail>?
 )
 
 data class SamhandlerBregHovedenhet(
