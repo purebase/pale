@@ -144,11 +144,11 @@ data class Kontakt(
 
 data class Signatur(
     val dato: ZonedDateTime,
-    val navn: String,
-    val adresse: String,
-    val postnummer: Int,
-    val poststed: String,
-    val signatur: String,
+    val navn: String?,
+    val adresse: String?,
+    val postnummer: Int?,
+    val poststed: String?,
+    val signatur: String?,
     val tlfNummer: String?
 )
 
