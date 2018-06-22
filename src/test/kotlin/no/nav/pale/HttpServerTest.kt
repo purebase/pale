@@ -3,7 +3,7 @@ package no.nav.pale
 import io.ktor.server.engine.ApplicationEngine
 import no.nav.pale.metrics.APPREC_ERROR_COUNTER
 import no.nav.pale.metrics.APPREC_STATUS_COUNTER
-import no.nav.pale.metrics.INPUT_MESSAGE_TIME
+import no.nav.pale.metrics.REQUEST_TIME
 import no.nav.pale.metrics.RULE_COUNTER
 import no.nav.pale.metrics.WS_CALL_TIME
 import no.nav.pale.utils.randomPort
@@ -65,7 +65,7 @@ class HttpServerTest {
 
     @Test
     fun prometheusReturnsResults() {
-        INPUT_MESSAGE_TIME.startTimer().use {
+        REQUEST_TIME.startTimer().use {
             Thread.sleep(20)
         }
         RULE_COUNTER.labels("test_rule").inc()
