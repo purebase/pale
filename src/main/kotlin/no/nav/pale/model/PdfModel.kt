@@ -129,7 +129,7 @@ data class FunksjonsOgArbeidsevne(
 
 data class Prognose(
     val vilForbedreArbeidsevne: Boolean,
-    val anslaatVarighetSykdom: String,
+    val anslaatVarighetSykdom: String?,
     val anslaatVarighetFunksjonsNedsetting: String,
     val anslaatVarighetNedsattArbeidsevne: String
 )
