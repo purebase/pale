@@ -85,8 +85,8 @@ data class Diagnose(
 data class Plan(
     val utredning: Henvisning?,
     val behandling: Henvisning?,
-    val utredningsplan: String,
-    val behandlingsplan: String,
+    val utredningsplan: String?,
+    val behandlingsplan: String?,
     val vurderingAvTidligerePlan: String?,
     val naarSpoerreOmNyeLegeopplysninger: String?,
     val videreBehandlingIkkeAktuellGrunn: String?
