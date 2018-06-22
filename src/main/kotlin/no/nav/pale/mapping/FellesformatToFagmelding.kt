@@ -75,19 +75,21 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     iIntektsgivendeArbeid = ArbeidssituasjonType.InntektsgivendeArbeid in funksjonsevne.arbeidssituasjon,
                     hjemmearbeidende = ArbeidssituasjonType.Hjemmearbeidende in funksjonsevne.arbeidssituasjon,
                     student = ArbeidssituasjonType.Student in funksjonsevne.arbeidssituasjon,
-                    annetArbeid = funksjonsevne.arbeidssituasjon?.find { it.arbeidssituasjon.toInt() == ArbeidssituasjonType.Annet?.type }?.annenArbeidssituasjon,
+                    annetArbeid = funksjonsevne.arbeidssituasjon?.find { it.arbeidssituasjon?.let {
+                        it.toInt() == ArbeidssituasjonType.Annet?.type
+                    } ?: false }?.annenArbeidssituasjon ?: "",
                     kravTilArbeid = funksjonsevne.kravArbeid,
-                    kanGjenopptaTidligereArbeid = funksjonsevne.vurderingArbeidsevne.gjenopptaArbeid.toInt() == 1,
-                    kanGjenopptaTidligereArbeidNaa = funksjonsevne.vurderingArbeidsevne.narGjenopptaArbeid.toInt() == 1,
-                    kanGjenopptaTidligereArbeidEtterBehandling = funksjonsevne.vurderingArbeidsevne.narGjenopptaArbeid.toInt() == 2,
-                    kanTaAnnetArbeid = funksjonsevne.vurderingArbeidsevne.taAnnetArbeid.toInt() == 1,
-                    kanTaAnnetArbeidNaa = funksjonsevne.vurderingArbeidsevne.narTaAnnetArbeid.toInt() == 1,
-                    kanTaAnnetArbeidEtterBehandling = funksjonsevne.vurderingArbeidsevne.narTaAnnetArbeid.toInt() == 2,
+                    kanGjenopptaTidligereArbeid = funksjonsevne.vurderingArbeidsevne?.gjenopptaArbeid?.toInt() == 1,
+                    kanGjenopptaTidligereArbeidNaa = funksjonsevne.vurderingArbeidsevne?.narGjenopptaArbeid?.toInt() == 1,
+                    kanGjenopptaTidligereArbeidEtterBehandling = funksjonsevne.vurderingArbeidsevne?.narGjenopptaArbeid?.toInt() == 2,
+                    kanTaAnnetArbeid = funksjonsevne.vurderingArbeidsevne?.taAnnetArbeid?.toInt() == 1,
+                    kanTaAnnetArbeidNaa = funksjonsevne.vurderingArbeidsevne?.narTaAnnetArbeid?.toInt() == 1,
+                    kanTaAnnetArbeidEtterBehandling = funksjonsevne.vurderingArbeidsevne?.narTaAnnetArbeid?.toInt() == 2,
                     kanIkkeINaaverendeArbeid = funksjonsevne.vurderingArbeidsevne.ikkeGjore,
                     kanIkkeIAnnetArbeid = funksjonsevne.vurderingArbeidsevne.hensynAnnetYrke
             ),
             prognose = Prognose(
-                    vilForbedreArbeidsevne = prognose.bedreArbeidsevne.toInt() == 1,
+                    vilForbedreArbeidsevne = prognose.bedreArbeidsevne?.toInt() == 1,
                     anslaatVarighetSykdom = prognose.antattVarighet,
                     anslaatVarighetFunksjonsNedsetting = prognose.varighetFunksjonsnedsettelse,
                     anslaatVarighetNedsattArbeidsevne = prognose.varighetNedsattArbeidsevne
@@ -127,16 +129,16 @@ enum class PhoneType(val v: String, val dn: String) {
     }
 }
 
-fun mapEnkeltDiagnoseToDiagnose(enkeltdiagnose: Enkeltdiagnose): Diagnose =
-        Diagnose(tekst = enkeltdiagnose.diagnose, kode = enkeltdiagnose.kodeverdi)
+fun mapEnkeltDiagnoseToDiagnose(enkeltdiagnose: Enkeltdiagnose?): Diagnose =
+        Diagnose(tekst = enkeltdiagnose?.diagnose, kode = enkeltdiagnose?.kodeverdi)
 
 fun mapLegeerklaeringToSykdomDiagnose(diagnose: DiagnoseArbeidsuforhet): SykdomsOpplysninger = SykdomsOpplysninger(
-        hoveddiagnose = mapEnkeltDiagnoseToDiagnose(diagnose.diagnoseKodesystem.enkeltdiagnose[0]),
+        hoveddiagnose = mapEnkeltDiagnoseToDiagnose(diagnose.diagnoseKodesystem.enkeltdiagnose.first()),
         bidiagnose = diagnose.diagnoseKodesystem.enkeltdiagnose.drop(1).map { mapEnkeltDiagnoseToDiagnose(it) },
         arbeidsufoerFra = diagnose.arbeidsuforFra?.toGregorianCalendar()?.toZonedDateTime(),
         sykdomsHistorie = diagnose.symptomerBehandling,
         statusPresens = diagnose.statusPresens,
-        boerNavKontoretVurdereOmDetErEnYrkesskade = diagnose.vurderingYrkesskade.borVurderes.toInt() == 1
+        boerNavKontoretVurdereOmDetErEnYrkesskade = diagnose.vurderingYrkesskade?.borVurderes?.toInt() == 1
 )
 
 fun legeerklaeringToPasient(legeerklaering: Legeerklaring): Pasient {
@@ -191,7 +193,10 @@ enum class ArbeidssituasjonType(val type: Int) {
 }
 
 operator fun Iterable<Arbeidssituasjon>.contains(arbeidssituasjonType: ArbeidssituasjonType): Boolean =
-        any { it.arbeidssituasjon.toInt() == arbeidssituasjonType.type }
+    any { it.arbeidssituasjon?.let {
+        it.toInt() == arbeidssituasjonType.type
+    } ?: false
+}
 
 enum class KontaktType(val type: Int) {
     BehandlendeLege(1),

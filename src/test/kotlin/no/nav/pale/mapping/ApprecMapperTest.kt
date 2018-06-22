@@ -1,10 +1,6 @@
-package no.nav.pale.apprec.mapper
+package no.nav.pale.mapping
 
 import no.nav.pale.PaleConstant
-import no.nav.pale.mapping.ApprecError
-import no.nav.pale.mapping.ApprecStatus
-import no.nav.pale.mapping.createApprec
-import no.nav.pale.mapping.mapApprecErrorToAppRecCV
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert.assertEquals
 import org.junit.Before

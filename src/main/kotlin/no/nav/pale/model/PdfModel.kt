@@ -69,8 +69,8 @@ data class Arbeidsgiver(
 )
 
 data class SykdomsOpplysninger (
-    val hoveddiagnose: Diagnose,
-    val bidiagnose: List<Diagnose>,
+    val hoveddiagnose: Diagnose?,
+    val bidiagnose: List<Diagnose?>,
     val arbeidsufoerFra: ZonedDateTime?,
     val sykdomsHistorie: String,
     val statusPresens: String,
@@ -78,8 +78,8 @@ data class SykdomsOpplysninger (
 )
 
 data class Diagnose(
-    val tekst: String,
-    val kode: String
+    val tekst: String?,
+    val kode: String?
 )
 
 data class Plan(
@@ -115,7 +115,7 @@ data class FunksjonsOgArbeidsevne(
     val iIntektsgivendeArbeid: Boolean,
     val hjemmearbeidende: Boolean,
     val student: Boolean,
-    val annetArbeid: String?,
+    val annetArbeid: String,
     val kravTilArbeid: String,
     val kanGjenopptaTidligereArbeid: Boolean,
     val kanGjenopptaTidligereArbeidNaa: Boolean,
