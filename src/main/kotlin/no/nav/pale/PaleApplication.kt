@@ -36,8 +36,8 @@ import no.nav.pale.mapping.mapFellesformatToFagmelding
 import no.nav.pale.metrics.APPREC_ERROR_COUNTER
 import no.nav.pale.metrics.APPREC_STATUS_COUNTER
 import no.nav.pale.metrics.INCOMING_MESSAGE_COUNTER
-import no.nav.pale.metrics.INPUT_MESSAGE_TIME
 import no.nav.pale.metrics.QueueStatusCollector
+import no.nav.pale.metrics.REQUEST_TIME
 import no.nav.pale.metrics.WS_CALL_TIME
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.OutcomeType
@@ -221,7 +221,7 @@ fun listen(
 
             val fellesformat = fellesformatUnmarshaller.unmarshal(StreamSource(inputMessageText.byteInputStream()), EIFellesformat::class.java).value
             INCOMING_MESSAGE_COUNTER.inc()
-            val inputHistogram = INPUT_MESSAGE_TIME.startTimer()
+            val requestLatency = REQUEST_TIME.startTimer()
 
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
             sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
@@ -314,7 +314,7 @@ fun listen(
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.ok.dn).inc()
                 })
             }
-            inputHistogram.close()
+           requestLatency.observeDuration()
         } catch (e: Exception) {
             log.error("Exception caught while handling message, sending to backout $defaultKeyFormat", *defaultKeyValues, e)
             backoutProducer.send(it)

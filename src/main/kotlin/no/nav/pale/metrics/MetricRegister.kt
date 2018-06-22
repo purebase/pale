@@ -17,10 +17,10 @@ val WS_CALL_TIME: Summary = Summary.Builder()
         .labelNames("service")
         .help("Time it takes to execute a soap call").register()
 
-val INPUT_MESSAGE_TIME: Summary = Summary.build()
+val REQUEST_TIME: Summary = Summary.build()
         .namespace(METRICS_NS)
-        .name("input_time")
-        .help("Amount of messages received from emottak").register()
+        .name("request_time_ms")
+        .help("Request time in milliseconds.").register()
 
 val APPREC_STATUS_COUNTER: Counter = Counter.Builder()
         .namespace(METRICS_NS)
