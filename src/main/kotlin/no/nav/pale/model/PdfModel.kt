@@ -41,7 +41,7 @@ data class Fagmelding(
     val forslagTilTiltak: ForslagTilTiltak,
     val funksjonsOgArbeidsevne: FunksjonsOgArbeidsevne,
     val prognose: Prognose,
-    val aarsaksSammenheng: String,
+    val aarsaksSammenheng: String?,
     val andreOpplysninger: String?,
     val kontakt: Kontakt,
     val pasientenBurdeIkkeVite: String?,
