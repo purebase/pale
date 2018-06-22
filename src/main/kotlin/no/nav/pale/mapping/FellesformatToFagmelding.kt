@@ -143,7 +143,7 @@ fun mapLegeerklaeringToSykdomDiagnose(diagnose: DiagnoseArbeidsuforhet): Sykdoms
 
 fun legeerklaeringToPasient(legeerklaering: Legeerklaring): Pasient {
     val patient = legeerklaering.pasientopplysninger.pasient
-    val postalAddress = patient.arbeidsforhold.virksomhet.virksomhetsAdr.postalAddress[0]
+    val postalAddress = patient.arbeidsforhold?.virksomhet?.virksomhetsAdr?.postalAddress?.firstOrNull()
     return Pasient(
             fornavn = patient.navn.fornavn,
             mellomnavn = patient.navn.mellomnavn,
@@ -155,12 +155,12 @@ fun legeerklaeringToPasient(legeerklaering: Legeerklaring): Pasient {
             poststed = patient.personAdr[0].postalAddress[0].city,
             yrke = patient.arbeidsforhold.yrkesbetegnelse,
             arbeidsgiver = Arbeidsgiver(
-                    navn = patient.arbeidsforhold.virksomhet.virksomhetsBetegnelse,
-                    adresse = postalAddress.streetAddress,
-                    postnummer = postalAddress.postalCode.let {
+                    navn = patient.arbeidsforhold?.virksomhet?.virksomhetsBetegnelse,
+                    adresse = postalAddress?.streetAddress,
+                    postnummer = postalAddress?.postalCode.let {
                         if (it == null || it.isEmpty()) null else it.toInt()
                     },
-                    poststed = postalAddress.city
+                    poststed = postalAddress?.city
             )
     )
 }

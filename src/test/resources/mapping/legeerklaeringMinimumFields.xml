@@ -79,18 +79,6 @@
                                 <Mellomnavn>Yndesdal</Mellomnavn>
                             </Navn>
                             <Arbeidsforhold primartArbeidsforhold="1">
-                                <Virksomhet virksomhetsBetegnelse="NAV IKT" organisasjonsnummer="123456789">
-                                    <!--Optional:-->
-                                    <VirksomhetsAdr adressetype="RES">
-                                        <PostalAddress>
-                                            <StreetAddress>Oppdiktet gate 32</StreetAddress>
-                                            <PostalCode>1234</PostalCode>
-                                            <City>Ukjentby</City>
-                                            <Country>Norge</Country>
-                                        </PostalAddress>
-                                        <Teleinformasjon typeTelekom="MC">string</Teleinformasjon>
-                                    </VirksomhetsAdr>
-                                </Virksomhet>
                                 <Yrkesbetegnelse>Dokumentforfalsker</Yrkesbetegnelse>
                             </Arbeidsforhold>
                             <PersonAdr adressetype="H">
