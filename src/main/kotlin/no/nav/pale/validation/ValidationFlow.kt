@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
     val legeerklaering = extractLegeerklaering(fellesformat)
     val patientIdent = extractPersonIdent(legeerklaering)
-    val doctorIdent = extractDoctorIdentFromSender(fellesformat)
+    val doctorIdentFromSender = extractDoctorIdentFromSender(fellesformat)
     val outcome = mutableListOf<Outcome>()
 
     val patient = legeerklaering.pasientopplysninger.pasient.navn
@@ -27,18 +27,25 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
 
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
     val name = "${hcp.familyName} ${hcp.givenName} ${hcp.middleName}"
-    val doctorPersonNumberFromLegeerklaering = extractDoctorIdentFromSignature(fellesformat)
-    if (doctorIdent?.id == null || doctorIdent.id.trim().isEmpty()) {
-        outcome += OutcomeType.PERSON_NUMBER_NOT_FOUND.toOutcome(name,
-                apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
-    } else if (!validatePersonAndDNumber11Digits(doctorIdent.id)) {
-        outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(name, doctorIdent,
-                doctorIdent.id.length, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
-    } else if (!validatePersonAndDNumber(doctorIdent.id)) {
+    val doctorPersonNumberFromSignature = extractDoctorIdentFromSignature(fellesformat)
+    if (!validatePersonAndDNumber11Digits(doctorPersonNumberFromSignature)) {
+        outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(name, doctorPersonNumberFromSignature,
+                doctorPersonNumberFromSignature.length, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
+    } else if (!validatePersonAndDNumber(doctorPersonNumberFromSignature)) {
         outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(name,
-                doctorIdent, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
-    } else if (doctorPersonNumberFromLegeerklaering != doctorIdent.id) {
-        outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
+                doctorPersonNumberFromSignature, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
+    }
+
+    if (doctorIdentFromSender?.id != null && doctorIdentFromSender.id.trim().isNotEmpty()) {
+        if (doctorPersonNumberFromSignature != doctorIdentFromSender.id) {
+            outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
+        } else if (!validatePersonAndDNumber11Digits(doctorIdentFromSender.id)) {
+            outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(name, doctorPersonNumberFromSignature,
+                    doctorPersonNumberFromSignature.length, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
+        } else if (!validatePersonAndDNumber(doctorIdentFromSender.id))
+            outcome += OutcomeType.INVALID_PERSON_NUMBER_OR_D_NUMBER.toOutcome(name,
+                    doctorPersonNumberFromSignature,
+                    apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
     }
 
     val surname = extractPatientSurname(legeerklaering)

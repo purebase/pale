@@ -12,7 +12,7 @@ fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> {
         outcome += OutcomeType.PATIENT_IS_OVER_70
     }
 
-    if (extractDoctorIdentFromSender(fellesformat)?.id == extractPersonIdent(legeerklaering)) {
+    if (extractDoctorIdentFromSignature(fellesformat) == extractPersonIdent(legeerklaering)) {
         outcome += OutcomeType.BEHANDLER_IS_PATIENT
     }
     collectFlowStatistics(outcome)

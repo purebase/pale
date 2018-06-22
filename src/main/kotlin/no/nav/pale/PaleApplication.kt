@@ -42,7 +42,7 @@ import no.nav.pale.metrics.WS_CALL_TIME
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.OutcomeType
 import no.nav.pale.validation.Priority
-import no.nav.pale.validation.extractDoctorIdentFromSender
+import no.nav.pale.validation.extractDoctorIdentFromSignature
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.pale.validation.extractPersonIdent
 import no.nav.pale.validation.extractSenderOrganisationName
@@ -388,7 +388,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     }
 
     val samhandlerDeferred = retryWithInterval(retryInterval, "kuhr_sar_hent_samhandler") {
-        findBestSamhandlerPraksis(sarClient.getSamhandler(extractDoctorIdentFromSender(fellesformat)!!.id), fellesformat)
+        findBestSamhandlerPraksis(sarClient.getSamhandler(extractDoctorIdentFromSignature(fellesformat)), fellesformat)
     }
 
     val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {

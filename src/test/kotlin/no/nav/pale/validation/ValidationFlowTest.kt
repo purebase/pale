@@ -18,18 +18,6 @@ class ValidationFlowTest {
     }
 
     @Test
-    fun shouldCreateOutcomePersonNumberNotFound() {
-        val fellesformat = readToFellesformat("/validation/legeerklaeringFodselsnummerEllerDnummerIkkeFunnet.xml")
-        val name = "Valda Inga Fos"
-        val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret til $name finnes ikke i skjemaet."
-
-        val outcome = validationFlow(fellesformat).find { it.outcomeType == OutcomeType.PERSON_NUMBER_NOT_FOUND }
-
-        assertEquals(OutcomeType.PERSON_NUMBER_NOT_FOUND, outcome?.outcomeType)
-        assertEquals(excpectederknadsTekst, outcome?.formattedMessage)
-    }
-
-    @Test
     fun shouldCreateOutcomePatientPersonNumberNot11Digits() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPersonnummerIkke11Tegn.xml")
         val name = extractLegeerklaering(fellesformat).pasientopplysninger.pasient.navn.etternavn +
@@ -54,7 +42,7 @@ class ValidationFlowTest {
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
-        val fnr = extractDoctorIdentFromSender(fellesformat)
+        val fnr = extractDoctorIdentFromSender(fellesformat)?.id
         val personNumberLength = extractDoctorIdentFromSender(fellesformat)!!.id.length
 
         val excpectederknadsTekst = "$name sitt fødselsnummer eller D-nummer $fnr er ikke 11 tegn. Det er $personNumberLength tegn langt."
@@ -89,7 +77,7 @@ class ValidationFlowTest {
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
                 " " +
                 fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
-        val fnr = extractDoctorIdentFromSender(fellesformat)
+        val fnr = extractDoctorIdentFromSender(fellesformat)?.id
 
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret $name til $fnr er feil."
 

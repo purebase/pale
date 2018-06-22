@@ -165,5 +165,5 @@
             </RefDoc>
         </Document>
     </MsgHead>
-    <MottakenhetBlokk ediLoggId="FiktivTestdata0001" avsender="04030350265" ebXMLSamtaleId="1234" avsenderRef="00123456789" avsenderFnrFraDigSignatur="04030350265" mottattDatotid="2017-12-29T12:21:35+02:00" ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
+    <MottakenhetBlokk ediLoggId="FiktivTestdata0001" avsender="04030350265" ebXMLSamtaleId="1234" avsenderRef="00123456789" avsenderFnrFraDigSignatur="14030350265" mottattDatotid="2017-12-29T12:21:35+02:00" ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
 </EI_fellesformat>

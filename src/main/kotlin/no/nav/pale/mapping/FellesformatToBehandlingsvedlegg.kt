@@ -7,7 +7,7 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.HealthcareProfessional
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.Priority
-import no.nav.pale.validation.extractDoctorIdentFromSender
+import no.nav.pale.validation.extractDoctorIdentFromSignature
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.pale.validation.extractPersonIdent
 import java.time.ZonedDateTime
@@ -29,7 +29,7 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
             sender = BehandlingsvedleggSender(
                     signaturId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur,
                     signaturNavn = fellesformat.mottakenhetBlokk.avsender,
-                    avsenderId = extractDoctorIdentFromSender(fellesformat)?.id,
+                    avsenderId = extractDoctorIdentFromSignature(fellesformat),
                     avsenderNavn = hcp.formatName(),
                     tlfNummer = hcp.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v,
                     organisasjonsId = "${orgIdent.id} (${orgIdent.typeId.v}",

@@ -6,7 +6,7 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 
 fun postTPSFlow(fellesformat: EIFellesformat, person: Person): List<Outcome> {
     val outcome = mutableListOf<Outcome>()
-    val doctorIdent = extractDoctorIdentFromSender(fellesformat)
+    val doctorIdent = extractDoctorIdentFromSignature(fellesformat)
 
     when (person.diskresjonskode?.value) {
     // Sperret adresse, strengt fortrolig
@@ -19,7 +19,7 @@ fun postTPSFlow(fellesformat: EIFellesformat, person: Person): List<Outcome> {
         outcome += OutcomeType.REGISTERED_DEAD_IN_TPS
     }
 
-    val relations = findDoctorInRelations(person, doctorIdent!!.id)
+    val relations = findDoctorInRelations(person, doctorIdent)
 
     if (relations != null) {
         val outcomeType = when (RelationType.fromKodeverkValue(relations.tilRolle.value)) {
