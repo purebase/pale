@@ -27,14 +27,10 @@
                     <FamilyName>Valda</FamilyName>
                     <GivenName>Inga</GivenName>
                     <Ident>
-                        <Id>04030350265</Id>
-                        <TypeId DN="Fødselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
+                        <Id>12668</Id>
+                        <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
                     </Ident>
-                    <Address>
-                        <StreetAdr>Oppdiktet gate 9001</StreetAdr>
-                        <PostalCode>9998</PostalCode>
-                        <City>Oppdiktet</City>
-                    </Address>
+                    <Address/>
                 </HealthcareProfessional>
             </Organisation>
         </Sender>
@@ -78,9 +74,6 @@
                                 <Fornavn>Daniel</Fornavn>
                                 <Mellomnavn>Yndesdal</Mellomnavn>
                             </Navn>
-                            <Arbeidsforhold primartArbeidsforhold="1">
-                                <Yrkesbetegnelse>Dokumentforfalsker</Yrkesbetegnelse>
-                            </Arbeidsforhold>
                             <PersonAdr adressetype="H">
                                 <PostalAddress>
                                     <StreetAddress>Hjemmeaddresse 2</StreetAddress>

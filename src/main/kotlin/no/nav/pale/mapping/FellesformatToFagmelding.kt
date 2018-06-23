@@ -153,7 +153,7 @@ fun legeerklaeringToPasient(legeerklaering: Legeerklaring): Pasient {
             adresse = patient.personAdr[0].postalAddress[0].streetAddress,
             postnummer = patient.personAdr[0].postalAddress[0].postalCode.toInt(),
             poststed = patient.personAdr[0].postalAddress[0].city,
-            yrke = patient.arbeidsforhold.yrkesbetegnelse,
+            yrke = patient.arbeidsforhold?.yrkesbetegnelse,
             arbeidsgiver = Arbeidsgiver(
                     navn = patient.arbeidsforhold?.virksomhet?.virksomhetsBetegnelse,
                     adresse = postalAddress?.streetAddress,
