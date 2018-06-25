@@ -1,6 +1,5 @@
 package no.nav.pale.validation
 
-import no.nav.pale.validatePersonAndDNumber
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

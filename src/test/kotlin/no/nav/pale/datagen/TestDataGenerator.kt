@@ -5,7 +5,7 @@ import com.devskiller.jfairy.producer.company.Company
 import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.LegeerklaeringType
 import no.nav.pale.mapping.TypeTiltak
-import no.nav.pale.validatePersonAndDNumber
+import no.nav.pale.validation.validatePersonAndDNumber
 import no.nav.pale.validation.personNumberDateFormat
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.Document
@@ -86,7 +86,6 @@ class TestDataGenerator {
 }
 
 fun defaultFellesformat(): EIFellesformat {
-    val person = fairy.person()
     val organisationData = fairy.company()
     val orgAddr = fairy.person().address
     val navAddr = fairy.person().address

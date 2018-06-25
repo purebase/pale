@@ -36,6 +36,7 @@ import no.nav.pale.mapping.mapFellesformatToFagmelding
 import no.nav.pale.metrics.APPREC_ERROR_COUNTER
 import no.nav.pale.metrics.APPREC_STATUS_COUNTER
 import no.nav.pale.metrics.INCOMING_MESSAGE_COUNTER
+import no.nav.pale.metrics.MESSAGE_OUTCOME_COUNTER
 import no.nav.pale.metrics.QueueStatusCollector
 import no.nav.pale.metrics.REQUEST_TIME
 import no.nav.pale.metrics.WS_CALL_TIME
@@ -206,8 +207,6 @@ fun listen(
             .register<QueueStatusCollector>()
 
     consumer.setMessageListener {
-        var sha256String: String? = null
-        var ediLoggId: String? = null
         try {
             val inputMessageText = when (it) {
                 is BytesMessage -> {
@@ -223,8 +222,8 @@ fun listen(
             INCOMING_MESSAGE_COUNTER.inc()
             val requestLatency = REQUEST_TIME.startTimer()
 
-            ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-            sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
+            var ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
+            var sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
             defaultKeyValues = arrayOf(
                     keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
@@ -287,10 +286,16 @@ fun listen(
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
             } else {
+                val messageoutcomeManuel = validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }
+                if (messageoutcomeManuel)
+                {
+                    MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
+                }
+                MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
                 val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
                 val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg,
-                        validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING })
+                        messageoutcomeManuel)
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {

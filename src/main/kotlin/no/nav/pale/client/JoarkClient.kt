@@ -38,13 +38,10 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     journalstatusKode = PaleConstant.journalstatusKodeMO.string
     dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     fagomradeKode = PaleConstant.opp.string
-
-    if (manuelBehandling) {
-        MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
-        fordeling = PaleConstant.eiaMan.string
+    fordeling = when(manuelBehandling){
+              true -> PaleConstant.eiaMan.string
+              false -> PaleConstant.eiaOk.string
     }
-    MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
-    fordeling = PaleConstant.eiaOk.string
     avsenderMottaker = hcp.formatName()
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
     opprettetAvNavn = PaleConstant.eiaAuto.string
@@ -76,10 +73,10 @@ fun mapfellesformatToDokumentInfoRelasjon(fellesformat: EIFellesformat, behandli
         organInternt = behandlingsvedlegg
         versjon = 1
     }
-    if (behandlingsvedlegg) {
-        tilknyttetJournalpostSomKode = PaleConstant.vedlegg.string
+    tilknyttetJournalpostSomKode = when (behandlingsvedlegg) {
+        true -> PaleConstant.vedlegg.string
+        false ->    PaleConstant.houveddokument.string
     }
-    tilknyttetJournalpostSomKode = PaleConstant.houveddokument.string
     tilknyttetAvNavn = PaleConstant.eiaAuto.string
     versjon = 1
 }
