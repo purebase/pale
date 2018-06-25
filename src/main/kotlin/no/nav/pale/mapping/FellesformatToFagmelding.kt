@@ -114,7 +114,9 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     postnummer = fellesformat.msgHead.msgInfo.sender.organisation.address?.postalCode?.toInt(),
                     poststed = fellesformat.msgHead.msgInfo.sender.organisation.address?.city,
                     signatur = "",
-                    tlfNummer = healthcareProfessional.teleCom.find { it.typeTelecom in PhoneType }?.teleAddress?.v
+                    tlfNummer = healthcareProfessional.teleCom?.find { it.typeTelecom?.let {
+                        if (it.v == null || it.dn == null ) null else it
+                    } in PhoneType }?.teleAddress?.v
             )
     )
 }
@@ -124,8 +126,8 @@ enum class PhoneType(val v: String, val dn: String) {
     MobilePhone("MC", "Mobiltelefon"),
     WorkPhone("WP", "Arbeidsplass");
     companion object {
-        operator fun contains(type: MsgHeadCS): Boolean =
-                values().any { it.v == type.v }
+        operator fun contains(type: MsgHeadCS?): Boolean =
+                values().any { it.v == type?.v }
     }
 }
 
