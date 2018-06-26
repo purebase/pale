@@ -43,6 +43,7 @@ import no.nav.pale.metrics.WS_CALL_TIME
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.OutcomeType
 import no.nav.pale.validation.Priority
+import no.nav.pale.validation.extractOrganisationNumberFromSender
 import no.nav.pale.validation.extractDoctorIdentFromSignature
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.pale.validation.extractPersonIdent
@@ -226,7 +227,7 @@ fun listen(
             var sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
             defaultKeyValues = arrayOf(
-                    keyValue("organisationNumber", fellesformat.mottakenhetBlokk.orgNummer),
+                    keyValue("organisationNumber",extractOrganisationNumberFromSender(fellesformat)),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
                     keyValue("msgId", fellesformat.msgHead.msgInfo.msgId),
                     keyValue("messageId", sha256String)

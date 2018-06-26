@@ -36,10 +36,6 @@
                         <TypeId DN="HPR-nummer" S="1.16.578.1.12.3.1.1.8116" V="HPR" />
                     </Ident>
                     <Ident>
-                        <Id>04030350265</Id>
-                        <TypeId DN="Fødselsnummer" V="FNR" S="6.87.654.3.21.9.8.7.6543.2198" />
-                    </Ident>
-                    <Ident>
                         <Id>45069800525</Id>
                         <TypeId DN="D-nummer" V="DNR" S="6.16.578.1.12.4.1.4.8116" />
                     </Ident>

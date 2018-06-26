@@ -66,3 +66,8 @@ fun extractLegeerklaering(fellesformat: EIFellesformat): Legeerklaring =
 
 fun extractSignatureDate(fellesformat: EIFellesformat): LocalDateTime =
         fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
+
+fun extractOrganisationNumberFromSender(fellesformat: EIFellesformat): Ident? =
+        fellesformat.msgHead.msgInfo.sender.organisation.ident.find {
+            it.typeId.v == "ENH"
+        }
