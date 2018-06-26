@@ -116,7 +116,7 @@ data class FunksjonsOgArbeidsevne(
     val hjemmearbeidende: Boolean,
     val student: Boolean,
     val annetArbeid: String,
-    val kravTilArbeid: String,
+    val kravTilArbeid: String?,
     val kanGjenopptaTidligereArbeid: Boolean,
     val kanGjenopptaTidligereArbeidNaa: Boolean,
     val kanGjenopptaTidligereArbeidEtterBehandling: Boolean,
