@@ -85,10 +85,10 @@
                             </Navn>
                             <PersonAdr adressetype="H">
                                 <PostalAddress>
-                                    <StreetAddress>Hjemmeaddresse 2</StreetAddress>
-                                    <PostalCode>1234</PostalCode>
-                                    <City>Ukjentby</City>
-                                    <Country>Norge</Country>
+                                    <StreetAddress></StreetAddress>
+                                    <PostalCode></PostalCode>
+                                    <City></City>
+                                    <Country></Country>
                                 </PostalAddress>
                             </PersonAdr>
                         </Pasient>

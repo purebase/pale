@@ -55,7 +55,7 @@ data class Pasient(
     val foedselsnummer: String,
     val navKontor: String,
     val adresse: String,
-    val postnummer: Int,
+    val postnummer: Int?,
     val poststed: String,
     val yrke: String?,
     val arbeidsgiver: Arbeidsgiver
