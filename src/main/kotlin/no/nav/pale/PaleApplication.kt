@@ -227,7 +227,7 @@ fun listen(
             var sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
             defaultKeyValues = arrayOf(
-                    keyValue("organisationNumber",extractOrganisationNumberFromSender(fellesformat)),
+                    keyValue("organisationNumber",extractOrganisationNumberFromSender(fellesformat)?.id),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
                     keyValue("msgId", fellesformat.msgHead.msgInfo.msgId),
                     keyValue("messageId", sha256String)
@@ -249,14 +249,14 @@ fun listen(
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
-                log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
+                log.info("Sending Duplicate Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
                     log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisSha256String,
                             *defaultKeyValues)
                     text = apprecMarshaller.toString(apprec)
-                    APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.v).inc()
+                    APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.dn).inc()
                     APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
                 })
                 return@setMessageListener
