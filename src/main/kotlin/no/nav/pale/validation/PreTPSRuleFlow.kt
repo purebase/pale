@@ -8,7 +8,7 @@ fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> {
     val patientIdent = extractPersonIdent(legeerklaering)
     val outcome = mutableListOf<Outcome>()
 
-    if (!patientIdent.isNullOrEmpty() && LocalDate.now().minusYears(70).isBefore(extractBornDate(patientIdent))) {
+    if (!patientIdent.isNullOrEmpty() && LocalDate.now().minusYears(70).isBefore(extractBornDate(patientIdent!!))) {
         outcome += OutcomeType.PATIENT_IS_OVER_70
     }
 
