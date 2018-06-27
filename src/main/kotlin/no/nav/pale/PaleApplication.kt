@@ -272,7 +272,7 @@ fun listen(
             }
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
-                log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
+                log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues, keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}))
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -300,7 +300,7 @@ fun listen(
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
-                    log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
+                    log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues, keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}))
                     arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId, null, validationResult.navkontor )
                         val stringWriter = StringWriter()
@@ -312,7 +312,7 @@ fun listen(
                     log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
                 }
 
-                log.info("Sending OK apprec for $defaultKeyFormat", *defaultKeyValues)
+                log.info("Sending OK apprec for $defaultKeyFormat", *defaultKeyValues, keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}))
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.ok)
                     text = apprecMarshaller.toString(apprec)
