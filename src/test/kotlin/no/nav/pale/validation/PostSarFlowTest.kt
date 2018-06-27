@@ -1,5 +1,6 @@
 package no.nav.pale.validation
 
+import no.nav.pale.client.SamhandlerIdent
 import no.nav.pale.client.SamhandlerPraksis
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
@@ -12,8 +13,9 @@ class PostSarFlowTest {
     @Test
     fun shouldCreateOutcomeTypeAddresseMissingSar() {
         val samhandlerPraksis = createSamhandlerPraksis()
+        val samhanlderidentListe = createSamhandlerIdentListe()
 
-        val outcomeList = postSARFlow(samhandlerPraksis)
+        val outcomeList = postSARFlow(samhandlerPraksis, samhanlderidentListe)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.ADDRESS_MISSING_SAR }
 
         Assert.assertEquals(OutcomeType.ADDRESS_MISSING_SAR, outcome?.outcomeType)
@@ -22,11 +24,23 @@ class PostSarFlowTest {
     @Test
     fun shouldCreateOutcomeTypeBehandlerTssidEmergencyRoomLEVA() {
         val samhandlerPraksis = createSamhandlerPraksis()
+        val samhanlderidentListe = createSamhandlerIdentListe()
 
-        val outcomeList = postSARFlow(samhandlerPraksis)
+        val outcomeList = postSARFlow(samhandlerPraksis, samhanlderidentListe)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM }
 
         Assert.assertEquals(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM, outcome?.outcomeType)
+    }
+
+    @Test
+    fun shouldCreateOutcomeBehandlerDNumberButHasValidPersonNumberInSar() {
+        val samhandlerPraksis = createSamhandlerPraksis()
+        val samhanlderidentListe = createSamhandlerIdentListe()
+
+        val outcomeList = postSARFlow(samhandlerPraksis, samhanlderidentListe)
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR }
+
+        Assert.assertEquals(OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR, outcome?.outcomeType)
     }
 
     fun createSamhandlerPraksis(): SamhandlerPraksis =  SamhandlerPraksis(
@@ -64,5 +78,30 @@ class PostSarFlowTest {
     samh_praksis_email = emptyList(),
     samh_praksis_vikar = emptyList()
     )
+
+    fun createSamhandlerIdentListe(): List<SamhandlerIdent> {
+        val samhandlerIdentListe = mutableListOf<SamhandlerIdent>()
+        samhandlerIdentListe.add(
+                SamhandlerIdent(
+                samh_id = "1000288339",
+                ident = "1",
+                samh_ident_id = "04030350265",
+                ident_type_kode = "FNR",
+                aktiv_ident = "1"
+                )
+        )
+
+        samhandlerIdentListe.add(
+                SamhandlerIdent(
+                samh_id = "1000288341",
+                ident = "1",
+                samh_ident_id = "74030350265",
+                ident_type_kode = "DNR",
+                aktiv_ident = "1"
+                )
+        )
+
+        return samhandlerIdentListe
+    }
 
 }

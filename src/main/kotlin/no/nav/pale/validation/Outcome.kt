@@ -24,7 +24,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PERSON_HAS_NO_NAV_KONTOR(50, "Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
-    BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_TSS(75, "Behandler har angitt D-nummer, men TSS fant gyldig F-nummer.", Priority.NOTE, Type.FAGLIG),
+    BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR(75, "Behandler har angitt D-nummer, men SAR fant gyldig F-nummer.", Priority.NOTE, Type.FAGLIG),
     ADDRESS_MISSING_SAR(76, "Adresse mangler i SAR.", Priority.NOTE, Type.FAGLIG),
 
     // Find best result from KUHR sar

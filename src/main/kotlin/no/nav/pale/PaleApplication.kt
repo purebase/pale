@@ -396,7 +396,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     }
 
     val samhandlerDeferred = retryWithInterval(retryInterval, "kuhr_sar_hent_samhandler") {
-        findBestSamhandlerPraksis(sarClient.getSamhandler(extractDoctorIdentFromSignature(fellesformat)), fellesformat)
+        sarClient.getSamhandler(extractDoctorIdentFromSignature(fellesformat))
     }
 
     val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {
@@ -411,13 +411,14 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
         return outcomes.toResult()
     }
+    val samhandler = runBlocking { samhandlerDeferred.await() }
 
-    val samhandlerPraksisMatch = runBlocking { samhandlerDeferred.await() }
+    val samhandlerPraksisMatch = findBestSamhandlerPraksis(samhandler, fellesformat)
 
     if (samhandlerPraksisMatch == null) {
         outcomes += OutcomeType.BEHANDLER_NOT_SAR.toOutcome()
     } else {
-        outcomes.addAll(postSARFlow(samhandlerPraksisMatch.samhandlerPraksis))
+        outcomes.addAll(postSARFlow(samhandlerPraksisMatch.samhandlerPraksis, samhandler.flatMap { it.samh_ident } ).toList())
     }
 
     if (outcomes.isEmpty()) {
