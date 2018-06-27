@@ -85,7 +85,27 @@ class ValidationHelperTest {
         val doctorPersonnumber = extractDoctorIdentFromSender(fellesformat)?.id!!
         val familierelasjon = findDoctorInRelations(patient, doctorPersonnumber)!!
 
-        Assert.assertTrue(RelationType.fromKodeverkValue(familierelasjon.tilRolle.value)?.kodeverkVerdi.equals(RelationType.EKTEFELLE.kodeverkVerdi))
+        Assert.assertEquals(RelationType.fromKodeverkValue(familierelasjon.tilRolle.value)?.kodeverkVerdi, RelationType.EKTEFELLE.kodeverkVerdi)
+    }
+
+    @Test
+    fun shouldExtractSignatureDate() {
+
+        val signatureDate = extractSignatureDate(fellesformat)
+        val expectetsignatureDate = LocalDate.of(2017,12,29)
+
+        Assert.assertEquals(expectetsignatureDate.year, signatureDate.year)
+        Assert.assertEquals(expectetsignatureDate.month, signatureDate.month)
+        Assert.assertEquals(expectetsignatureDate.dayOfMonth, signatureDate.dayOfMonth)
+    }
+
+    @Test
+    fun shouldExtractCompanyNumberFromSender() {
+
+        val organisationNumberFromSender = extractOrganisationNumberFromSender(fellesformat)
+
+        Assert.assertEquals("223456789",organisationNumberFromSender?.id)
+
     }
 
     fun familierelasjon(faimilierelasjon: String): Familierelasjon = Familierelasjon().apply {
