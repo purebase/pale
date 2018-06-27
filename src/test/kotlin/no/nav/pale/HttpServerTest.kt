@@ -3,6 +3,8 @@ package no.nav.pale
 import io.ktor.server.engine.ApplicationEngine
 import no.nav.pale.metrics.APPREC_ERROR_COUNTER
 import no.nav.pale.metrics.APPREC_STATUS_COUNTER
+import no.nav.pale.metrics.INCOMING_MESSAGE_COUNTER
+import no.nav.pale.metrics.MESSAGE_OUTCOME_COUNTER
 import no.nav.pale.metrics.REQUEST_TIME
 import no.nav.pale.metrics.RULE_COUNTER
 import no.nav.pale.metrics.WS_CALL_TIME
@@ -68,12 +70,14 @@ class HttpServerTest {
         REQUEST_TIME.startTimer().use {
             Thread.sleep(20)
         }
+        INCOMING_MESSAGE_COUNTER.inc()
         RULE_COUNTER.labels("test_rule").inc()
         WS_CALL_TIME.labels("test_ws").startTimer().use {
             Thread.sleep(12)
         }
         APPREC_STATUS_COUNTER.labels("test_ok").inc()
         APPREC_ERROR_COUNTER.labels("test_big_error_happend").inc()
+        MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
 
         val request = Request.Builder()
                 .url("$baseUrl/prometheus")
