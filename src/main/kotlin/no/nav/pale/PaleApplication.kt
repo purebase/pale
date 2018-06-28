@@ -413,19 +413,13 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     }
     val samhandler = runBlocking { samhandlerDeferred.await() }
 
-    val samhandlerPraksisMatch = findBestSamhandlerPraksis(samhandler, fellesformat)
-
-    if (samhandlerPraksisMatch == null) {
-        outcomes += OutcomeType.BEHANDLER_NOT_SAR.toOutcome()
-    } else {
-        outcomes.addAll(postSARFlow(samhandlerPraksisMatch.samhandlerPraksis, samhandler.flatMap { it.samh_ident } ).toList())
-    }
+    outcomes.addAll(postSARFlow(fellesformat, samhandler))
 
     if (outcomes.isEmpty()) {
         outcomes += OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome()
     }
 
-    return outcomes.toResult(samhandlerPraksisMatch?.samhandlerPraksis?.tss_ident)
+    return outcomes.toResult(findBestSamhandlerPraksis(samhandler, fellesformat)?.samhandlerPraksis?.tss_ident)
 }
 
 data class SamhandlerPraksisMatch(val samhandlerPraksis: SamhandlerPraksis, val percentageMatch: Double)
@@ -437,7 +431,7 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
             }
             .filter {
                 it.samh_praksis_periode.any {
-                    it.gyldig_fra >= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til <= LocalDateTime.now())
+                    it.gyldig_fra <= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now())
                 }
             }
             // .filter {

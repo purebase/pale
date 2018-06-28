@@ -1,6 +1,9 @@
 package no.nav.pale.validation
 
+import no.nav.pale.client.Samhandler
+import no.nav.pale.client.SamhandlerBregHovedenhet
 import no.nav.pale.client.SamhandlerIdent
+import no.nav.pale.client.SamhandlerPeriode
 import no.nav.pale.client.SamhandlerPraksis
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
@@ -11,11 +14,21 @@ class PostSarFlowTest {
     val fellesformat = readToFellesformat("/legeerklaering.xml")
 
     @Test
-    fun shouldCreateOutcomeTypeAddresseMissingSar() {
-        val samhandlerPraksis = createSamhandlerPraksis()
-        val samhanlderidentListe = createSamhandlerIdentListe()
+    fun shouldCreateOutcomeBehandlerNotSar() {
+        val samhandler = createSamhandlerListe("inaktiv", "LE")
 
-        val outcomeList = postSARFlow(samhandlerPraksis, samhanlderidentListe)
+        val outcomeList = postSARFlow(fellesformat, samhandler)
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_NOT_SAR }
+
+        Assert.assertEquals(OutcomeType.BEHANDLER_NOT_SAR, outcome?.outcomeType)
+        Assert.assertEquals(1, outcomeList.size)
+    }
+
+    @Test
+    fun shouldCreateOutcomeTypeAddresseMissingSar() {
+        val samhandler = createSamhandlerListe("aktiv", "LE")
+
+        val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.ADDRESS_MISSING_SAR }
 
         Assert.assertEquals(OutcomeType.ADDRESS_MISSING_SAR, outcome?.outcomeType)
@@ -23,10 +36,9 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeTypeBehandlerTssidEmergencyRoomLEVA() {
-        val samhandlerPraksis = createSamhandlerPraksis()
-        val samhanlderidentListe = createSamhandlerIdentListe()
+        val samhandler = createSamhandlerListe("aktiv", "LE")
 
-        val outcomeList = postSARFlow(samhandlerPraksis, samhanlderidentListe)
+        val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM }
 
         Assert.assertEquals(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM, outcome?.outcomeType)
@@ -34,50 +46,65 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeBehandlerDNumberButHasValidPersonNumberInSar() {
-        val samhandlerPraksis = createSamhandlerPraksis()
-        val samhanlderidentListe = createSamhandlerIdentListe()
+        val samhandler = createSamhandlerListe("aktiv", "LE")
 
-        val outcomeList = postSARFlow(samhandlerPraksis, samhanlderidentListe)
+        val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR }
 
         Assert.assertEquals(OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR, outcome?.outcomeType)
     }
 
-    fun createSamhandlerPraksis(): SamhandlerPraksis =  SamhandlerPraksis(
-    refusjon_type_kode = "231",
-    laerer = "Nope",
-    lege_i_spesialisering = "Nope",
-    tidspunkt_resync_periode = LocalDateTime.now(),
-    tidspunkt_registrert = LocalDateTime.now().minusDays(1L),
-    samh_praksis_status_kode = "Aktiv",
-    telefonnr = "89343300",
-    arbeids_kommune_nr = "1201",
-    arbeids_postnr = "0657",
-    arbeids_adresse_linje_1 = "",
-    arbeids_adresse_linje_2 = "Langt vekke",
-    arbeids_adresse_linje_3 = "",
-    arbeids_adresse_linje_4 = "",
-    arbeids_adresse_linje_5 = "",
-    her_id = "12345",
-    post_adresse_linje_1 = "",
-    post_adresse_linje_2 = "",
-    post_adresse_linje_3 = "",
-    post_adresse_linje_4 = "",
-    post_adresse_linje_5 = "",
-    post_kommune_nr = "1201",
-    post_postnr = "",
-    resh_id = "",
-    tss_ident = "1213455",
-    navn = "Kule helsetjenester AS",
-    ident = "1",
-    samh_praksis_type_kode = "LEVA",
-    samh_id = "1234",
-    samh_praksis_id = "12356",
-    samh_praksis_konto = emptyList(),
-    samh_praksis_periode = emptyList(),
-    samh_praksis_email = emptyList(),
-    samh_praksis_vikar = emptyList()
-    )
+    @Test
+    fun shouldCreateOutcomeNoValidTssidPracticeTypeSar() {
+        val samhandler = createSamhandlerListe("aktiv", "FT")
+
+        val outcomeList = postSARFlow(fellesformat, samhandler)
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR   }
+
+        Assert.assertEquals(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR, outcome?.outcomeType)
+    }
+
+    fun createSamhandlerPraksis(aktiv: String): List<SamhandlerPraksis> {
+    val samhandlerPraksisListe = mutableListOf<SamhandlerPraksis>()
+        samhandlerPraksisListe.add(
+            SamhandlerPraksis(
+                    refusjon_type_kode = "231",
+                    laerer = "Nope",
+                    lege_i_spesialisering = "Nope",
+                    tidspunkt_resync_periode = LocalDateTime.now(),
+                    tidspunkt_registrert = LocalDateTime.now().minusDays(1L),
+                    samh_praksis_status_kode = aktiv,
+                    telefonnr = "89343300",
+                    arbeids_kommune_nr = "1201",
+                    arbeids_postnr = "0657",
+                    arbeids_adresse_linje_1 = "",
+                    arbeids_adresse_linje_2 = "Langt vekke",
+                    arbeids_adresse_linje_3 = "",
+                    arbeids_adresse_linje_4 = "",
+                    arbeids_adresse_linje_5 = "",
+                    her_id = "12345",
+                    post_adresse_linje_1 = "",
+                    post_adresse_linje_2 = "",
+                    post_adresse_linje_3 = "",
+                    post_adresse_linje_4 = "",
+                    post_adresse_linje_5 = "",
+                    post_kommune_nr = "1201",
+                    post_postnr = "",
+                    resh_id = "",
+                    tss_ident = "1213455",
+                    navn = "Kule helsetjenester AS",
+                    ident = "1",
+                    samh_praksis_type_kode = "LEVA",
+                    samh_id = "1234",
+                    samh_praksis_id = "12356",
+                    samh_praksis_konto = emptyList(),
+                    samh_praksis_periode = createSamhanderPeriode(),
+                    samh_praksis_email = emptyList(),
+                    samh_praksis_vikar = emptyList()
+                    )
+        )
+    return samhandlerPraksisListe
+}
 
     fun createSamhandlerIdentListe(): List<SamhandlerIdent> {
         val samhandlerIdentListe = mutableListOf<SamhandlerIdent>()
@@ -102,6 +129,62 @@ class PostSarFlowTest {
         )
 
         return samhandlerIdentListe
+    }
+
+    fun createSamhandlerListe(aktiv :String, samhalnderTypekode: String): List<Samhandler> {
+        val samhandlerListe = mutableListOf<Samhandler>()
+        samhandlerListe.add(
+                Samhandler(
+                        samh_id = "1000288339",
+                        navn = "Kule Helsetjenester As",
+                        samh_type_kode = samhalnderTypekode,
+                        gyldig_fra = LocalDateTime.now().minusDays(2L),
+                        gyldig_til = LocalDateTime.now().plusDays(2L),
+                        behandling_utfall_kode = "1",
+                        unntatt_veiledning = "1",
+                        godkjent_manuell_krav = "1",
+                        ikke_godkjent_for_refusjon = "1",
+                        godkjent_egenandel_refusjon = "1",
+                        godkjent_for_fil = "1",
+                        breg_hovedenhet = SamhandlerBregHovedenhet(
+                                organisasjonsnummer = "12314551",
+                                organisasjonsform = "Tull",
+                                institusjonellsektorkodekode = "asdasd",
+                                naeringskode1kode = "1234",
+                                naeringskode2kode = ""
+                        ),
+                        endringslogg_tidspunkt_siste = LocalDateTime.now(),
+                        samh_ident = createSamhandlerIdentListe(),
+                        samh_praksis = createSamhandlerPraksis(aktiv),
+                        samh_avtale = emptyList(),
+                        samh_direkte_oppgjor_avtale = emptyList(),
+                        samh_fbv_godkjent_avd = emptyList(),
+                        samh_kommentar = emptyList(),
+                        samh_saerskilte_takster = emptyList(),
+                        samh_vikar = emptyList(),
+                        samh_email = emptyList()
+                )
+        )
+
+        return samhandlerListe
+    }
+
+    fun createSamhanderPeriode(): List<SamhandlerPeriode> {
+        val samhandlerPeriodeListe = mutableListOf<SamhandlerPeriode>()
+        samhandlerPeriodeListe.add(
+                SamhandlerPeriode(
+                        endret_ved_import = "hendelse",
+                        sist_endret=  LocalDateTime.now(),
+                        slettet= "Nope",
+                        gyldig_fra = LocalDateTime.now().minusDays(1L),
+                        gyldig_til = LocalDateTime.now().plusDays(23L),
+                        samh_praksis_id = "12356",
+                        samh_praksis_periode_id =  "1234"
+
+                )
+        )
+
+        return samhandlerPeriodeListe
     }
 
 }

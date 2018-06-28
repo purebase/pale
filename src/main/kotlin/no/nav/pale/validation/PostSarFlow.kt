@@ -1,10 +1,20 @@
 package no.nav.pale.validation
 
-import no.nav.pale.client.SamhandlerIdent
-import no.nav.pale.client.SamhandlerPraksis
+import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.client.Samhandler
+import no.nav.pale.findBestSamhandlerPraksis
 
-fun postSARFlow(samhandlerPraksis: SamhandlerPraksis, samhandlerIdentList: List<SamhandlerIdent>): List<Outcome> {
+fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): List<Outcome> {
     val outcome = mutableListOf<Outcome>()
+
+    val samhandlerPraksis = findBestSamhandlerPraksis(samhandler, fellesformat)?.samhandlerPraksis
+
+    if (samhandlerPraksis == null) {
+        outcome += OutcomeType.BEHANDLER_NOT_SAR.toOutcome()
+        return outcome
+    }
+
+
     if (samhandlerPraksis.arbeids_adresse_linje_1 == null || samhandlerPraksis.arbeids_adresse_linje_1.isEmpty()) {
         outcome += OutcomeType.ADDRESS_MISSING_SAR
     }
@@ -13,7 +23,7 @@ fun postSARFlow(samhandlerPraksis: SamhandlerPraksis, samhandlerIdentList: List<
         outcome += OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM
     }
 
-    val samhandlerIdent = samhandlerIdentList
+    val samhandlerIdentFnr = samhandler.flatMap{ it.samh_ident }
             .filter {
                 it.ident_type_kode == "FNR"
                 }
@@ -21,9 +31,19 @@ fun postSARFlow(samhandlerPraksis: SamhandlerPraksis, samhandlerIdentList: List<
                 it.aktiv_ident == "1"
             }
 
-    if(samhandlerIdent.isNotEmpty())
+    if(samhandlerIdentFnr.isNotEmpty())
     {
         outcome += OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR
+    }
+
+    val samhandlerIdentLEKITLMT = samhandler
+            .filter {
+                it.samh_type_kode == "LE"|| it.samh_type_kode == "KI" ||it.samh_type_kode == "TL" || it.samh_type_kode == "MT"
+            }
+
+    if(samhandlerIdentLEKITLMT.isEmpty())
+    {
+        outcome += OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR
     }
 
     collectFlowStatistics(outcome)
