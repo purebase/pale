@@ -428,6 +428,8 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 data class SamhandlerPraksisMatch(val samhandlerPraksis: SamhandlerPraksis, val percentageMatch: Double)
 
 fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFellesformat): SamhandlerPraksisMatch? {
+
+    val orgName = extractSenderOrganisationName(fellesformat)
     val aktiveSamhandlere = samhandlers.flatMap { it.samh_praksis }
             .filter {
                 it.samh_praksis_status_kode == "aktiv"
@@ -444,16 +446,13 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
             //    it.samh_praksis_status_kode == "LE"
             // }
             .toList()
-    if (aktiveSamhandlere.size == 1)
-        return SamhandlerPraksisMatch(aktiveSamhandlere.first(), 100.0)
 
-    val orgName = extractSenderOrganisationName(fellesformat)
-    return aktiveSamhandlere
-            .map {
-                SamhandlerPraksisMatch(it, calculatePercentageStringMatch(it.navn, orgName))
-            }.sortedBy { it.percentageMatch }
-            .firstOrNull()
-}
+        return aktiveSamhandlere
+                .map {
+                    SamhandlerPraksisMatch(it, calculatePercentageStringMatch(it.navn, orgName))
+                }.sortedBy { it.percentageMatch }
+                .firstOrNull()
+    }
 
 fun calculatePercentageStringMatch(str1: String, str2: String): Double {
     var percentageStringMatch = 0.0
