@@ -62,7 +62,7 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
         outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(
                 fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
                 fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
-                apprecError = ApprecError.SIGNATURE_ERROR)
+                apprecError = ApprecError.GEN_DATE_ERROR)
     }
 
     collectFlowStatistics(outcome)

@@ -300,7 +300,10 @@ fun listen(
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
-                    log.info("Sending message to arena $defaultKeyFormat", *defaultKeyValues)
+                    if (messageoutcomeManuel) {
+                        log.info("Sending manuel message to arena $defaultKeyFormat", *defaultKeyValues)
+                    }
+                    log.info("Sending ok message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId, null, validationResult.navkontor )
                         val stringWriter = StringWriter()
@@ -453,9 +456,13 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
 }
 
 fun calculatePercentageStringMatch(str1: String, str2: String): Double {
-    val maxDistance = max(str1.length, str2.length).toDouble()
-    val distance = LevenshteinDistance().apply(str2, str1).toDouble()
-    return (maxDistance - distance) / maxDistance
+    var percentageStringMatch = 0.0
+    if (str1.isBlank()) {
+        val maxDistance = max(str1.length, str2.length).toDouble()
+        val distance = LevenshteinDistance().apply(str2, str1).toDouble()
+        percentageStringMatch = (maxDistance - distance) / maxDistance
+    }
+    return percentageStringMatch
 }
 
 fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {
