@@ -65,13 +65,13 @@ class ValidationHelperTest {
     @Test
     fun shouldExtractBornDateFNR() {
         val patientBornDate = extractBornDate("12128913767")
-        Assert.assertEquals(LocalDate.of(2089,12,12), patientBornDate)
+        Assert.assertEquals(LocalDate.of(1989,12,12), patientBornDate)
     }
 
     @Test
     fun shouldExtractBornDateDNR() {
         val patientBornDate = extractBornDate("45069800525")
-        Assert.assertEquals(LocalDate.of(2098,6,15), patientBornDate)
+        Assert.assertEquals(LocalDate.of(1998,6,15), patientBornDate)
     }
 
     @Test

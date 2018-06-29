@@ -6,7 +6,6 @@ import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.LegeerklaeringType
 import no.nav.pale.mapping.TypeTiltak
 import no.nav.pale.validation.validatePersonAndDNumber
-import no.nav.pale.validation.personNumberDateFormat
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.Document
 import no.nav.model.msghead.HealthcareProfessional
@@ -53,6 +52,7 @@ import org.junit.Test
 import java.io.StringWriter
 import java.math.BigInteger
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.Random
 import java.util.UUID
@@ -63,6 +63,7 @@ import javax.xml.datatype.DatatypeFactory
 val fairy: Fairy = Fairy.create(Locale("no", "NO"))
 val random: Random = Random()
 val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
+val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
 
 fun Company.getCenterName(): String =
         this.name.replace("AS", when (this.name.length % 3) {
