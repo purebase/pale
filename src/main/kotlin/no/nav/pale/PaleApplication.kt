@@ -452,6 +452,7 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                     it.gyldig_fra <= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now())
                 }
             }
+            .filter { !it.navn.isNullOrEmpty()  }
             .toList()
 
         return aktiveSamhandlere
