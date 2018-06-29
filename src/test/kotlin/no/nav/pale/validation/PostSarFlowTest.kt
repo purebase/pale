@@ -11,7 +11,7 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class PostSarFlowTest {
-    val fellesformat = readToFellesformat("/legeerklaering.xml")
+    val fellesformat = readToFellesformat("/validation/legeerklaeringWithDNR.xml")
 
     @Test
     fun shouldCreateOutcomeBehandlerNotSar() {

@@ -31,7 +31,7 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
                 it.aktiv_ident == "1"
             }
 
-    if(samhandlerIdentFnr.isNotEmpty())
+    if(isDNR(extractDoctorIdentFromSignature(fellesformat)) && samhandlerIdentFnr.isNotEmpty())
     {
         outcome += OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR
     }
