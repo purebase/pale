@@ -277,7 +277,7 @@ fun listen(
                 //TODO REMOVE AFTER TESTING STAGE
                 if (log.isDebugEnabled) {
                     log.debug("validationResult.outcomes message {}, $defaultKeyFormat",
-                            keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}),
+                            keyValue("outcomes" , validationResult.outcomes.forEach{it.outcomeType.name}.toString()),
                             *defaultKeyValues)
                 }
                 receiptProducer.send(session.createTextMessage().apply {
@@ -311,7 +311,7 @@ fun listen(
                     //TODO REMOVE AFTER TESTING STAGE
                     if (log.isDebugEnabled) {
                         log.debug("validationResult.outcomes message {}, $defaultKeyFormat",
-                                keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}),
+                                keyValue("outcomes" , validationResult.outcomes.forEach{it.outcomeType.name}.toString()),
                                 *defaultKeyValues)
                     }
                     log.info("Sending " + {if (messageoutcomeManuel) {"manuel"} else {"auto"} } + "message to arena $defaultKeyFormat", *defaultKeyValues)
@@ -450,12 +450,6 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                     it.gyldig_fra <= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now())
                 }
             }
-            // .filter {
-            //    it.samh_praksis_type_kode in arrayOf("LEVA", "LEKO", "FALE")
-            // }
-            // .filter {
-            //    it.samh_praksis_status_kode == "LE"
-            // }
             .toList()
 
         return aktiveSamhandlere
