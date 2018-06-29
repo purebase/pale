@@ -275,11 +275,12 @@ fun listen(
                 log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
 
                 //TODO REMOVE AFTER TESTING STAGE
-                if (log.isDebugEnabled) {
-                    log.debug("validationResult.outcomes message {}, $defaultKeyFormat",
-                            keyValue("outcomes" , validationResult.outcomes.forEach{it.outcomeType.name}.toString()),
-                            *defaultKeyValues)
-                }
+                var outcomesString =  ""
+                validationResult.outcomes.forEach{ outcomesString += it.outcomeType.name + ", "}
+                log.info("validationResult.outcomes {}, $defaultKeyFormat",
+                        keyValue("outcomes" , outcomesString),
+                        *defaultKeyValues)
+
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -309,11 +310,12 @@ fun listen(
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
 
                     //TODO REMOVE AFTER TESTING STAGE
-                    if (log.isDebugEnabled) {
-                        log.debug("validationResult.outcomes message {}, $defaultKeyFormat",
-                                keyValue("outcomes" , validationResult.outcomes.forEach{it.outcomeType.name}.toString()),
+                        var outcomesString =  ""
+                        validationResult.outcomes.forEach{ outcomesString += it.outcomeType.name + ", "}
+                        log.info("validationResult.outcomes {}, $defaultKeyFormat",
+                                keyValue("outcomes" , outcomesString),
                                 *defaultKeyValues)
-                    }
+
                     log.info("Sending " + {if (messageoutcomeManuel) {"manuel"} else {"auto"} } + "message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId, null, validationResult.navkontor )
