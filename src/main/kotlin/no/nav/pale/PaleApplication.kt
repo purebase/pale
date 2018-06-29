@@ -452,7 +452,7 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                     it.gyldig_fra <= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now())
                 }
             }
-            .filter { !it.navn.isNullOrEmpty()  }
+            .filter {!it.navn.isNullOrEmpty() }
             .toList()
 
         return aktiveSamhandlere
@@ -462,10 +462,10 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                 .firstOrNull()
     }
 
-fun calculatePercentageStringMatch(str1: String, str2: String): Double {
+fun calculatePercentageStringMatch(str1: String?, str2: String): Double {
     var percentageStringMatch = 0.0
-    if (str1.isBlank()) {
-        val maxDistance = max(str1.length, str2.length).toDouble()
+    if (!str1.isNullOrBlank()) {
+        val maxDistance = max(str1?.length!!, str2.length).toDouble()
         val distance = LevenshteinDistance().apply(str2, str1).toDouble()
         percentageStringMatch = (maxDistance - distance) / maxDistance
     }
