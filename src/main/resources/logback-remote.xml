@@ -4,9 +4,9 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <logger name="no.nav.pale" level="INFO"/>
+    <logger name="no.nav.pale" level="DEBUG"/>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="stdout_json" />
     </root>
 

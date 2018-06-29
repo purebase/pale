@@ -273,6 +273,13 @@ fun listen(
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
                 log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
+
+                //TODO REMOVE AFTER TESTING STAGE
+                if (log.isDebugEnabled) {
+                    log.debug("validationResult.outcomes message {}, $defaultKeyFormat",
+                            keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}),
+                            *defaultKeyValues)
+                }
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -300,10 +307,14 @@ fun listen(
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
-                    if (messageoutcomeManuel) {
-                        log.info("Sending manuel message to arena $defaultKeyFormat", *defaultKeyValues)
+
+                    //TODO REMOVE AFTER TESTING STAGE
+                    if (log.isDebugEnabled) {
+                        log.debug("validationResult.outcomes message {}, $defaultKeyFormat",
+                                keyValue("outcomes" , validationResult.outcomes.forEach{it.formattedMessage}),
+                                *defaultKeyValues)
                     }
-                    log.info("Sending ok message to arena $defaultKeyFormat", *defaultKeyValues)
+                    log.info("Sending " + {if (messageoutcomeManuel) {"manuel"} else {"auto"} } + "message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.outcomes, validationResult.tssId, null, validationResult.navkontor )
                         val stringWriter = StringWriter()
