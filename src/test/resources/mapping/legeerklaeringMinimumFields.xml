@@ -93,15 +93,6 @@
                             </PersonAdr>
                         </Pasient>
                     </Pasientopplysninger>
-                    <PlanUtredBehandle>
-                        <NyVurdering>Trenger ikke ny vurdering</NyVurdering>
-                        <BehandlingsPlan>Trenger å slappe av med litt fisking</BehandlingsPlan>
-                        <UtredningsPlan>Burde dra ut på fisketur for å slappe av</UtredningsPlan>
-                        <NyeLegeopplysninger>Den gamle planen fungerte ikke</NyeLegeopplysninger>
-                        <HenvistUtredning henvistDato="2017-11-05+01:00" antattVentetid="3">
-                            <Spesifikasjon>Dra på fisketur med en guide</Spesifikasjon>
-                        </HenvistUtredning>
-                    </PlanUtredBehandle>
                     <DiagnoseArbeidsuforhet arbeidsuforFra="2017-11-05+01:00">
                         <DiagnoseKodesystem kodesystem="1">
                             <Enkeltdiagnose kodeverdi="K74" sortering="0" />

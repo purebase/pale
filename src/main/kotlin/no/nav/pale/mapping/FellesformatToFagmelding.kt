@@ -39,25 +39,25 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
             pasient = legeerklaeringToPasient(legeerklaering),
             sykdomsOpplysninger = mapLegeerklaeringToSykdomDiagnose(legeerklaering.diagnoseArbeidsuforhet),
             plan = Plan(
-                    utredning = plan.henvistUtredning?.let {
+                    utredning = plan?.henvistUtredning?.let {
                         Henvisning(
                                 tekst = it.spesifikasjon,
                                 dato = it.henvistDato.toGregorianCalendar().toZonedDateTime(),
                                 antattVentetIUker = it.antattVentetid.toInt()
                         )
                     },
-                    behandling = plan.henvistBehandling?.let {
+                    behandling = plan?.henvistBehandling?.let {
                         Henvisning(
                                 tekst = it.spesifikasjon,
                                 dato = it.henvistDato.toGregorianCalendar().toZonedDateTime(),
                                 antattVentetIUker = it.antattVentetid.toInt()
                         )
                     },
-                    utredningsplan = plan.utredningsPlan,
-                    behandlingsplan = plan.behandlingsPlan,
-                    vurderingAvTidligerePlan = plan.nyVurdering,
-                    naarSpoerreOmNyeLegeopplysninger = plan.nyeLegeopplysninger,
-                    videreBehandlingIkkeAktuellGrunn = plan.ikkeVidereBehandling
+                    utredningsplan = plan?.utredningsPlan,
+                    behandlingsplan = plan?.behandlingsPlan,
+                    vurderingAvTidligerePlan = plan?.nyVurdering,
+                    naarSpoerreOmNyeLegeopplysninger = plan?.nyeLegeopplysninger,
+                    videreBehandlingIkkeAktuellGrunn = plan?.ikkeVidereBehandling
             ),
             forslagTilTiltak = ForslagTilTiltak(
                     behov = forslagTiltak.aktueltTiltak.isEmpty(),

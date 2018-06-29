@@ -37,7 +37,7 @@ data class Fagmelding(
     val ufoerepensjon: Boolean,
     val pasient: Pasient,
     val sykdomsOpplysninger: SykdomsOpplysninger,
-    val plan: Plan,
+    val plan: Plan?,
     val forslagTilTiltak: ForslagTilTiltak,
     val funksjonsOgArbeidsevne: FunksjonsOgArbeidsevne,
     val prognose: Prognose,
