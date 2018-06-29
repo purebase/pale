@@ -111,10 +111,6 @@
                     </ForslagTiltak>
                     <VurderingFunksjonsevne>
                         <Arbeidssituasjon/>
-                        <VurderingArbeidsevne>
-                            <IkkeGjore>Ikke tunge løft</IkkeGjore>
-                            <HensynAnnetYrke>Ingen dans</HensynAnnetYrke>
-                        </VurderingArbeidsevne>
                         <Funksjonsevne>Kan ikke lengre danse</Funksjonsevne>
                     </VurderingFunksjonsevne>
                     <Prognose>

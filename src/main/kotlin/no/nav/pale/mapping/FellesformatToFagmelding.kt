@@ -85,8 +85,8 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     kanTaAnnetArbeid = funksjonsevne.vurderingArbeidsevne?.taAnnetArbeid?.toInt() == 1,
                     kanTaAnnetArbeidNaa = funksjonsevne.vurderingArbeidsevne?.narTaAnnetArbeid?.toInt() == 1,
                     kanTaAnnetArbeidEtterBehandling = funksjonsevne.vurderingArbeidsevne?.narTaAnnetArbeid?.toInt() == 2,
-                    kanIkkeINaaverendeArbeid = funksjonsevne.vurderingArbeidsevne.ikkeGjore,
-                    kanIkkeIAnnetArbeid = funksjonsevne.vurderingArbeidsevne.hensynAnnetYrke
+                    kanIkkeINaaverendeArbeid = funksjonsevne.vurderingArbeidsevne?.ikkeGjore,
+                    kanIkkeIAnnetArbeid = funksjonsevne.vurderingArbeidsevne?.hensynAnnetYrke
             ),
             prognose = Prognose(
                     vilForbedreArbeidsevne = prognose.bedreArbeidsevne?.toInt() == 1,
