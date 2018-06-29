@@ -61,7 +61,7 @@ fun collectFlowStatistics(outcomes: List<Outcome>) {
     outcomes.forEach {
         RULE_COUNTER.labels(it.outcomeType.name).inc()
         if (it.outcomeType.messagePriority == Priority.RETUR) {
-            APPREC_ERROR_COUNTER.labels(it.apprecError?.v ?: "Missing").inc()
+            APPREC_ERROR_COUNTER.labels(it.apprecError?.dn ?: "Missing").inc()
         }
     }
 }
