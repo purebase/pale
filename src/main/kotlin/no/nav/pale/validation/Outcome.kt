@@ -50,7 +50,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
 
     // Pasientrelasjoner
     MARRIED_TO_PATIENT(353, "Vurder om legeerklæring kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
-    COHABITANT_WITH_PATIENT(354, "Vurder om legeerklæring  kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
+    COHABITANT_WITH_PATIENT(354, "Vurder om legeerklæring  kan godtas, behandler er samboer med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
     REGISTERED_PARTNER_WITH_PATIENT(355, "Vurder om legeerklæring kan godtas, behandler er registerert partnes med pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
     PARENT_TO_PATIENT(356, "Vurder om legeerklæring kan godtas, behandler er foreldre til pasient.", Priority.FOLLOW_UP, Type.FAGLIG),
     CHILD_OF_PATIENT(357, "Vurder om legeerklæring kan godtas, behandler er barn av pasient.", Priority.FOLLOW_UP, Type.FAGLIG),

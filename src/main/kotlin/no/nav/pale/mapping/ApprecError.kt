@@ -1,7 +1,7 @@
 package no.nav.pale.mapping
 
 enum class ApprecError(val v: String, val dn: String, val s: String) {
-    GEN_DATE_ERROR("X99", "Meldingen er dato datert(gendate) er nyere enn dagens dato", "2.16.578.1.12.4.1.1.8221"),
+    GEN_DATE_ERROR("X99", "Meldingens dato datert(gendate) er nyere enn dagens dato", "2.16.578.1.12.4.1.1.8221"),
     MISSING_PATIENT_INFO("E36", "Pasientopplysninger er utilstrekkelige", "2.16.578.1.12.4.1.1.8221"),
     BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
             "2.16.578.1.12.4.1.1.8222"),
