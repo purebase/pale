@@ -65,9 +65,26 @@ pipeline {
         }
         stage('deploy to production') {
             when { environment name: 'DEPLOY_TO', value: 'production' }
-            environment { FASIT_ENV = 'p' }
+            environment {
+                FASIT_ENV = 'p'
+                APPLICATION_SERVICE = 'CMDB-276255'
+                APPLICATION_COMPONENT = 'CMDB-274766'
+            }
             steps {
-                deployApplication()
+                script {
+                    def jiraIssueId = nais action: 'jiraDeploy'
+                    slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
+                    def jiraProdIssueId = nais action: 'jiraDeployProd', jiraIssueId: jiraIssueId
+                    slackStatus status: 'deploying', jiraIssueId: "${jiraProdIssueId}"
+                    try {
+                        timeout(time: 1, unit: 'HOURS') {
+                            input id: "deploy", message: "Waiting for remote Jenkins server to deploy the application..."
+                        }
+                    } catch (Exception exception) {
+                        currentBuild.description = "Deploy failed, see " + currentBuild.description
+                        throw exception
+                    }
+                }
             }
         }
     }
