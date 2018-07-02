@@ -54,8 +54,8 @@ pipeline {
         }
         stage('validate & upload nais.yaml to nexus m2internal') {
             steps {
-                nais 'validate'
-                nais 'upload'
+                nais action: 'validate'
+                nais action: 'upload'
             }
         }
         stage('deploy to preprod') {
@@ -98,7 +98,7 @@ pipeline {
 }
 
 void deployApplication() {
-    def jiraIssueId = nais 'jiraDeploy'
+    def jiraIssueId = nais action: 'jiraDeploy'
     slackStatus status: 'deploying', jiraIssueId: "${jiraIssueId}"
     try {
         timeout(time: 1, unit: 'HOURS') {
