@@ -71,7 +71,7 @@ class ValidationHelperTest {
     @Test
     fun shouldExtractBornDateDNR() {
         val patientBornDate = extractBornDate("45069800525")
-        Assert.assertEquals(LocalDate.of(1998,6,15), patientBornDate)
+        Assert.assertEquals(LocalDate.of(1998,6,5), patientBornDate)
     }
 
     @Test

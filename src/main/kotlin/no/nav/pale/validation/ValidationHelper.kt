@@ -20,7 +20,7 @@ val personIndividualDigitsBetween1940to1999 = IntRange(900,999)
 fun extractBornDate(personIdent: String): LocalDate =
         LocalDate.parse(personIdent.substring(0, 4).let {
             if (isDNR(personIdent)) {
-                (it[0] - 3) + it.substring(1)
+                (it[0] - 4) + it.substring(1)
             } else {
                 it
             }
