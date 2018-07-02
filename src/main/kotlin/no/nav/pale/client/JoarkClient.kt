@@ -1,7 +1,6 @@
 package no.nav.pale.client
 
 import no.nav.pale.PaleConstant
-import no.nav.pale.metrics.MESSAGE_OUTCOME_COUNTER
 import no.nav.pale.newInstance
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.fellesformat.EIFellesformat
