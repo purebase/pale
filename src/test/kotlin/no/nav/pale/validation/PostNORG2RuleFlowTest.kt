@@ -1,5 +1,6 @@
 package no.nav.pale.validation
 
+import no.nav.pale.mapping.ApprecError
 import no.nav.pale.utils.readToFellesformat
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import org.junit.Assert
@@ -33,5 +34,20 @@ class PostNORG2RuleFlowTest {
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.PERSON_HAS_NO_NAV_KONTOR }
 
         Assert.assertEquals(null, outcome?.outcomeType)
+    }
+
+    @Test
+    fun shouldCreateApprecErrorMissingPatientInfo() {
+
+        val navKontor = Organisasjonsenhet().apply {
+            enhetId = ""
+            enhetNavn = "NAV Sagene"
+        }
+
+        val outcomeList = postNORG2Flow(navKontor)
+        val outcome = outcomeList.find { it.apprecError == ApprecError.MISSING_PATIENT_INFO }
+
+        Assert.assertEquals(ApprecError.MISSING_PATIENT_INFO, outcome?.apprecError)
+
     }
 }

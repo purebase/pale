@@ -1,5 +1,6 @@
 package no.nav.pale.validation
 
+import no.nav.pale.mapping.ApprecError
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -127,4 +128,50 @@ class ValidationFlowTest {
         assertEquals(OutcomeType.SIGNATURE_TOO_NEW, outcome?.outcomeType)
         assertEquals(excpectederknadsTekst, outcome?.formattedMessage)
     }
+
+    @Test
+    fun shouldCreateApprecErrorPatientNameIsNotInSchema() {
+        val fellesformat = readToFellesformat("/validation/legeerklaeringPatientFirstNameMissing.xml")
+
+        val outcome = validationFlow(fellesformat).find { it.apprecError == ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA }
+
+        assertEquals(ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA, outcome?.apprecError)
+    }
+
+    @Test
+    fun shouldCreateApprecErrorGenDateError() {
+        val fellesformat = readToFellesformat("/validation/legeerklaeringDoctorSignatureSchemaToNew.xml")
+
+        val outcome = validationFlow(fellesformat).find { it.apprecError == ApprecError.GEN_DATE_ERROR }
+
+        assertEquals(ApprecError.GEN_DATE_ERROR, outcome?.apprecError)
+    }
+
+    @Test
+    fun shouldCreateApprecErrorBehandlerPersonNumberNotValid() {
+        val fellesformat = readToFellesformat("/validation/legeerklaeringInvalidFodselsnumer.xml")
+
+        val outcome = validationFlow(fellesformat).find { it.apprecError == ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID }
+
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID, outcome?.apprecError)
+    }
+
+    @Test
+    fun shouldCreateApprecErrorPatientLastnameIsNotInSchema() {
+        val fellesformat = readToFellesformat("/validation/legeerklaeringPatientSurnameMissing.xml")
+
+        val outcome = validationFlow(fellesformat).find { it.apprecError == ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA }
+
+        assertEquals(ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA, outcome?.apprecError)
+    }
+
+    @Test
+    fun shouldCreateApprecErrorPatientPersonNumberIsWrong() {
+        val fellesformat = readToFellesformat("/validation/legeerklaeringInvalidFodselsnumer.xml")
+
+        val outcome = validationFlow(fellesformat).find { it.apprecError == ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG }
+
+        assertEquals(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG, outcome?.apprecError)
+    }
+
 }
