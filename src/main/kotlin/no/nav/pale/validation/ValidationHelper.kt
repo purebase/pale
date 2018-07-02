@@ -67,9 +67,9 @@ fun collectFlowStatistics(outcomes: List<Outcome>) {
 }
 
 fun extractDoctorIdentFromSender(fellesformat: EIFellesformat): Ident? =
-        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {
+        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional?.ident?.find {
             it.typeId.v == "FNR"
-        } ?: fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.find {
+        } ?: fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional?.ident?.find {
             it.typeId.v == "DNR"
         }
 
