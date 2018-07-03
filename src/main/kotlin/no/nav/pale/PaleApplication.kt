@@ -316,7 +316,7 @@ fun listen(
                                 keyValue("outcomes" , outcomesString),
                                 *defaultKeyValues)
 
-                    log.info("Sending " + {if (messageoutcomeManuel) {"manuel"} else {"auto"} } + "message to arena $defaultKeyFormat", *defaultKeyValues)
+                    log.info("Sending " + if (messageoutcomeManuel) "manuel" else "auto" + "message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor )
                         val stringWriter = StringWriter()
