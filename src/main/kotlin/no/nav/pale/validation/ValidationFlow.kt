@@ -2,6 +2,7 @@ package no.nav.pale.validation
 
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.ApprecError
+import no.nav.pale.mapping.formatName
 import java.time.LocalDateTime
 
 fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
@@ -23,8 +24,8 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
                 patientIdent, apprecError = ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG)
     }
 
-    val hcp = fellesformat.msgHead.msgInfo.sender.organisation?.healthcareProfessional
-    val name = "${hcp?.familyName} ${hcp?.givenName} ${hcp?.middleName}"
+    val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
+    val name =  hcp?.formatName() ?: ""
     val doctorPersonNumberFromSignature = extractDoctorIdentFromSignature(fellesformat)
     if (!validatePersonAndDNumber11Digits(doctorPersonNumberFromSignature)) {
         outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(name, doctorPersonNumberFromSignature,

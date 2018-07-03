@@ -24,7 +24,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode:
         }
     }
     legeData = ArenaEiaInfo.LegeData().apply {
-        navn = hcp.formatName()
+        navn = hcp?.formatName() ?: ""
         fnr = getHCPFodselsnummer(fellesformat)
         tssid = tssId
     }

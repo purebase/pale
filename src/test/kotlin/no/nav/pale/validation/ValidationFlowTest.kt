@@ -1,6 +1,7 @@
 package no.nav.pale.validation
 
 import no.nav.pale.mapping.ApprecError
+import no.nav.pale.mapping.formatName
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -38,11 +39,8 @@ class ValidationFlowTest {
     @Test
     fun shouldCreateOutcomeDoctorPersonNumberNot11Digits() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringPersonnummerIkke11Tegn.xml")
-        val name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName +
-                " " +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                " " +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
+        val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
+        val name = hcp?.formatName() ?: ""
         val fnr = extractDoctorIdentFromSender(fellesformat)?.id
         val personNumberLength = extractDoctorIdentFromSender(fellesformat)!!.id.length
 
@@ -73,11 +71,8 @@ class ValidationFlowTest {
     @Test
     fun shouldCreateOutcomeDoctorInvaldigPersonOrDnummber() {
         val fellesformat = readToFellesformat("/validation/legeerklaeringInvalidFodselsnumer.xml")
-        val name = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.familyName +
-                " " +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.givenName +
-                " " +
-                fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.middleName
+        val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
+        val name = hcp?.formatName() ?: ""
         val fnr = extractDoctorIdentFromSender(fellesformat)?.id
 
         val excpectederknadsTekst = "Fødselsnummeret eller D-nummeret $name til $fnr er feil."

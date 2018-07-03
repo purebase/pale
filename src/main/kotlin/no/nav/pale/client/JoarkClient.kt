@@ -41,7 +41,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
               true -> PaleConstant.eiaMan.string
               false -> PaleConstant.eiaOk.string
     }
-    avsenderMottaker = hcp.formatName()
+    avsenderMottaker = hcp?.formatName() ?: ""
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
     opprettetAvNavn = PaleConstant.eiaAuto.string
 }

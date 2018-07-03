@@ -29,7 +29,7 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
     val typeLegeerklaering = legeerklaering.legeerklaringGjelder[0].typeLegeerklaring.toInt()
     val funksjonsevne = legeerklaering.vurderingFunksjonsevne
     val prognose = legeerklaering.prognose
-    val healthcareProfessional = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
+    val healthcareProfessional = fellesformat.msgHead.msgInfo.sender.organisation?.healthcareProfessional
 
     return Fagmelding(
             arbeidsvurderingVedSykefravaer = typeLegeerklaering == LegeerklaeringType.Arbeidsevnevurdering.type,
@@ -106,12 +106,12 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
             pasientenBurdeIkkeVite = legeerklaering.forbeholdLegeerklaring.borTilbakeholdes,
             signatur = Signatur(
                     dato = ZonedDateTime.now(),
-                    navn = "${healthcareProfessional.familyName}, ${healthcareProfessional.givenName} ${healthcareProfessional.middleName}",
+                    navn =  healthcareProfessional?.formatName() ?: "",
                     adresse = fellesformat.msgHead.msgInfo.sender.organisation.address?.streetAdr,
                     postnummer = fellesformat.msgHead.msgInfo.sender.organisation.address?.postalCode?.toInt(),
                     poststed = fellesformat.msgHead.msgInfo.sender.organisation.address?.city,
                     signatur = "",
-                    tlfNummer = healthcareProfessional.teleCom?.find { it.typeTelecom?.let {
+                    tlfNummer = healthcareProfessional?.teleCom?.find { it.typeTelecom?.let {
                         if (it.v == null || it.dn == null ) null else it
                     } in PhoneType }?.teleAddress?.v
             )
