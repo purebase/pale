@@ -504,8 +504,8 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
 }
 
 fun getHCPFodselsnummer(fellesformat: EIFellesformat): String? =
-        fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident
-                .find { it.typeId.v == "FNR" }?.id ?: ""
+        fellesformat.msgHead.msgInfo.sender.organisation?.healthcareProfessional?.ident
+                ?.find { it.typeId.v == "FNR" }?.id ?: ""
 
 fun sha256hashstring(legeerklaering: Legeerklaring): String {
     val bytes = objectMapper.writeValueAsBytes(legeerklaering)

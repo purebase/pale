@@ -254,6 +254,12 @@ class JoarkClientTest {
     }
 
     @Test
+    fun shouldSetavsenderMottakerIdHcpIsNull() {
+        val fellesformat: EIFellesformat = readToFellesformat("/mapping/legeerklaeringMinimumFields.xml")
+        Assert.assertEquals(getHCPFodselsnummer(fellesformat), "")
+    }
+
+    @Test
     fun shouldSetopprettetAvNavn() {
 
         Assert.assertEquals(PaleConstant.eiaAuto.string, requestZeroOutcomes.opprettetAvNavn)

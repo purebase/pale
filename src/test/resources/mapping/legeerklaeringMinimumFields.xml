@@ -29,18 +29,6 @@
                     <TypeTelecom DN="Hovedtelefon" V="HP" />
                     <TeleAddress V="tel:55151741" />
                 </TeleCom>
-                <HealthcareProfessional>
-                    <FamilyName>Valda</FamilyName>
-                    <GivenName>Inga</GivenName>
-                    <Ident>
-                        <Id>12668</Id>
-                        <TypeId DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)" V="HER" S="1.23.456.7.89.1.2.3.4567.8912" />
-                    </Ident>
-                    <Address/>
-                    <TeleCom>
-                        <TeleAddress V="mailto:Kule.helsetjenester@gmail.com" />
-                    </TeleCom>
-                </HealthcareProfessional>
             </Organisation>
         </Sender>
         <Receiver>
