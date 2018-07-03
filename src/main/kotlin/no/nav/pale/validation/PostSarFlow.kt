@@ -1,11 +1,15 @@
 package no.nav.pale.validation
 
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.SamhandlerPraksisMatch
+import no.nav.pale.calculatePercentageStringMatch
 import no.nav.pale.client.Samhandler
 import no.nav.pale.findBestSamhandlerPraksis
+import kotlin.math.roundToInt
 
 fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): List<Outcome> {
     val outcome = mutableListOf<Outcome>()
+    val orgName = extractSenderOrganisationName(fellesformat)
 
     val samhandlerPraksis = findBestSamhandlerPraksis(samhandler, fellesformat)?.samhandlerPraksis
 
@@ -14,6 +18,10 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
         return outcome
     }
 
+    val samhandlerPraksisMatch = SamhandlerPraksisMatch(samhandlerPraksis, calculatePercentageStringMatch(samhandlerPraksis.navn, orgName))
+    if (samhandlerPraksisMatch.percentageMatch < 0.9) {
+        outcome += OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED.toOutcome((samhandlerPraksisMatch.percentageMatch.times(100.0).roundToInt()))
+    }
 
     if (samhandlerPraksis.arbeids_adresse_linje_1 == null || samhandlerPraksis.arbeids_adresse_linje_1.isEmpty()) {
         outcome += OutcomeType.ADDRESS_MISSING_SAR
