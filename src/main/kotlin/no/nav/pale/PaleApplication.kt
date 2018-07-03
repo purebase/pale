@@ -418,7 +418,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     val navKontorDeferred = retryWithInterval(retryInterval, "finn_nav_kontor") {
         orgnaisasjonEnhet.finnNAVKontor(FinnNAVKontorRequest().apply {
             this.geografiskTilknytning = Geografi().apply {
-                this.value = geografiskTilknytningDeferred.await().geografiskTilknytning
+                this.value = geografiskTilknytningDeferred.await()?.geografiskTilknytning ?: "0"
             }
         }).navKontor
     }
