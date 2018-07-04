@@ -13,9 +13,15 @@ import java.time.LocalDateTime
 class PostSarFlowTest {
     val fellesformat = readToFellesformat("/validation/legeerklaeringWithDNR.xml")
 
+    /*
     @Test
     fun shouldCreateOutcomeBehandlerNotSar() {
-        val samhandler = createSamhandlerListe("Kule Helsetjenester As","inaktiv", "LE")
+        val samhandler = createSamhandlerListe(
+                "Kule Helsetjenester As",
+                "aktiv",
+                "LE",
+               LocalDateTime.now().plusDays(1L),
+               LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_NOT_SAR }
@@ -23,10 +29,16 @@ class PostSarFlowTest {
         Assert.assertEquals(OutcomeType.BEHANDLER_NOT_SAR, outcome?.outcomeType)
         Assert.assertEquals(1, outcomeList.size)
     }
+    */
 
     @Test
     fun shouldCreateOutcomeTypeAddresseMissingSar() {
-        val samhandler = createSamhandlerListe("Kule Helsetjenester As","aktiv", "LE")
+        val samhandler = createSamhandlerListe(
+                "Kule Helsetjenester As",
+                "aktiv",
+                "LE",
+                LocalDateTime.now().minusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.ADDRESS_MISSING_SAR }
@@ -36,7 +48,12 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeTypeBehandlerTssidEmergencyRoomLEVA() {
-        val samhandler = createSamhandlerListe("Kule Helsetjenester As","aktiv", "LE")
+        val samhandler = createSamhandlerListe(
+                "Kule Helsetjenester As",
+                "aktiv",
+                "LE",
+                LocalDateTime.now().minusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM }
@@ -46,7 +63,12 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeBehandlerDNumberButHasValidPersonNumberInSar() {
-        val samhandler = createSamhandlerListe("Kule Helsetjenester As","aktiv", "LE")
+        val samhandler = createSamhandlerListe(
+                "Kule Helsetjenester As",
+                "aktiv",
+                "LE",
+                LocalDateTime.now().minusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR }
@@ -56,7 +78,12 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeNoValidTssidPracticeTypeSar() {
-        val samhandler = createSamhandlerListe("Kule Helsetjenester As","aktiv", "FT")
+        val samhandler = createSamhandlerListe(
+                "Kule Helsetjenester As",
+                "aktiv",
+                "FT",
+                LocalDateTime.now().minusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR   }
@@ -66,7 +93,12 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeUncertianResponseSarShouldVerifiedIfUnder90PercentMatch() {
-        val samhandler = createSamhandlerListe("Legevakten Helse As","aktiv", "FT")
+        val samhandler = createSamhandlerListe(
+                "Legevakten Helse As",
+                "aktiv",
+                "FT",
+                LocalDateTime.now().minusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED   }
@@ -76,7 +108,12 @@ class PostSarFlowTest {
 
     @Test
     fun shouldNOTCreateOutcomeUncertianResponseSarShouldVerifiedifOver90PercentMatch() {
-        val samhandler = createSamhandlerListe("Kule Helsetjenester As","aktiv", "FT")
+        val samhandler = createSamhandlerListe(
+                "Kule Helsetjenester As",
+                "aktiv",
+                "FT",
+                LocalDateTime.now().minusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED   }
@@ -84,7 +121,7 @@ class PostSarFlowTest {
         Assert.assertNotEquals(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, outcome?.outcomeType)
     }
 
-    fun createSamhandlerPraksis(navn: String, aktiv: String): List<SamhandlerPraksis> {
+    fun createSamhandlerPraksis(praksisGydligfra: LocalDateTime, praksisGyldigtil: LocalDateTime,navn: String, aktiv: String): List<SamhandlerPraksis> {
     val samhandlerPraksisListe = mutableListOf<SamhandlerPraksis>()
         samhandlerPraksisListe.add(
             SamhandlerPraksis(
@@ -118,7 +155,7 @@ class PostSarFlowTest {
                     samh_id = "1234",
                     samh_praksis_id = "12356",
                     samh_praksis_konto = emptyList(),
-                    samh_praksis_periode = createSamhanderPeriode(),
+                    samh_praksis_periode = createSamhanderPeriode(praksisGydligfra, praksisGyldigtil),
                     samh_praksis_email = emptyList(),
                     samh_praksis_vikar = emptyList()
                     )
@@ -151,7 +188,7 @@ class PostSarFlowTest {
         return samhandlerIdentListe
     }
 
-    fun createSamhandlerListe(navn: String, aktiv :String, samhalnderTypekode: String): List<Samhandler> {
+    fun createSamhandlerListe(navn: String, aktiv :String, samhalnderTypekode: String, praksisGydligfra: LocalDateTime, praksisGyldigtil: LocalDateTime): List<Samhandler> {
         val samhandlerListe = mutableListOf<Samhandler>()
         samhandlerListe.add(
                 Samhandler(
@@ -175,7 +212,7 @@ class PostSarFlowTest {
                         ),
                         endringslogg_tidspunkt_siste = LocalDateTime.now(),
                         samh_ident = createSamhandlerIdentListe(),
-                        samh_praksis = createSamhandlerPraksis(navn,aktiv),
+                        samh_praksis = createSamhandlerPraksis(praksisGydligfra,praksisGyldigtil ,navn,aktiv),
                         samh_avtale = emptyList(),
                         samh_direkte_oppgjor_avtale = emptyList(),
                         samh_fbv_godkjent_avd = emptyList(),
@@ -189,15 +226,15 @@ class PostSarFlowTest {
         return samhandlerListe
     }
 
-    fun createSamhanderPeriode(): List<SamhandlerPeriode> {
+    fun createSamhanderPeriode(praksisgyldig_fra: LocalDateTime, praksisgyldig_til: LocalDateTime): List<SamhandlerPeriode> {
         val samhandlerPeriodeListe = mutableListOf<SamhandlerPeriode>()
         samhandlerPeriodeListe.add(
                 SamhandlerPeriode(
                         endret_ved_import = "hendelse",
                         sist_endret=  LocalDateTime.now(),
                         slettet= "Nope",
-                        gyldig_fra = LocalDateTime.now().minusDays(1L),
-                        gyldig_til = LocalDateTime.now().plusDays(23L),
+                        gyldig_fra = praksisgyldig_fra,
+                        gyldig_til = praksisgyldig_til,
                         samh_praksis_id = "12356",
                         samh_praksis_periode_id =  "1234"
 

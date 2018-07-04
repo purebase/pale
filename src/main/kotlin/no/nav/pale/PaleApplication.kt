@@ -447,11 +447,12 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
             .filter {
                 it.samh_praksis_status_kode == "aktiv"
             }
+            /*
             .filter {
                 it.samh_praksis_periode.any {
                     it.gyldig_fra <= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now())
                 }
-            }
+            }*/
             .filter {!it.navn.isNullOrEmpty() }
             .toList()
 
