@@ -13,7 +13,6 @@ import java.time.LocalDateTime
 class PostSarFlowTest {
     val fellesformat = readToFellesformat("/validation/legeerklaeringWithDNR.xml")
 
-    /*
     @Test
     fun shouldCreateOutcomeBehandlerNotSar() {
         val samhandler = createSamhandlerListe(
@@ -29,7 +28,6 @@ class PostSarFlowTest {
         Assert.assertEquals(OutcomeType.BEHANDLER_NOT_SAR, outcome?.outcomeType)
         Assert.assertEquals(1, outcomeList.size)
     }
-    */
 
     @Test
     fun shouldCreateOutcomeTypeAddresseMissingSar() {
