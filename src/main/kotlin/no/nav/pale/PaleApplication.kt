@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
+import redis.clients.jedis.exceptions.JedisConnectionException
 import java.io.IOException
 import java.io.StringWriter
 import java.security.MessageDigest
@@ -245,22 +246,28 @@ fun listen(
                         *defaultKeyValues)
             }
 
-            val jedisSha256String = jedis.get(sha256String)
-            val duplicate = jedisSha256String != null
+            try {
+                val jedisSha256String = jedis.get(sha256String)
+                val duplicate = jedisSha256String != null
 
-            if (duplicate) {
-                receiptProducer.send(session.createTextMessage().apply {
-                    val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                    apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                    log.warn("Message marked as duplicate $defaultKeyFormat", jedisSha256String,
-                            *defaultKeyValues)
-                    text = apprecMarshaller.toString(apprec)
-                    APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.dn).inc()
-                    APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
-                })
-                return@setMessageListener
-            } else if (ediLoggId != null) {
-                jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
+                if (duplicate) {
+                    receiptProducer.send(session.createTextMessage().apply {
+                        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
+                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+                        log.warn("Message marked as duplicate $defaultKeyFormat", jedisSha256String,
+                                *defaultKeyValues)
+                        text = apprecMarshaller.toString(apprec)
+                        APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.dn).inc()
+                        APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
+                    })
+                    return@setMessageListener
+                } else if (ediLoggId != null) {
+                    jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
+                }
+            }
+            catch (e: JedisConnectionException) {
+                log.error("Problem with redis Connection, $defaultKeyFormat", *defaultKeyValues, e)
+                log.warn("Dropping duplicate check")
             }
 
             val validationResult = try {
