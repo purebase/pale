@@ -5,6 +5,7 @@ import no.nav.pale.model.BehandlingsvedleggSender
 import no.nav.pale.model.Merknad
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.HealthcareProfessional
+import no.nav.pale.PaleConstant
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.Priority
 import no.nav.pale.validation.extractDoctorIdentFromSignature
@@ -18,8 +19,8 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
     val hcp = org.healthcareProfessional
     val orgIdent = org.ident[0]
     return Behandlingsvedlegg(
-            type = "LEGEERKL",
-            status = "OPPFØLGING",
+            type = PaleConstant.LEGEERKL.string,
+            status =  PaleConstant.OPPFØLGING.string,
             pasientId = extractPersonIdent(legeerklaering),
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId,
             msgId = fellesformat.msgHead.msgInfo.msgId,
@@ -45,7 +46,6 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
     )
 }
 
-// TODO: Add test for this
 fun HealthcareProfessional.formatName(): String = if (middleName == null) {
     "${familyName.toUpperCase()} ${givenName.toUpperCase()}"
 } else {

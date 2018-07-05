@@ -44,14 +44,15 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
         outcome += OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR
     }
 
-    val samhandlerIdentLEKITLMT = samhandler
+    when (samhandler
             .filter {
-                it.samh_type_kode == "LE"|| it.samh_type_kode == "KI" ||it.samh_type_kode == "TL" || it.samh_type_kode == "MT"
-            }
-
-    if(samhandlerIdentLEKITLMT.isEmpty())
+                        it.samh_type_kode == "LE" ||
+                        it.samh_type_kode == "KI" ||
+                        it.samh_type_kode == "TL" ||
+                        it.samh_type_kode == "MT"
+            }.firstOrNull() == null)
     {
-        outcome += OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR
+        true -> outcome += OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR
     }
 
     collectFlowStatistics(outcome)

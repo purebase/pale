@@ -76,7 +76,7 @@ fun extractDoctorIdentFromSender(fellesformat: EIFellesformat): Ident? =
 fun extractDoctorIdentFromSignature(fellesformat: EIFellesformat): String =
         fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur
 
-fun extractSenderOrganisationName(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation.organisationName
+fun extractSenderOrganisationName(fellesformat: EIFellesformat): String = fellesformat.msgHead.msgInfo.sender.organisation?.organisationName ?: ""
 
 fun extractPersonIdent(legeerklaering: Legeerklaring): String? =
         legeerklaering.pasientopplysninger.pasient.fodselsnummer

@@ -52,7 +52,7 @@ import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 
 class PaleIT {
-
+    //TODO create more IT tests
     @Test
     fun testFullFlowExceptionSendMessageToBOQ() {
         produceMessage(IOUtils.toByteArray(PaleIT::class.java.getResourceAsStream("/legeerklaering.xml")))

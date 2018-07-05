@@ -249,7 +249,6 @@ fun listen(
             val duplicate = jedisSha256String != null
 
             if (duplicate) {
-                log.info("Sending Duplicate Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
@@ -272,15 +271,7 @@ fun listen(
             }
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
-                log.info("Sending Avvist apprec for $defaultKeyFormat", *defaultKeyValues)
-
-                //TODO REMOVE AFTER TESTING STAGE
-                var outcomesString =  ""
-                validationResult.outcomes.forEach{ outcomesString += it.outcomeType.name + ", "}
-                log.info("validationResult.outcomes {}, $defaultKeyFormat",
-                        keyValue("outcomes" , outcomesString),
-                        *defaultKeyValues)
-
+                log.warn("Message with ediloggId {} has been sent in return $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -296,11 +287,10 @@ fun listen(
                 })
             } else {
                 val messageoutcomeManuel = validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }
-                if (messageoutcomeManuel)
-                {
-                    MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
+                when (messageoutcomeManuel) {
+                    true -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
+                    false -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
                 }
-                MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
                 val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
                 val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
                 val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg,
@@ -308,14 +298,6 @@ fun listen(
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
-
-                    //TODO REMOVE AFTER TESTING STAGE
-                        var outcomesString =  ""
-                        validationResult.outcomes.forEach{ outcomesString += it.outcomeType.name + ", "}
-                        log.info("validationResult.outcomes {}, $defaultKeyFormat",
-                                keyValue("outcomes" , outcomesString),
-                                *defaultKeyValues)
-
                     log.info("Sending " + (if (messageoutcomeManuel) "manuel" else "auto") + " message to arena $defaultKeyFormat", *defaultKeyValues)
                     arenaProducer.send(session.createTextMessage().apply {
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor )
@@ -374,10 +356,9 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         return outcomes.toResult()
 
     val patientIdent = extractPersonIdent(legeerklaering)!!
-    val patientIdentType = if (isDNR(patientIdent)) {
-        PaleConstant.DNR.string
-    } else {
-        PaleConstant.FNR.string
+    val patientIdentType =  when(isDNR(patientIdent)){
+        true -> PaleConstant.DNR.string
+        false -> PaleConstant.FNR.string
     }
 
     val personDeferred = retryWithInterval(retryInterval, "hent_person") {
@@ -431,6 +412,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 
     outcomes.addAll(postSARFlow(fellesformat, samhandler))
 
+    // TODO:Add tests for LEGEERKLAERING_MOTTAT
     if (outcomes.isEmpty()) {
         outcomes += OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome()
     }
@@ -441,7 +423,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 data class SamhandlerPraksisMatch(val samhandlerPraksis: SamhandlerPraksis, val percentageMatch: Double)
 
 fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFellesformat): SamhandlerPraksisMatch? {
-
     val orgName = extractSenderOrganisationName(fellesformat)
     val aktiveSamhandlere = samhandlers.flatMap { it.samh_praksis }
             .filter {
@@ -463,13 +444,9 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
     }
 
 fun calculatePercentageStringMatch(str1: String?, str2: String): Double {
-    var percentageStringMatch = 0.0
-    if (!str1.isNullOrBlank()) {
         val maxDistance = max(str1?.length!!, str2.length).toDouble()
         val distance = LevenshteinDistance().apply(str2, str1).toDouble()
-        percentageStringMatch = (maxDistance - distance) / maxDistance
-    }
-    return percentageStringMatch
+        return (maxDistance - distance) / maxDistance
 }
 
 fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {

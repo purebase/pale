@@ -5,12 +5,13 @@ import no.nav.pale.utils.readToFellesformat
 import no.nav.pale.validation.OutcomeType
 import no.nav.pale.validation.toOutcome
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate
 
 class FellesformatToBehandlingsvedleggTest {
 
-    val inputMeldingFellesformat = readToFellesformat("/mapping/legeerklaeringMinimumFields.xml")
+    val fellesformat = readToFellesformat("/mapping/legeerklaeringMinimumFields.xml")
     val outcomes = listOf(
             OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(
                     generatePersonNumber(LocalDate.now().minusYears(40)),
@@ -22,10 +23,31 @@ class FellesformatToBehandlingsvedleggTest {
     fun shouldCreateBehandlingsvedlegg() {
 
         try {
-            mapFellesformatToBehandlingsVedlegg(inputMeldingFellesformat, outcomes)
+            mapFellesformatToBehandlingsVedlegg(fellesformat, outcomes)
         } catch (ex: Exception) {
             println(ex.printStackTrace())
             Assert.fail()
         }
+    }
+
+
+    @Test
+    fun shouldCreateHCPFormatedNameWithMiddelName() {
+        val fellesformat = readToFellesformat("/legeerklaering.xml")
+        val org = fellesformat.msgHead.msgInfo.sender.organisation
+        val hcp = org.healthcareProfessional
+        val formatedName = hcp.formatName()
+        assertEquals("VALDA INGA FOS", formatedName)
+
+    }
+
+    @Test
+    fun shouldCreateHCPFormatedNameWithoutMiddelName() {
+        val fellesformat = readToFellesformat("/mapping/legeerklaeringHcpNoMiddelName.xml")
+        val org = fellesformat.msgHead.msgInfo.sender.organisation
+        val hcp = org.healthcareProfessional
+        val formatedName = hcp.formatName()
+        assertEquals("VALDA INGA", formatedName)
+
     }
 }

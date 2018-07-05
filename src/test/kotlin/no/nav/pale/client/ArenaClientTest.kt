@@ -52,7 +52,7 @@ class ArenaClientTest {
 
     @Test
     fun shouldSetPasientDataSperret() {
-        Assert.assertEquals(false, request.pasientData.isSperret)
+        Assert.assertEquals(true, request.pasientData.isSperret)
     }
 
     @Test

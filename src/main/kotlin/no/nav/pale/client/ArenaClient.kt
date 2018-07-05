@@ -17,7 +17,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode:
     mappeType = PaleConstant.mappetypeRP.string
     pasientData = ArenaEiaInfo.PasientData().apply {
         fnr = legeerklaering.pasientopplysninger.pasient.fodselsnummer
-        isSperret = false
+        isSperret = legeerklaering.forbeholdLegeerklaring.tilbakeholdInnhold.toInt() == 2
         tkNummer = navkontor
         if (sperrekode != null && (sperrekode == 6 || sperrekode == 7)) {
             spesreg = sperrekode

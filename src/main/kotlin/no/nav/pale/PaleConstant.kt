@@ -2,6 +2,7 @@ package no.nav.pale
 
 enum class PaleConstant(val string: String) {
     LE("LE"),
+    LEGEERKL("LEGEERKL"),
     legeerklæring("legeerklæring"),
     Legeerklæring("Legeerklæring"),
     APPREC("APPREC"),
@@ -29,5 +30,6 @@ enum class PaleConstant(val string: String) {
     mappetypeRP("RP"),
     versjon2_0("2.0"),
     DNR("DNR"),
-    FNR("FNR")
+    FNR("FNR"),
+    OPPFØLGING("OPPFØLGING")
 }
