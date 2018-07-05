@@ -127,9 +127,7 @@ fun main(args: Array<String>) = runBlocking {
     connectionFactory(fasitProperties).createConnection(fasitProperties.mqUsername, fasitProperties.mqPassword).use {
         connection ->
         connection.start()
-        //TODO add this back
-        //val sentinels = setOf("rfs-${fasitProperties.appName}:26379")
-        val sentinels = setOf("adasfaaf:0")
+        val sentinels = setOf("rfs-${fasitProperties.appName}:26379")
         JedisSentinelPool(redisMasterName, sentinels).resource.use {
             jedis ->
             val session = connection.createSession()
@@ -248,7 +246,6 @@ fun listen(
                         *defaultKeyValues)
             }
 
-            try {
                 val jedisSha256String = jedis.get(sha256String)
                 val duplicate = jedisSha256String != null
 
@@ -266,11 +263,6 @@ fun listen(
                 } else if (ediLoggId != null) {
                     jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
                 }
-            }
-            catch (e: JedisConnectionException) {
-                log.error("Problem with redis Connection, $defaultKeyFormat", *defaultKeyValues, e)
-                log.warn("Dropping duplicate check")
-            }
 
             val validationResult = try {
                 validateMessage(fellesformat, personV3, organisasjonEnhet, sarClient)
