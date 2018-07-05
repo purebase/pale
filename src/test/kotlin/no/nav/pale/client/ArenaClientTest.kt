@@ -41,8 +41,31 @@ class ArenaClientTest {
     }
 
     @Test
-    fun shouldSetMappeType() {
+    fun shouldSetMappeTypeUP() {
+        val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringUP.xml")
+        val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        Assert.assertEquals(PaleConstant.mappetypeUP.string, request.mappeType)
+    }
+
+    @Test
+    fun shouldSetMappeTypeYA() {
+         val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringYA.xml")
+         val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        Assert.assertEquals(PaleConstant.mappetypeYA.string, request.mappeType)
+    }
+
+    @Test
+    fun shouldSetMappeTypeRP() {
+        val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringRP.xml")
+        val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
         Assert.assertEquals(PaleConstant.mappetypeRP.string, request.mappeType)
+    }
+
+    @Test
+    fun shouldSetMappeTypeSP() {
+        val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringSP.xml")
+        val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        Assert.assertEquals(PaleConstant.mappetypeSP.string, request.mappeType)
     }
 
     @Test

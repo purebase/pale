@@ -5,7 +5,9 @@ import no.nav.pale.getHCPFodselsnummer
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.model.pale.AktueltTiltak
 import no.nav.pale.mapping.formatName
+import java.math.BigInteger
 
 fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode: Int? = null, navkontor: String?): ArenaEiaInfo = ArenaEiaInfo().apply {
     val legeerklaering = extractLegeerklaering(fellesformat)
@@ -14,7 +16,7 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode:
     hendelseStatus = PaleConstant.tilvurdering.string
     version = PaleConstant.versjon2_0.string
     skjemaType = PaleConstant.LE.string
-    mappeType = PaleConstant.mappetypeRP.string
+    mappeType = findMappeTypeInLegeerklaering(legeerklaering.legeerklaringGjelder.first().typeLegeerklaring)
     pasientData = ArenaEiaInfo.PasientData().apply {
         fnr = legeerklaering.pasientopplysninger.pasient.fodselsnummer
         isSperret = legeerklaering.forbeholdLegeerklaring.tilbakeholdInnhold.toInt() == 2
@@ -29,3 +31,11 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode:
         tssid = tssId
     }
 }
+
+fun findMappeTypeInLegeerklaering(typeLegeerklaring: BigInteger): String =
+    when (typeLegeerklaring){
+        4.toBigInteger() -> PaleConstant.mappetypeUP.string
+        3.toBigInteger() -> PaleConstant.mappetypeYA.string
+        2.toBigInteger() -> PaleConstant.mappetypeRP.string
+        else -> {PaleConstant.mappetypeSP.string}
+    }
