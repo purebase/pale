@@ -127,7 +127,9 @@ fun main(args: Array<String>) = runBlocking {
     connectionFactory(fasitProperties).createConnection(fasitProperties.mqUsername, fasitProperties.mqPassword).use {
         connection ->
         connection.start()
-        val sentinels = setOf("rfs-${fasitProperties.appName}:26379")
+        //TODO add this back
+        //val sentinels = setOf("rfs-${fasitProperties.appName}:26379")
+        val sentinels = setOf("adasfaaf:0")
         JedisSentinelPool(redisMasterName, sentinels).resource.use {
             jedis ->
             val session = connection.createSession()
