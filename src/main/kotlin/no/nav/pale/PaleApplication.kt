@@ -272,6 +272,7 @@ fun listen(
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
                 log.warn("Message with ediloggId {} has been sent in return $defaultKeyFormat", *defaultKeyValues)
+                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.addAll(validationResult.outcomes
@@ -309,8 +310,7 @@ fun listen(
                 } else {
                     log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
                 }
-
-                log.info("Sending OK apprec for $defaultKeyFormat", *defaultKeyValues)
+                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.ok)
                     text = apprecMarshaller.toString(apprec)
