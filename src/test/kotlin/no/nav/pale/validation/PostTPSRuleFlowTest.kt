@@ -47,19 +47,6 @@ class PostTPSRuleFlowTest {
         assertEquals(OutcomeType.MARRIED_TO_PATIENT, outcome?.outcomeType)
     }
 
-    @Test
-    fun shouldCreateOutcomeTypeSamboerMedPasient() {
-
-        val patient = Person().apply {
-            val familierelasjon = familierelasjon("SAMB")
-            harFraRolleI.add(familierelasjon)
-        }
-
-        val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.COHABITANT_WITH_PATIENT }
-
-        assertEquals(OutcomeType.COHABITANT_WITH_PATIENT, outcome?.outcomeType)
-    }
 
     @Test
     fun shouldCreateOutcomeTypeRegistertPartnerMedPasient() {
@@ -109,20 +96,6 @@ class PostTPSRuleFlowTest {
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.CHILD_OF_PATIENT }
 
         assertEquals(OutcomeType.CHILD_OF_PATIENT, outcome?.outcomeType)
-    }
-
-    @Test
-    fun shouldCreateOutcomeTypeGiftLeverAdskilt() {
-
-        val patient = Person().apply {
-            val familierelasjon = familierelasjon("GLAD")
-            harFraRolleI.add(familierelasjon)
-        }
-
-        val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.MARIED_LIVES_SEPERATED }
-
-        assertEquals(OutcomeType.MARIED_LIVES_SEPERATED, outcome?.outcomeType)
     }
 
     @Test

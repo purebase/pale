@@ -8,15 +8,7 @@ enum class RelationType(val kodeverkVerdi: String) {
     FOSTERFAR("FOFA"),
     FOSTERBARN("FOBA"),
     EKTEFELLE("EKTE"),
-    ENKE("ENKE"),
-    SKILT("SKIL"),
-    SEPARERT("SEPR"),
     REGISTRERT_PARTNER_MED("REPA"),
-    SEPARERT_PARTNER("SEPA"),
-    SKILT_PARTNER("SKPA"),
-    GJENLEVENDE_PARTNER("GJPA"),
-    GIFT_LEVER_ADSKILT("GLAD"),
-    SAMBOER("SAMB")
     ;
 
     companion object {
