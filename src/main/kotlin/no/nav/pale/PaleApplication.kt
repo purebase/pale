@@ -252,7 +252,7 @@ fun listen(
                 receiptProducer.send(session.createTextMessage().apply {
                     val apprec = createApprec(fellesformat, ApprecStatus.avvist)
                     apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                    log.warn("Message with ediloggId {} marked as duplicate $defaultKeyFormat", jedisSha256String,
+                    log.warn("Message marked as duplicate $defaultKeyFormat", jedisSha256String,
                             *defaultKeyValues)
                     text = apprecMarshaller.toString(apprec)
                     APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.dn).inc()
