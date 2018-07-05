@@ -31,7 +31,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     merknad = PaleConstant.legeerklæring.string
     mottakskanalKode = PaleConstant.eia.string
     mottattDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
-    innhold = PaleConstant.legeerklæring.string
+    innhold = PaleConstant.Legeerklæring.string
     journalForendeEnhetId = null
     journalposttypeKode = PaleConstant.journalposttypeKodeI.string
     journalstatusKode = PaleConstant.journalstatusKodeMO.string
@@ -74,7 +74,7 @@ fun mapfellesformatToDokumentInfoRelasjon(fellesformat: EIFellesformat, behandli
     }
     tilknyttetJournalpostSomKode = when (behandlingsvedlegg) {
         true -> PaleConstant.vedlegg.string
-        false ->    PaleConstant.houveddokument.string
+        false -> PaleConstant.houveddokument.string
     }
     tilknyttetAvNavn = PaleConstant.eiaAuto.string
     versjon = 1
