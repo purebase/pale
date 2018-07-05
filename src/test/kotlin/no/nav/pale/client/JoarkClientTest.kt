@@ -198,7 +198,7 @@ class JoarkClientTest {
     @Test
     fun shouldSetinnhold() {
 
-        Assert.assertEquals(PaleConstant.legeerklæring.string, requestZeroOutcomes.innhold)
+        Assert.assertEquals(PaleConstant.Legeerklæring.string, requestZeroOutcomes.innhold)
     }
 
     @Test
