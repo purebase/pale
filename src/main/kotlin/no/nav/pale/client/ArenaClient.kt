@@ -5,7 +5,6 @@ import no.nav.pale.getHCPFodselsnummer
 import no.nav.pale.validation.extractLegeerklaering
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
-import no.nav.model.pale.AktueltTiltak
 import no.nav.pale.mapping.formatName
 import java.math.BigInteger
 
