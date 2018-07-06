@@ -79,7 +79,6 @@ import org.slf4j.LoggerFactory
 import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
-import redis.clients.jedis.exceptions.JedisConnectionException
 import java.io.IOException
 import java.io.StringWriter
 import java.security.MessageDigest
