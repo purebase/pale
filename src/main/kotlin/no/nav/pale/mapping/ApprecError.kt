@@ -15,7 +15,7 @@ enum class ApprecError(val v: String, val dn: String, val s: String) {
     PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER("53",
             "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.",
             "2.16.578.1.12.4.1.1.8222"),
-    DUPLICAT("X99", "Duplikat! - Denne legeerklæringen meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+    DUPLICATE("X99", "Duplikat! - Denne legeerklæringen meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
             "2.16.578.1.12.4.1.1.8221")
     // All available apprecs for legeerklæring(OID=8222): https://volven.no/produkt.asp?id=335023&catID=3&subID=8
     // ALL available apprecs general OID=8221: https://volven.no/produkt.asp?id=340320&catID=3&subID=8

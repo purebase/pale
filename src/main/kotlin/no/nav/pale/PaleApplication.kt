@@ -84,11 +84,7 @@ import java.io.StringWriter
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-import javax.jms.BytesMessage
-import javax.jms.Connection
-import javax.jms.Queue
-import javax.jms.Session
-import javax.jms.TextMessage
+import javax.jms.*
 import javax.security.auth.callback.CallbackHandler
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
@@ -182,17 +178,17 @@ fun defaultLogInfo(keyValues: Array<StructuredArgument>): String =
         (0..(keyValues.size - 1)).joinToString(", ", "(", ")") { "{}" }
 
 fun listen(
-    pdfClient: PdfClient,
-    jedis: Jedis,
-    personV3: PersonV3,
-    organisasjonEnhet: OrganisasjonEnhetV2,
-    journalbehandling: Journalbehandling,
-    sarClient: SarClient,
-    inputQueue: Queue,
-    arenaQueue: Queue,
-    receiptQueue: Queue,
-    backoutQueue: Queue,
-    connection: Connection
+        pdfClient: PdfClient,
+        jedis: Jedis,
+        personV3: PersonV3,
+        organisasjonEnhet: OrganisasjonEnhetV2,
+        journalbehandling: Journalbehandling,
+        sarClient: SarClient,
+        inputQueue: Queue,
+        arenaQueue: Queue,
+        receiptQueue: Queue,
+        backoutQueue: Queue,
+        connection: Connection
 ) = launch {
     val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
     val consumer = session.createConsumer(inputQueue)
@@ -223,8 +219,8 @@ fun listen(
             INCOMING_MESSAGE_COUNTER.inc()
             val requestLatency = REQUEST_TIME.startTimer()
 
-            var ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
-            var sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
+            val ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
+            val sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
             defaultKeyValues = arrayOf(
                     keyValue("organisationNumber",extractOrganisationNumberFromSender(fellesformat)?.id),
@@ -245,23 +241,17 @@ fun listen(
                         *defaultKeyValues)
             }
 
-                val jedisSha256String = jedis.get(sha256String)
-                val duplicate = jedisSha256String != null
+            val jedisSha256String = jedis.get(sha256String)
+            val duplicate = jedisSha256String != null
 
-                if (duplicate) {
-                    receiptProducer.send(session.createTextMessage().apply {
-                        val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                        apprec.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
-                        log.warn("Message marked as duplicate $defaultKeyFormat" ,jedisSha256String,
-                                *defaultKeyValues)
-                        text = apprecMarshaller.toString(apprec)
-                        APPREC_ERROR_COUNTER.labels(ApprecError.DUPLICAT.dn).inc()
-                        APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
-                    })
-                    return@setMessageListener
-                } else if (ediLoggId != null) {
-                    jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
-                }
+            if (duplicate) {
+                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, ApprecError.DUPLICATE)
+                log.warn("Message marked as duplicate $defaultKeyFormat" ,jedisSha256String,
+                        *defaultKeyValues)
+                return@setMessageListener
+            } else if (ediLoggId != null) {
+                jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
+            }
 
             val validationResult = try {
                 validateMessage(fellesformat, personV3, organisasjonEnhet, sarClient)
@@ -273,37 +263,26 @@ fun listen(
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
                 log.warn("Message has been sent in return $defaultKeyFormat", *defaultKeyValues)
                 log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
-                receiptProducer.send(session.createTextMessage().apply {
-                    val apprec = createApprec(fellesformat, ApprecStatus.avvist)
-                    apprec.appRec.error.addAll(validationResult.outcomes
-                            .filter { it.outcomeType.messagePriority == Priority.RETUR }
-                            .map { mapApprecErrorToAppRecCV(it.apprecError!!) }
-                    )
-                    text = apprecMarshaller.toString(apprec)
-                    receiptProducer.send(this)
-                    for (error in apprec.appRec.error) {
-                        APPREC_ERROR_COUNTER.labels(error.dn).inc()
-                    }
-                    APPREC_STATUS_COUNTER.labels(ApprecStatus.avvist.dn).inc()
-                })
+                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, *validationResult.outcomes
+                        .mapNotNull { it.apprecError }
+                        .toTypedArray())
             } else {
-                val messageoutcomeManuel = validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }
-                when (messageoutcomeManuel) {
+                val manualHandling = validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }
+                when (manualHandling) {
                     true -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
                     false -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
                 }
-                val fagmelding = pdfClient.generatePDFBase64(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
-                val behandlingsvedlegg = pdfClient.generatePDFBase64(PdfType.BEHANDLINGSVEDLEGG, mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes))
-                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedlegg,
-                        messageoutcomeManuel)
+                val fagmelding = pdfClient.generatePDF(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
+                val behandlingsVedlegg = mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes)
+                val behandlingsvedleggPdf = pdfClient.generatePDF(PdfType.BEHANDLINGSVEDLEGG, behandlingsVedlegg)
+                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedleggPdf, manualHandling)
                 journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
 
                 if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
-                    log.info("Sending " + (if (messageoutcomeManuel) "manuel" else "auto") + " message to arena $defaultKeyFormat", *defaultKeyValues)
+                    log.info("Sending message to arena $defaultKeyFormat {}", *defaultKeyValues,
+                            keyValue("manualHandling", manualHandling))
                     arenaProducer.send(session.createTextMessage().apply {
-                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor )
-                        val stringWriter = StringWriter()
-                        arenaEiaInfoMarshaller.marshal(arenaEiaInfo, stringWriter)
+                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor)
                         text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
                         arenaProducer.send(this)
                     })
@@ -311,14 +290,10 @@ fun listen(
                     log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
                 }
                 log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
-                receiptProducer.send(session.createTextMessage().apply {
-                    val apprec = createApprec(fellesformat, ApprecStatus.ok)
-                    text = apprecMarshaller.toString(apprec)
-                    receiptProducer.send(this)
-                    APPREC_STATUS_COUNTER.labels(ApprecStatus.ok.dn).inc()
-                })
+                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.ok)
             }
-           requestLatency.observeDuration()
+            val currentRequestLatency = requestLatency.observeDuration()
+            log.info("Message $defaultKeyFormat was processed in {} s", *defaultKeyValues, currentRequestLatency)
         } catch (e: Exception) {
             log.error("Exception caught while handling message, sending to backout $defaultKeyFormat", *defaultKeyValues, e)
             backoutProducer.send(it)
@@ -330,15 +305,28 @@ fun listen(
     }
 }
 
+fun sendReceipt(session: Session, receiptProducer: MessageProducer, fellesformat: EIFellesformat,
+                apprecStatus: ApprecStatus, vararg apprecErrors: ApprecError) {
+    receiptProducer.send(session.createTextMessage().apply {
+        val apprec = createApprec(fellesformat, apprecStatus)
+        apprec.appRec.error.addAll(apprecErrors.map { mapApprecErrorToAppRecCV(it) })
+        text = apprecMarshaller.toString(apprec)
+        APPREC_STATUS_COUNTER.labels(apprecStatus.dn).inc()
+        for (error in apprec.appRec.error) {
+            APPREC_ERROR_COUNTER.labels(error.dn).inc()
+        }
+    })
+}
+
 fun Marshaller.toString(input: Any): String = StringWriter().use {
     marshal(input, it)
     it.toString()
 }
 
 data class ValidationResult(
-    val tssId: String?,
-    val outcomes: List<Outcome>,
-    val navkontor: String?
+        val tssId: String?,
+        val outcomes: List<Outcome>,
+        val navkontor: String?
 )
 
 fun List<Outcome>.toResult(tssId: String? = null, navkontor: String? = null) =
@@ -372,7 +360,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
 
     val person = try { runBlocking {
         personDeferred.await()
-            }
+    }
     } catch (e: HentPersonPersonIkkeFunnet) {
         // TODO:Add tests for adding apprec on this error
         outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS.toOutcome(
@@ -436,17 +424,17 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
             .filter {!it.navn.isNullOrEmpty() }
             .toList()
 
-        return aktiveSamhandlere
-                .map {
-                    SamhandlerPraksisMatch(it, calculatePercentageStringMatch(it.navn, orgName))
-                }.sortedBy { it.percentageMatch }
-                .firstOrNull()
-    }
+    return aktiveSamhandlere
+            .map {
+                SamhandlerPraksisMatch(it, calculatePercentageStringMatch(it.navn, orgName))
+            }.sortedBy { it.percentageMatch }
+            .firstOrNull()
+}
 
 fun calculatePercentageStringMatch(str1: String?, str2: String): Double {
-        val maxDistance = max(str1?.length!!, str2.length).toDouble()
-        val distance = LevenshteinDistance().apply(str2, str1).toDouble()
-        return (maxDistance - distance) / maxDistance
+    val maxDistance = max(str1?.length!!, str2.length).toDouble()
+    val distance = LevenshteinDistance().apply(str2, str1).toDouble()
+    return (maxDistance - distance) / maxDistance
 }
 
 fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: suspend () -> T): Deferred<T> {

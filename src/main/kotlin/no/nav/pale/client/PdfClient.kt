@@ -11,7 +11,7 @@ import java.io.IOException
 class PdfClient(private val baseUrl: String) {
     private val client: OkHttpClient = OkHttpClient()
 
-    fun generatePDFBase64(pdfType: PdfType, domainObject: Any): ByteArray {
+    fun generatePDF(pdfType: PdfType, domainObject: Any): ByteArray {
         val request = Request.Builder()
                 .post(RequestBody.create(MediaType.parse("application/json"), objectMapper.writeValueAsBytes(domainObject)))
                 .url("$baseUrl/v1/genpdf/pale/${pdfType.pdfGenName()}")

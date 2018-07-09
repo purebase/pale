@@ -20,7 +20,7 @@ class ApprecMapperTest {
 
     @Before
     fun setup() {
-        apprecFellesformatDuplikat.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICAT))
+        apprecFellesformatDuplikat.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.DUPLICATE))
         apprecFellesformaBehanderlPersonNumberNotValid.appRec.error.add(mapApprecErrorToAppRecCV(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID))
     }
 
@@ -162,19 +162,19 @@ class ApprecMapperTest {
     @Test
     fun shouldCreateApprecDuplikatWithErrosDn() {
 
-        assertEquals(ApprecError.DUPLICAT.dn, apprecFellesformatDuplikat.appRec.error[0].dn)
+        assertEquals(ApprecError.DUPLICATE.dn, apprecFellesformatDuplikat.appRec.error[0].dn)
     }
 
     @Test
     fun shouldCreateApprecDuplikatWithErrosV() {
 
-        assertEquals(ApprecError.DUPLICAT.v, apprecFellesformatDuplikat.appRec.error[0].v)
+        assertEquals(ApprecError.DUPLICATE.v, apprecFellesformatDuplikat.appRec.error[0].v)
     }
 
     @Test
     fun shouldCreateApprecDuplikatWithErross() {
 
-        assertEquals(ApprecError.DUPLICAT.s, apprecFellesformatDuplikat.appRec.error[0].s)
+        assertEquals(ApprecError.DUPLICATE.s, apprecFellesformatDuplikat.appRec.error[0].s)
     }
 
     @Test
