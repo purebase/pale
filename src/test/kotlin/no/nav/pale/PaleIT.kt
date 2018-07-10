@@ -33,7 +33,10 @@ import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhet
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
@@ -108,18 +111,7 @@ class PaleIT {
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
-        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
-
-        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
-                .withAktoer(person.aktoer)
-                .withNavn(person.personnavn)
-                .withGeografiskTilknytning(Kommune()
-                        .withGeografiskTilknytning("navkontor")))
-
-        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
-                .thenReturn(FinnNAVKontorResponse().apply {
-                    navKontor = defaultNavOffice()
-                })
+        defaultMocks(person)
 
         produceMessage(fellesformatString)
 
@@ -134,18 +126,7 @@ class PaleIT {
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
-        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
-
-        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
-                .withAktoer(person.aktoer)
-                .withNavn(person.personnavn)
-                .withGeografiskTilknytning(Kommune()
-                        .withGeografiskTilknytning("navkontor")))
-
-        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
-                .thenReturn(FinnNAVKontorResponse().apply {
-                    navKontor = defaultNavOffice()
-                })
+        defaultMocks(person)
 
         produceMessage(fellesformatString)
 
@@ -160,18 +141,7 @@ class PaleIT {
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
-        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
-
-        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
-                .withAktoer(person.aktoer)
-                .withNavn(person.personnavn)
-                .withGeografiskTilknytning(Kommune()
-                        .withGeografiskTilknytning("navkontor")))
-
-        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
-                .thenReturn(FinnNAVKontorResponse().apply {
-                    navKontor = defaultNavOffice()
-                })
+        defaultMocks(person)
 
         produceMessage(fellesformatString)
 
@@ -197,18 +167,7 @@ class PaleIT {
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
-        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
-
-        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
-                .withAktoer(person.aktoer)
-                .withNavn(person.personnavn)
-                .withGeografiskTilknytning(Kommune()
-                        .withGeografiskTilknytning("navkontor")))
-
-        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
-                .thenReturn(FinnNAVKontorResponse().apply {
-                    navKontor = defaultNavOffice()
-                })
+        defaultMocks(person)
 
         produceMessage(fellesformatString)
 
@@ -227,6 +186,41 @@ class PaleIT {
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
+        defaultMocks(person)
+
+        produceMessage(fellesformatString)
+
+        readAppRec()
+        val arenaEiaInfo = readArenaEiaInfo()
+        assertNotNull(arenaEiaInfo)
+        assertEquals(7, arenaEiaInfo.pasientData.spesreg)
+    }
+
+
+    @Test
+    fun testPatientMarriedToDoctor() {
+        val doctor = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
+            this.harFraRolleI.add(
+                    Familierelasjon().withTilPerson(doctor)
+                            .withTilRolle(Familierelasjoner()
+                            .withValue(RelationType.EKTEFELLE.kodeverkVerdi))
+            )
+        }
+        val fellesformat = defaultFellesformat(person = person, doctor = doctor)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        defaultMocks(person)
+
+        produceMessage(fellesformatString)
+
+        readAppRec()
+        val arenaEiaInfo = readArenaEiaInfo()
+        assertNotNull(arenaEiaInfo)
+        assertArenaInfoContains(arenaEiaInfo, OutcomeType.MARRIED_TO_PATIENT)
+    }
+
+    fun defaultMocks(person: Person) {
         `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
 
         `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
@@ -239,13 +233,6 @@ class PaleIT {
                 .thenReturn(FinnNAVKontorResponse().apply {
                     navKontor = defaultNavOffice()
                 })
-
-        produceMessage(fellesformatString)
-
-        readAppRec()
-        val arenaEiaInfo = readArenaEiaInfo()
-        assertNotNull(arenaEiaInfo)
-        assertEquals(7, arenaEiaInfo.pasientData.spesreg)
     }
 
     companion object {
