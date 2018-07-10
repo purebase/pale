@@ -25,6 +25,7 @@ import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultNavOffice
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.defaultSamhandler
+import no.nav.pale.mapping.ApprecError
 import no.nav.pale.utils.assertArenaInfoContains
 import no.nav.pale.utils.randomPort
 import no.nav.pale.validation.OutcomeType
@@ -148,6 +149,40 @@ class PaleIT {
         readAppRec()
         val arenaEiaInfo = readArenaEiaInfo()
         assertArenaInfoContains(arenaEiaInfo, OutcomeType.LEGEERKLAERING_MOTTAT)
+    }
+
+    @Test
+    fun testDuplicateReturnsCorrectApprec() {
+
+        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
+
+        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
+                .withAktoer(person.aktoer)
+                .withNavn(person.personnavn)
+                .withGeografiskTilknytning(Kommune()
+                        .withGeografiskTilknytning("navkontor")))
+
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+                .thenReturn(FinnNAVKontorResponse().apply {
+                    navKontor = defaultNavOffice()
+                })
+
+        produceMessage(fellesformatString)
+
+        readAppRec()
+        readArenaEiaInfo()
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.DUPLICATE.s, apprec.error[0].s)
+        assertEquals(ApprecError.DUPLICATE.v, apprec.error[0].v)
     }
 
     companion object {
