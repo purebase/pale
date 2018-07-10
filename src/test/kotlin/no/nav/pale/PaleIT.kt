@@ -177,7 +177,6 @@ class PaleIT {
         assertNull(consumeMessage(arenaConsumer))
     }
 
-
     @Test
     fun testSperreKode7CausesArenaMessage() {
         val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
@@ -197,7 +196,6 @@ class PaleIT {
         assertNotNull(arenaEiaInfo)
         assertEquals(7, arenaEiaInfo.pasientData.spesreg)
     }
-
 
     @Test
     fun testPatientMarriedToDoctor() {
