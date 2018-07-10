@@ -15,7 +15,6 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import net.logstash.logback.argument.StructuredArgument
 import net.logstash.logback.argument.StructuredArguments.keyValue
-import no.nav.pale.sts.configureSTSFor
 import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
@@ -40,12 +39,13 @@ import no.nav.pale.metrics.MESSAGE_OUTCOME_COUNTER
 import no.nav.pale.metrics.QueueStatusCollector
 import no.nav.pale.metrics.REQUEST_TIME
 import no.nav.pale.metrics.WS_CALL_TIME
+import no.nav.pale.sts.configureSTSFor
 import no.nav.pale.validation.Outcome
 import no.nav.pale.validation.OutcomeType
 import no.nav.pale.validation.Priority
-import no.nav.pale.validation.extractOrganisationNumberFromSender
 import no.nav.pale.validation.extractDoctorIdentFromSignature
 import no.nav.pale.validation.extractLegeerklaering
+import no.nav.pale.validation.extractOrganisationNumberFromSender
 import no.nav.pale.validation.extractPersonIdent
 import no.nav.pale.validation.extractSenderOrganisationName
 import no.nav.pale.validation.isDNR
@@ -55,6 +55,7 @@ import no.nav.pale.validation.postTPSFlow
 import no.nav.pale.validation.preTPSFlow
 import no.nav.pale.validation.shouldReturnEarly
 import no.nav.pale.validation.toOutcome
+import no.nav.pale.validation.toSystemSvar
 import no.nav.pale.validation.validationFlow
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Geografi
@@ -76,20 +77,24 @@ import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.apache.wss4j.dom.WSConstants
 import org.apache.wss4j.dom.handler.WSHandlerConstants
 import org.slf4j.LoggerFactory
-import javax.xml.datatype.DatatypeFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
 import java.io.IOException
+import java.io.StringReader
 import java.io.StringWriter
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-import javax.jms.*
+import javax.jms.Connection
+import javax.jms.MessageProducer
+import javax.jms.Queue
+import javax.jms.Session
+import javax.jms.TextMessage
 import javax.security.auth.callback.CallbackHandler
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
-import javax.xml.transform.stream.StreamSource
+import javax.xml.datatype.DatatypeFactory
 import kotlin.math.max
 
 val objectMapper: ObjectMapper = ObjectMapper()
@@ -178,18 +183,19 @@ fun defaultLogInfo(keyValues: Array<StructuredArgument>): String =
         (0..(keyValues.size - 1)).joinToString(", ", "(", ")") { "{}" }
 
 fun listen(
-        pdfClient: PdfClient,
-        jedis: Jedis,
-        personV3: PersonV3,
-        organisasjonEnhet: OrganisasjonEnhetV2,
-        journalbehandling: Journalbehandling,
-        sarClient: SarClient,
-        inputQueue: Queue,
-        arenaQueue: Queue,
-        receiptQueue: Queue,
-        backoutQueue: Queue,
-        connection: Connection
+    pdfClient: PdfClient,
+    jedis: Jedis,
+    personV3: PersonV3,
+    organisasjonEnhet: OrganisasjonEnhetV2,
+    journalbehandling: Journalbehandling,
+    sarClient: SarClient,
+    inputQueue: Queue,
+    arenaQueue: Queue,
+    receiptQueue: Queue,
+    backoutQueue: Queue,
+    connection: Connection
 ) = launch {
+
     val session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
     val consumer = session.createConsumer(inputQueue)
     val arenaProducer = session.createProducer(arenaQueue)
@@ -200,30 +206,25 @@ fun listen(
     var defaultKeyFormat = defaultLogInfo(defaultKeyValues)
 
     // Excluded arenaQueue due to no read rights
-    QueueStatusCollector(connection, inputQueue, receiptQueue, backoutQueue)
-            .register<QueueStatusCollector>()
+    QueueStatusCollector(connection, inputQueue, receiptQueue, backoutQueue).register<QueueStatusCollector>()
 
     consumer.setMessageListener {
         try {
             val inputMessageText = when (it) {
-                is BytesMessage -> {
-                    val bytes = ByteArray(it.bodyLength.toInt())
-                    it.readBytes(bytes)
-                    String(bytes, Charsets.ISO_8859_1)
-                }
                 is TextMessage -> it.text
                 else -> throw RuntimeException("Incoming message needs to be a byte message or text message")
             }
 
-            val fellesformat = fellesformatUnmarshaller.unmarshal(StreamSource(inputMessageText.byteInputStream()), EIFellesformat::class.java).value
+            val fellesformat = fellesformatUnmarshaller.unmarshal(StringReader(inputMessageText)) as EIFellesformat
             INCOMING_MESSAGE_COUNTER.inc()
             val requestLatency = REQUEST_TIME.startTimer()
 
             val ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId
             val sha256String = sha256hashstring(extractLegeerklaering(fellesformat))
 
+            // TODO: Do we want to use markers for this instead?
             defaultKeyValues = arrayOf(
-                    keyValue("organisationNumber",extractOrganisationNumberFromSender(fellesformat)?.id),
+                    keyValue("organisationNumber", extractOrganisationNumberFromSender(fellesformat)?.id),
                     keyValue("ediLoggId", fellesformat.mottakenhetBlokk.ediLoggId),
                     keyValue("msgId", fellesformat.msgHead.msgInfo.msgId),
                     keyValue("messageId", sha256String)
@@ -246,7 +247,7 @@ fun listen(
 
             if (duplicate) {
                 sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, ApprecError.DUPLICATE)
-                log.warn("Message marked as duplicate $defaultKeyFormat" ,jedisSha256String,
+                log.warn("Message marked as duplicate $defaultKeyFormat", jedisSha256String,
                         *defaultKeyValues)
                 return@setMessageListener
             } else if (ediLoggId != null) {
@@ -260,66 +261,70 @@ fun listen(
                 throw e
             }
 
-            if (log.isDebugEnabled) {
-                log.debug("Outcomes for this message.")
-                validationResult.outcomes.forEach { log.debug(it.formattedMessage) }
-            }
+            log.debug("Outcomes: " + validationResult.outcomes.joinToString(", ", prefix = "\"", postfix = "\""))
 
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
-                log.warn("Message has been sent in return $defaultKeyFormat", *defaultKeyValues)
-                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
                 sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, *validationResult.outcomes
                         .mapNotNull { it.apprecError }
                         .toTypedArray())
-            } else {
-                val manualHandling = validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING }
-                when (manualHandling) {
-                    true -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
-                    false -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
-                }
-                val fagmelding = pdfClient.generatePDF(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
-                val behandlingsVedlegg = mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes)
-                val behandlingsvedleggPdf = pdfClient.generatePDF(PdfType.BEHANDLINGSVEDLEGG, behandlingsVedlegg)
-                val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedleggPdf, manualHandling)
-                journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
-
-                if (validationResult.outcomes.none { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
-                    log.info("Sending message to arena $defaultKeyFormat {}", *defaultKeyValues,
-                            keyValue("manualHandling", manualHandling))
-                    arenaProducer.send(session.createTextMessage().apply {
-                        // TODO: Add sperrekode here for sperrekode 7
-                        val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor)
-                        fun Outcome.toSystemSvar(): ArenaEiaInfo.EiaData.SystemSvar =
-                                ArenaEiaInfo.EiaData.SystemSvar().apply {
-                                    meldingsPrioritet = outcomeType.messagePriority.priorityNumber.toBigInteger()
-                                    meldingsNr = outcomeType.messageNumber.toBigInteger()
-                                    meldingsTekst = formattedMessage
-                                }
-
-                        arenaEiaInfo.eiaData = ArenaEiaInfo.EiaData().apply {
-                            systemSvar.addAll(validationResult.outcomes
-                                    .filter {
-                                                it.outcomeType.messagePriority == Priority.FOLLOW_UP
-                                                || it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING
-                                    }
-                                    .map { it.toSystemSvar() })
-
-                            if (systemSvar.isEmpty()) {
-                                systemSvar.add(OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome().toSystemSvar())
-                            }
-                        }
-                        text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
-                    })
-                } else {
-                    log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
-                }
-                log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
-                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.ok)
+                val currentRequestLatency = requestLatency.observeDuration()
+                log.info("Message $defaultKeyFormat has been sent in return, processing took {}s",
+                        *defaultKeyValues, currentRequestLatency)
+                return@setMessageListener
             }
+
+            val manualHandling = validationResult.outcomes.any {
+                it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING
+            }
+
+            when (manualHandling) {
+                true -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaMan.string).inc()
+                false -> MESSAGE_OUTCOME_COUNTER.labels(PaleConstant.eiaOk.string).inc()
+            }
+
+            val fagmelding = pdfClient.generatePDF(PdfType.FAGMELDING, mapFellesformatToFagmelding(fellesformat))
+            val behandlingsVedlegg = mapFellesformatToBehandlingsVedlegg(fellesformat, validationResult.outcomes)
+            val behandlingsvedleggPdf = pdfClient.generatePDF(PdfType.BEHANDLINGSVEDLEGG, behandlingsVedlegg)
+            val joarkRequest = createJoarkRequest(fellesformat, fagmelding, behandlingsvedleggPdf, manualHandling)
+            journalbehandling.lagreDokumentOgOpprettJournalpost(joarkRequest)
+
+            // Sperrekode 6 is a special case and is not sent to Arena, it should still create a task in Gosys
+            if (validationResult.outcomes.any { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 }) {
+                log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)
+            } else {
+                log.info("Sending message to arena $defaultKeyFormat {}", *defaultKeyValues,
+                        keyValue("manualHandling", manualHandling))
+
+                arenaProducer.send(session.createTextMessage().apply {
+                    val sperrekode = when {
+                        validationResult.outcomes.any { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_6 } -> 6
+                        validationResult.outcomes.any { it.outcomeType == OutcomeType.PATIENT_HAS_SPERREKODE_7 } -> 7
+                        else -> null
+                    }
+
+                    text = arenaEiaInfoMarshaller.toString(createArenaEiaInfo(fellesformat, validationResult.tssId,
+                            sperrekode, validationResult.navkontor)
+                            .apply {
+                                eiaData = ArenaEiaInfo.EiaData().apply {
+                                    systemSvar.addAll(validationResult.outcomes
+                                            .filter { it.outcomeType.messagePriority.createsArenaInfo }
+                                            .map { it.toSystemSvar() })
+
+                                    if (systemSvar.isEmpty()) {
+                                        systemSvar.add(OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome().toSystemSvar())
+                                    }
+                                }
+                            })
+                })
+            }
+
+            log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
+            sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.ok)
             val currentRequestLatency = requestLatency.observeDuration()
             log.info("Message $defaultKeyFormat was processed in {} s", *defaultKeyValues, currentRequestLatency)
         } catch (e: Exception) {
-            log.error("Exception caught while handling message, sending to backout $defaultKeyFormat", *defaultKeyValues, e)
+            log.error("Exception caught while handling message, sending to backout $defaultKeyFormat",
+                    *defaultKeyValues, e)
             backoutProducer.send(it)
         }
     }
@@ -329,8 +334,14 @@ fun listen(
     }
 }
 
-fun sendReceipt(session: Session, receiptProducer: MessageProducer, fellesformat: EIFellesformat,
-                apprecStatus: ApprecStatus, vararg apprecErrors: ApprecError) {
+fun sendReceipt(
+    session: Session,
+    receiptProducer: MessageProducer,
+    fellesformat: EIFellesformat,
+    apprecStatus: ApprecStatus,
+    vararg apprecErrors: ApprecError
+) {
+
     receiptProducer.send(session.createTextMessage().apply {
         val apprec = createApprec(fellesformat, apprecStatus)
         apprec.appRec.error.addAll(apprecErrors.map { mapApprecErrorToAppRecCV(it) })
@@ -348,15 +359,22 @@ fun Marshaller.toString(input: Any): String = StringWriter().use {
 }
 
 data class ValidationResult(
-        val tssId: String?,
-        val outcomes: List<Outcome>,
-        val navkontor: String?
+    val tssId: String?,
+    val outcomes: List<Outcome>,
+    val navkontor: String?
 )
 
-fun List<Outcome>.toResult(tssId: String? = null, navkontor: String? = null) =
-        ValidationResult(tssId, this, navkontor)
+fun List<Outcome>.toResult(
+    tssId: String? = null,
+    navkontor: String? = null
+) = ValidationResult(tssId, this, navkontor)
 
-fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasjonEnhet: OrganisasjonEnhetV2, sarClient: SarClient): ValidationResult {
+fun validateMessage(
+    fellesformat: EIFellesformat,
+    personV3: PersonV3,
+    orgnaisasjonEnhet: OrganisasjonEnhetV2,
+    sarClient: SarClient
+): ValidationResult {
     val legeerklaering = extractLegeerklaering(fellesformat)
     val outcomes = mutableListOf<Outcome>()
 
@@ -368,7 +386,7 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
         return outcomes.toResult()
 
     val patientIdent = extractPersonIdent(legeerklaering)!!
-    val patientIdentType =  when(isDNR(patientIdent)){
+    val patientIdentType = when (isDNR(patientIdent)) {
         true -> PaleConstant.DNR.string
         false -> PaleConstant.FNR.string
     }
@@ -436,11 +454,12 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
                 it.samh_praksis_status_kode == "aktiv"
             }
             .filter {
-                it.samh_praksis_periode.any {
-                    it.gyldig_fra <= LocalDateTime.now() && (it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now())
-                }
+                it.samh_praksis_periode
+                        .filter { it.gyldig_fra <= LocalDateTime.now() }
+                        .filter { it.gyldig_til == null || it.gyldig_til >= LocalDateTime.now() }
+                        .any()
             }
-            .filter {!it.navn.isNullOrEmpty() }
+            .filter { !it.navn.isNullOrEmpty() }
             .toList()
 
     return aktiveSamhandlere

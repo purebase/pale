@@ -23,7 +23,7 @@ class PostTPSRuleFlowTest {
     fun shouldCreateOutcomeTypeRegisterteDodITPS() {
         val person = Person().apply {
             doedsdato = Doedsdato().apply {
-                setDoedsdato(DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar()))
+                doedsdato = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
             }
         }
 
@@ -46,7 +46,6 @@ class PostTPSRuleFlowTest {
 
         assertEquals(OutcomeType.MARRIED_TO_PATIENT, outcome?.outcomeType)
     }
-
 
     @Test
     fun shouldCreateOutcomeTypeRegistertPartnerMedPasient() {

@@ -1,5 +1,6 @@
 package no.nav.pale.validation
 
+import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.pale.mapping.ApprecError
 
 data class Outcome(val outcomeType: OutcomeType, val args: Array<out Any>, val apprecError: ApprecError?) {
@@ -11,6 +12,13 @@ data class Outcome(val outcomeType: OutcomeType, val args: Array<out Any>, val a
     val formattedMessage
             get() = String.format(outcomeType.messageText, *args)
 }
+
+fun Outcome.toSystemSvar(): ArenaEiaInfo.EiaData.SystemSvar =
+        ArenaEiaInfo.EiaData.SystemSvar().apply {
+            meldingsPrioritet = outcomeType.messagePriority.priorityNumber.toBigInteger()
+            meldingsNr = outcomeType.messageNumber.toBigInteger()
+            meldingsTekst = formattedMessage
+        }
 
 enum class OutcomeType(val messageNumber: Int, val messageText: String, val messagePriority: Priority, val messageType: Type) {
     PATIENT_PERSON_NUMBER_NOT_FOUND(13, "Pasientens fødselsnummer finnes ikke i skjema", Priority.RETUR, Type.FAGLIG),
@@ -69,11 +77,11 @@ operator fun MutableList<Outcome>.plusAssign(outcomeType: OutcomeType) {
     this += outcomeType.toOutcome()
 }
 
-enum class Priority(val priorityNumber: Int) {
-    RETUR(1),
-    MANUAL_PROCESSING(2),
-    FOLLOW_UP(3),
-    NOTE(4)
+enum class Priority(val priorityNumber: Int, val createsArenaInfo: Boolean) {
+    RETUR(1, false),
+    MANUAL_PROCESSING(2, true),
+    FOLLOW_UP(3, true),
+    NOTE(4, false)
 }
 
 enum class Type(val type: String) {

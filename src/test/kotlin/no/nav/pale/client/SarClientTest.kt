@@ -42,15 +42,14 @@ class SarClientTest {
         createHttpMock(samhandlerList, InternalServerError)
 
         val sarClient = SarClient(mockHttpServerUrl, "username", "password")
-         sarClient.getSamhandler(extractDoctorIdentFromSignature(fellesformat))
+        sarClient.getSamhandler(extractDoctorIdentFromSignature(fellesformat))
     }
 
     private fun createHttpMock(samhandlerList: List<Samhandler>, httpstatskode: HttpStatusCode) {
         mockWebserver = embeddedServer(Netty, mockHttpServerPort) {
             routing {
                 get("/rest/sar/samh") {
-                    if (httpstatskode.value != OK.value)
-                    {
+                    if (httpstatskode.value != OK.value) {
                         call.respond(InternalServerError)
                     }
                     call.respondJson {
@@ -164,12 +163,12 @@ class SarClientTest {
         samhandlerPeriodeListe.add(
                 SamhandlerPeriode(
                         endret_ved_import = "hendelse",
-                        sist_endret=  LocalDateTime.now(),
-                        slettet= "Nope",
+                        sist_endret = LocalDateTime.now(),
+                        slettet = "Nope",
                         gyldig_fra = praksisgyldig_fra,
                         gyldig_til = praksisgyldig_til,
                         samh_praksis_id = "12356",
-                        samh_praksis_periode_id =  "1234"
+                        samh_praksis_periode_id = "1234"
 
                 )
         )

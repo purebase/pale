@@ -3,7 +3,6 @@ package no.nav.pale.datagen
 import com.devskiller.jfairy.Fairy
 import com.devskiller.jfairy.producer.company.Company
 import com.devskiller.jfairy.producer.person.PersonProperties
-import com.devskiller.jfairy.producer.person.PersonProvider
 import io.ktor.util.toLocalDateTime
 import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.LegeerklaeringType
@@ -51,10 +50,27 @@ import no.nav.model.pale.Virksomhet
 import no.nav.model.pale.VurderingArbeidsevne
 import no.nav.model.pale.VurderingFunksjonsevne
 import no.nav.model.pale.VurderingYrkesskade
-import no.nav.pale.client.*
+import no.nav.pale.client.Samhandler
+import no.nav.pale.client.SamhandlerDirekteOppgjoerAvtale
+import no.nav.pale.client.SamhandlerIdent
+import no.nav.pale.client.SamhandlerPeriode
+import no.nav.pale.client.SamhandlerPraksis
+import no.nav.pale.client.SamhandlerPraksisEmail
+import no.nav.pale.client.SamhandlerPraksisKonto
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bostedsadresse
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Gateadresse
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Landkoder
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postadresse
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postnummer
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.UstrukturertAdresse
 import org.junit.Test
 import java.io.StringWriter
 import java.math.BigInteger
@@ -62,7 +78,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Date
+import java.util.GregorianCalendar
+import java.util.Locale
+import java.util.Random
+import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
@@ -98,9 +118,9 @@ class GeneratedAddress(var city: String? = null) : Gateadresse()
 fun defaultSamhandler(person: Person): Samhandler {
     val personNumber = (person.aktoer as PersonIdent).ident.ident
     val random = Random(personNumber.toLong())
-    val samhandlerIdent = random.nextInt(1000000000)+1000000000
-    val samhandlerIdentId = random.nextInt(1000000000)+1000000000
-    val samhandlerPraksisId = random.nextInt(1000000000)+1000000000
+    val samhandlerIdent = random.nextInt(1000000000) + 1000000000
+    val samhandlerIdentId = random.nextInt(1000000000) + 1000000000
+    val samhandlerPraksisId = random.nextInt(1000000000) + 1000000000
     return Samhandler(
             samh_id = samhandlerIdent.toString(),
             navn = person.personnavn.sammensattNavn,
@@ -129,7 +149,7 @@ fun defaultSamhandler(person: Person): Samhandler {
                             arbeids_adresse_linje_3 = null,
                             arbeids_adresse_linje_4 = null,
                             arbeids_adresse_linje_5 = null,
-                            tss_ident = (random.nextInt(1000000000)+1000000000).toString(),
+                            tss_ident = (random.nextInt(1000000000) + 1000000000).toString(),
                             samh_praksis_type_kode = "FALE",
                             samh_id = samhandlerIdent.toString(),
                             samh_praksis_id = samhandlerPraksisId.toString(),
@@ -138,7 +158,7 @@ fun defaultSamhandler(person: Person): Samhandler {
                                     registrert_av_id = "AB123CDE",
                                     konto = "12341212345",
                                     samh_praksis_id = samhandlerPraksisId.toString(),
-                                    samh_praksis_konto_id = (random.nextInt(1000000000)+1000000000).toString()
+                                    samh_praksis_konto_id = (random.nextInt(1000000000) + 1000000000).toString()
                             )),
                             samh_praksis_periode = listOf(SamhandlerPeriode(
                                     endret_ved_import = "0",
@@ -147,10 +167,10 @@ fun defaultSamhandler(person: Person): Samhandler {
                                     gyldig_fra = Date(0).toLocalDateTime(),
                                     gyldig_til = null,
                                     samh_praksis_id = samhandlerPraksisId.toString(),
-                                    samh_praksis_periode_id = (random.nextInt(1000000000)+1000000000).toString()
+                                    samh_praksis_periode_id = (random.nextInt(1000000000) + 1000000000).toString()
                             )),
                             samh_praksis_email = listOf(SamhandlerPraksisEmail(
-                                    samh_praksis_email_id = (random.nextInt(1000000000)+1000000000).toString(),
+                                    samh_praksis_email_id = (random.nextInt(1000000000) + 1000000000).toString(),
                                     samh_praksis_id = samhandlerPraksisId.toString(),
                                     email = "void@dev.null",
                                     primaer_email = null
@@ -231,7 +251,6 @@ fun defaultPerson(vararg personProperties: PersonProperties.PersonProperty, fami
                             .withAdresselinje2(person.address.addressLine2))
                     .withEndringstidspunkt(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().minusYears(1)))))
             .withHarFraRolleI(*famillyRelations)
-
 }
 
 fun defaultFellesformat(person: Person = defaultPerson(), doctor: Person = defaultPerson(), doctorTelephoneNumber: Int = telephoneNumber(doctor)): EIFellesformat {
@@ -501,7 +520,7 @@ fun generateOrganisationNumber(): String {
 }
 
 private fun validateOrgNumberMod11(orgNumber: String): Boolean {
-    val lookup1: IntArray = intArrayOf(3, 2, 7, 6, 5, 4, 3, 2 )
+    val lookup1: IntArray = intArrayOf(3, 2, 7, 6, 5, 4, 3, 2)
     if (orgNumber.length != 9)
         return false
 

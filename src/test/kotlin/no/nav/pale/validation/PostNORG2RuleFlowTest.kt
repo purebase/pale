@@ -48,6 +48,5 @@ class PostNORG2RuleFlowTest {
         val outcome = outcomeList.find { it.apprecError == ApprecError.MISSING_PATIENT_INFO }
 
         Assert.assertEquals(ApprecError.MISSING_PATIENT_INFO, outcome?.apprecError)
-
     }
 }

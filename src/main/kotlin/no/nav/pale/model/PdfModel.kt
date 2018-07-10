@@ -68,7 +68,7 @@ data class Arbeidsgiver(
     val poststed: String?
 )
 
-data class SykdomsOpplysninger (
+data class SykdomsOpplysninger(
     val hoveddiagnose: Diagnose?,
     val bidiagnose: List<Diagnose?>,
     val arbeidsufoerFra: ZonedDateTime?,

@@ -19,8 +19,8 @@ class PostSarFlowTest {
                 "Kule Helsetjenester As",
                 "aktiv",
                 "LE",
-               LocalDateTime.now().plusDays(1L),
-               LocalDateTime.now().plusDays(23L))
+                LocalDateTime.now().plusDays(1L),
+                LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_NOT_SAR }
@@ -84,7 +84,7 @@ class PostSarFlowTest {
                 LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR   }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR }
 
         Assert.assertEquals(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR, outcome?.outcomeType)
     }
@@ -99,7 +99,7 @@ class PostSarFlowTest {
                 LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED   }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED }
 
         Assert.assertEquals(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, outcome?.outcomeType)
     }
@@ -114,78 +114,89 @@ class PostSarFlowTest {
                 LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED   }
+        val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED }
 
         Assert.assertNotEquals(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, outcome?.outcomeType)
     }
 
-    fun createSamhandlerPraksis(praksisGydligfra: LocalDateTime, praksisGyldigtil: LocalDateTime,navn: String, aktiv: String): List<SamhandlerPraksis> {
-    val samhandlerPraksisListe = mutableListOf<SamhandlerPraksis>()
+    fun createSamhandlerPraksis(
+        praksisGydligfra: LocalDateTime,
+        praksisGyldigtil: LocalDateTime,
+        navn: String,
+        aktiv: String
+    ): List<SamhandlerPraksis> {
+        val samhandlerPraksisListe = mutableListOf<SamhandlerPraksis>()
         samhandlerPraksisListe.add(
-            SamhandlerPraksis(
-                    refusjon_type_kode = "231",
-                    laerer = "Nope",
-                    lege_i_spesialisering = "Nope",
-                    tidspunkt_resync_periode = LocalDateTime.now(),
-                    tidspunkt_registrert = LocalDateTime.now().minusDays(1L),
-                    samh_praksis_status_kode = aktiv,
-                    telefonnr = "89343300",
-                    arbeids_kommune_nr = "1201",
-                    arbeids_postnr = "0657",
-                    arbeids_adresse_linje_1 = "",
-                    arbeids_adresse_linje_2 = "Langt vekke",
-                    arbeids_adresse_linje_3 = "",
-                    arbeids_adresse_linje_4 = "",
-                    arbeids_adresse_linje_5 = "",
-                    her_id = "12345",
-                    post_adresse_linje_1 = "",
-                    post_adresse_linje_2 = "",
-                    post_adresse_linje_3 = "",
-                    post_adresse_linje_4 = "",
-                    post_adresse_linje_5 = "",
-                    post_kommune_nr = "1201",
-                    post_postnr = "",
-                    resh_id = "",
-                    tss_ident = "1213455",
-                    navn = navn,
-                    ident = "1",
-                    samh_praksis_type_kode = "LEVA",
-                    samh_id = "1234",
-                    samh_praksis_id = "12356",
-                    samh_praksis_konto = emptyList(),
-                    samh_praksis_periode = createSamhanderPeriode(praksisGydligfra, praksisGyldigtil),
-                    samh_praksis_email = listOf()
-            )
+                SamhandlerPraksis(
+                        refusjon_type_kode = "231",
+                        laerer = "Nope",
+                        lege_i_spesialisering = "Nope",
+                        tidspunkt_resync_periode = LocalDateTime.now(),
+                        tidspunkt_registrert = LocalDateTime.now().minusDays(1L),
+                        samh_praksis_status_kode = aktiv,
+                        telefonnr = "89343300",
+                        arbeids_kommune_nr = "1201",
+                        arbeids_postnr = "0657",
+                        arbeids_adresse_linje_1 = "",
+                        arbeids_adresse_linje_2 = "Langt vekke",
+                        arbeids_adresse_linje_3 = "",
+                        arbeids_adresse_linje_4 = "",
+                        arbeids_adresse_linje_5 = "",
+                        her_id = "12345",
+                        post_adresse_linje_1 = "",
+                        post_adresse_linje_2 = "",
+                        post_adresse_linje_3 = "",
+                        post_adresse_linje_4 = "",
+                        post_adresse_linje_5 = "",
+                        post_kommune_nr = "1201",
+                        post_postnr = "",
+                        resh_id = "",
+                        tss_ident = "1213455",
+                        navn = navn,
+                        ident = "1",
+                        samh_praksis_type_kode = "LEVA",
+                        samh_id = "1234",
+                        samh_praksis_id = "12356",
+                        samh_praksis_konto = emptyList(),
+                        samh_praksis_periode = createSamhanderPeriode(praksisGydligfra, praksisGyldigtil),
+                        samh_praksis_email = listOf()
+                )
         )
-    return samhandlerPraksisListe
-}
+        return samhandlerPraksisListe
+    }
 
     fun createSamhandlerIdentListe(): List<SamhandlerIdent> {
         val samhandlerIdentListe = mutableListOf<SamhandlerIdent>()
         samhandlerIdentListe.add(
                 SamhandlerIdent(
-                samh_id = "1000288339",
-                ident = "1",
-                samh_ident_id = "04030350265",
-                ident_type_kode = "FNR",
-                aktiv_ident = "1"
+                        samh_id = "1000288339",
+                        ident = "1",
+                        samh_ident_id = "04030350265",
+                        ident_type_kode = "FNR",
+                        aktiv_ident = "1"
                 )
         )
 
         samhandlerIdentListe.add(
                 SamhandlerIdent(
-                samh_id = "1000288341",
-                ident = "1",
-                samh_ident_id = "74030350265",
-                ident_type_kode = "DNR",
-                aktiv_ident = "1"
+                        samh_id = "1000288341",
+                        ident = "1",
+                        samh_ident_id = "74030350265",
+                        ident_type_kode = "DNR",
+                        aktiv_ident = "1"
                 )
         )
 
         return samhandlerIdentListe
     }
 
-    fun createSamhandlerListe(navn: String, aktiv :String, samhalnderTypekode: String, praksisGydligfra: LocalDateTime, praksisGyldigtil: LocalDateTime): List<Samhandler> {
+    fun createSamhandlerListe(
+        navn: String,
+        aktiv: String,
+        samhalnderTypekode: String,
+        praksisGydligfra: LocalDateTime,
+        praksisGyldigtil: LocalDateTime
+    ): List<Samhandler> {
         val samhandlerListe = mutableListOf<Samhandler>()
         samhandlerListe.add(
                 Samhandler(
@@ -207,7 +218,7 @@ class PostSarFlowTest {
                         ),
                         endringslogg_tidspunkt_siste = LocalDateTime.now(),
                         samh_ident = createSamhandlerIdentListe(),
-                        samh_praksis = createSamhandlerPraksis(praksisGydligfra,praksisGyldigtil ,navn,aktiv),
+                        samh_praksis = createSamhandlerPraksis(praksisGydligfra, praksisGyldigtil, navn, aktiv),
                         samh_avtale = emptyList(),
                         samh_direkte_oppgjor_avtale = emptyList(),
                         samh_email = emptyList()
@@ -222,17 +233,16 @@ class PostSarFlowTest {
         samhandlerPeriodeListe.add(
                 SamhandlerPeriode(
                         endret_ved_import = "hendelse",
-                        sist_endret=  LocalDateTime.now(),
-                        slettet= "Nope",
+                        sist_endret = LocalDateTime.now(),
+                        slettet = "Nope",
                         gyldig_fra = praksisgyldig_fra,
                         gyldig_til = praksisgyldig_til,
                         samh_praksis_id = "12356",
-                        samh_praksis_periode_id =  "1234"
+                        samh_praksis_periode_id = "1234"
 
                 )
         )
 
         return samhandlerPeriodeListe
     }
-
 }

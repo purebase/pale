@@ -31,28 +31,16 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
         outcome += OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM
     }
 
-    val samhandlerIdentFnr = samhandler.flatMap{ it.samh_ident }
-            .filter {
-                it.ident_type_kode == "FNR"
-                }
-            .filter {
-                it.aktiv_ident == "1"
-            }
+    val samhandlerIdentFnr = samhandler.flatMap { it.samh_ident }
+            .filter { it.ident_type_kode == "FNR" }
+            .filter { it.aktiv_ident == "1" }
 
-    if(isDNR(extractDoctorIdentFromSignature(fellesformat)) && samhandlerIdentFnr.isNotEmpty())
-    {
+    if (isDNR(extractDoctorIdentFromSignature(fellesformat)) && samhandlerIdentFnr.isNotEmpty()) {
         outcome += OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR
     }
 
-    when (samhandler
-            .filter {
-                        it.samh_type_kode == "LE" ||
-                        it.samh_type_kode == "KI" ||
-                        it.samh_type_kode == "TL" ||
-                        it.samh_type_kode == "MT"
-            }.firstOrNull() == null)
-    {
-        true -> outcome += OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR
+    if (samhandler.none { it.samh_type_kode in arrayOf("LE", "KI", "TL", "MT") }) {
+        outcome += OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR
     }
 
     collectFlowStatistics(outcome)

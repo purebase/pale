@@ -21,10 +21,13 @@ import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.client.PdfClient
 import no.nav.pale.client.SarClient
-import no.nav.pale.datagen.*
+import no.nav.pale.datagen.defaultFellesformat
+import no.nav.pale.datagen.defaultNavOffice
+import no.nav.pale.datagen.defaultPerson
+import no.nav.pale.datagen.defaultSamhandler
 import no.nav.pale.utils.assertArenaInfoContains
 import no.nav.pale.utils.randomPort
-import no.nav.pale.validation.*
+import no.nav.pale.validation.OutcomeType
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
@@ -44,22 +47,30 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
-import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.reset
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
 import java.io.StringReader
 import java.nio.file.Files
 import java.nio.file.Paths
-import javax.jms.*
+import javax.jms.Connection
+import javax.jms.ConnectionFactory
+import javax.jms.MessageConsumer
+import javax.jms.MessageProducer
+import javax.jms.Session
+import javax.jms.TextMessage
 import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 
 class PaleIT {
-    //TODO create more ITs
+    // TODO create more ITs
 
     @Before
     fun resetMocks() {

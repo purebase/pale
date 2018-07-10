@@ -30,15 +30,14 @@ class FellesformatToBehandlingsvedleggTest {
         }
     }
 
-
     @Test
     fun shouldCreateHCPFormatedNameWithMiddelName() {
         val fellesformat = readToFellesformat("/legeerklaering.xml")
         val org = fellesformat.msgHead.msgInfo.sender.organisation
         val hcp = org.healthcareProfessional
         val formatedName = hcp.formatName()
-        assertEquals("VALDA INGA FOS", formatedName)
 
+        assertEquals("VALDA INGA FOS", formatedName)
     }
 
     @Test
@@ -47,7 +46,7 @@ class FellesformatToBehandlingsvedleggTest {
         val org = fellesformat.msgHead.msgInfo.sender.organisation
         val hcp = org.healthcareProfessional
         val formatedName = hcp.formatName()
-        assertEquals("VALDA INGA", formatedName)
 
+        assertEquals("VALDA INGA", formatedName)
     }
 }

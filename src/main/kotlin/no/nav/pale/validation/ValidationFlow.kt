@@ -25,7 +25,7 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
     }
 
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
-    val name =  hcp?.formatName() ?: ""
+    val name = hcp?.formatName() ?: ""
     val doctorPersonNumberFromSignature = extractDoctorIdentFromSignature(fellesformat)
     if (!validatePersonAndDNumber11Digits(doctorPersonNumberFromSignature)) {
         outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(name, doctorPersonNumberFromSignature,

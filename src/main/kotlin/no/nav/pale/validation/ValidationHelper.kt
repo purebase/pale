@@ -13,7 +13,6 @@ import java.time.LocalDateTime
 fun extractBornDate(personIdent: String): LocalDate =
         LocalDate.of(extractBornYear(personIdent), extractBornMonth(personIdent), extractBornDay(personIdent))
 
-
 fun extractBornYear(personIdent: String): Int {
     val lastTwoDigitsOfYear = extractLastTwoDigistOfyear(personIdent)
     val individualDigits = extractIndividualDigits(personIdent)
@@ -41,7 +40,6 @@ fun extractBornMonth(personIdent: String): Int = personIdent.substring(2..3).toI
 fun extractIndividualDigits(personIdent: String): Int = personIdent.substring(6, 9).toInt()
 
 fun extractLastTwoDigistOfyear(personIdent: String): Int = personIdent.substring(4, 6).toInt()
-
 
 fun collectFlowStatistics(outcomes: List<Outcome>) {
     outcomes.forEach {

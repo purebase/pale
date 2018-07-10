@@ -10,7 +10,7 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate
 
@@ -71,13 +71,13 @@ class ValidationHelperTest {
     @Test
     fun shouldExtractBornDateFNR() {
         val patientBornDate = extractBornDate("12128913767")
-        assertEquals(LocalDate.of(1989,12,12), patientBornDate)
+        assertEquals(LocalDate.of(1989, 12, 12), patientBornDate)
     }
 
     @Test
     fun shouldExtractBornDateDNR() {
         val patientBornDate = extractBornDate("45069800525")
-        assertEquals(LocalDate.of(1998,6,5), patientBornDate)
+        assertEquals(LocalDate.of(1998, 6, 5), patientBornDate)
     }
 
     @Test
@@ -98,7 +98,7 @@ class ValidationHelperTest {
     fun shouldExtractSignatureDate() {
 
         val signatureDate = extractSignatureDate(fellesformat)
-        val expectetsignatureDate = LocalDate.of(2017,12,29)
+        val expectetsignatureDate = LocalDate.of(2017, 12, 29)
 
         assertEquals(expectetsignatureDate.year, signatureDate.year)
         assertEquals(expectetsignatureDate.month, signatureDate.month)
@@ -107,11 +107,9 @@ class ValidationHelperTest {
 
     @Test
     fun shouldExtractCompanyNumberFromSender() {
-
         val organisationNumberFromSender = extractOrganisationNumberFromSender(fellesformat)
 
-        assertEquals("223456789",organisationNumberFromSender?.id)
-
+        assertEquals("223456789", organisationNumberFromSender?.id)
     }
 
     fun familierelasjon(faimilierelasjon: String): Familierelasjon = Familierelasjon().apply {

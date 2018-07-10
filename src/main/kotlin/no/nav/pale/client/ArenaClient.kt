@@ -8,7 +8,12 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.formatName
 import java.math.BigInteger
 
-fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode: Int? = null, navkontor: String?): ArenaEiaInfo = ArenaEiaInfo().apply {
+fun createArenaEiaInfo(
+    fellesformat: EIFellesformat,
+    tssId: String?,
+    sperrekode: Int? = null,
+    navkontor: String?
+): ArenaEiaInfo = ArenaEiaInfo().apply {
     val legeerklaering = extractLegeerklaering(fellesformat)
     val hcp = fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional
     ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
@@ -32,9 +37,9 @@ fun createArenaEiaInfo(fellesformat: EIFellesformat, tssId: String?, sperrekode:
 }
 
 fun findMappeTypeInLegeerklaering(typeLegeerklaring: BigInteger): String =
-    when (typeLegeerklaring){
+    when (typeLegeerklaring) {
         4.toBigInteger() -> PaleConstant.mappetypeUP.string
         3.toBigInteger() -> PaleConstant.mappetypeYA.string
         2.toBigInteger() -> PaleConstant.mappetypeRP.string
-        else -> {PaleConstant.mappetypeSP.string}
+        else -> { PaleConstant.mappetypeSP.string }
     }

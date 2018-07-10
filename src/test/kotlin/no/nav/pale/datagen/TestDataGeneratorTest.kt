@@ -1,7 +1,7 @@
 package no.nav.pale.datagen
 
 import no.nav.pale.validation.extractIndividualDigits
-import org.junit.Assert.*
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 

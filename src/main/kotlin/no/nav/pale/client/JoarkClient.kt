@@ -37,9 +37,9 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     journalstatusKode = PaleConstant.journalstatusKodeMO.string
     dokumentDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
     fagomradeKode = PaleConstant.opp.string
-    fordeling = when(manuelBehandling){
-              true -> PaleConstant.eiaMan.string
-              false -> PaleConstant.eiaOk.string
+    fordeling = when (manuelBehandling) {
+        true -> PaleConstant.eiaMan.string
+        false -> PaleConstant.eiaOk.string
     }
     avsenderMottaker = hcp?.formatName() ?: ""
     avsenderMottakerId = fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur

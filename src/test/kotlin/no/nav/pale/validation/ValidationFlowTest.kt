@@ -168,5 +168,4 @@ class ValidationFlowTest {
 
         assertEquals(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG, outcome?.apprecError)
     }
-
 }

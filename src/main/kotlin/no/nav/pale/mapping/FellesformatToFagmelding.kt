@@ -106,13 +106,13 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
             pasientenBurdeIkkeVite = legeerklaering.forbeholdLegeerklaring.borTilbakeholdes,
             signatur = Signatur(
                     dato = ZonedDateTime.now(),
-                    navn =  healthcareProfessional?.formatName() ?: "",
+                    navn = healthcareProfessional?.formatName() ?: "",
                     adresse = fellesformat.msgHead.msgInfo.sender.organisation.address?.streetAdr,
                     postnummer = fellesformat.msgHead.msgInfo.sender.organisation.address?.postalCode?.toInt(),
                     poststed = fellesformat.msgHead.msgInfo.sender.organisation.address?.city,
                     signatur = "",
                     tlfNummer = healthcareProfessional?.teleCom?.find { it.typeTelecom?.let {
-                        if (it.v == null || it.dn == null ) null else it
+                        if (it.v == null || it.dn == null) null else it
                     } in PhoneType }?.teleAddress?.v
             )
     )
