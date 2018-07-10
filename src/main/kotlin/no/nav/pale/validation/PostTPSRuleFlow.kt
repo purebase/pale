@@ -9,9 +9,9 @@ fun postTPSFlow(fellesformat: EIFellesformat, person: Person): List<Outcome> {
     val doctorIdent = extractDoctorIdentFromSignature(fellesformat)
 
     when (person.diskresjonskode?.value) {
-    // Sperret adresse, strengt fortrolig
+        // Sperret adresse, strengt fortrolig
         "SPSF" -> outcome += OutcomeType.PATIENT_HAS_SPERREKODE_6
-    // Sperret adresse, fortrolig
+        // Sperret adresse, fortrolig
         "SPFO" -> outcome += OutcomeType.PATIENT_HAS_SPERREKODE_7
     }
 

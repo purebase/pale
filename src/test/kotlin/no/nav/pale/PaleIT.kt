@@ -32,6 +32,7 @@ import no.nav.pale.validation.OutcomeType
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
@@ -49,6 +50,8 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -153,7 +156,6 @@ class PaleIT {
 
     @Test
     fun testDuplicateReturnsCorrectApprec() {
-
         val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
@@ -183,6 +185,67 @@ class PaleIT {
         assertEquals("Avvist", apprec.status.dn)
         assertEquals(ApprecError.DUPLICATE.s, apprec.error[0].s)
         assertEquals(ApprecError.DUPLICATE.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testSperrekode6CausesNoArenaEiaInfo() {
+        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
+            diskresjonskode = Diskresjonskoder().apply {
+                value = "SPSF"
+            }
+        }
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
+
+        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
+                .withAktoer(person.aktoer)
+                .withNavn(person.personnavn)
+                .withGeografiskTilknytning(Kommune()
+                        .withGeografiskTilknytning("navkontor")))
+
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+                .thenReturn(FinnNAVKontorResponse().apply {
+                    navKontor = defaultNavOffice()
+                })
+
+        produceMessage(fellesformatString)
+
+        readAppRec()
+        assertNull(consumeMessage(arenaConsumer))
+    }
+
+
+    @Test
+    fun testSperreKode7CausesArenaMessage() {
+        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
+            diskresjonskode = Diskresjonskoder().apply {
+                value = "SPFO"
+            }
+        }
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
+
+        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
+                .withAktoer(person.aktoer)
+                .withNavn(person.personnavn)
+                .withGeografiskTilknytning(Kommune()
+                        .withGeografiskTilknytning("navkontor")))
+
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+                .thenReturn(FinnNAVKontorResponse().apply {
+                    navKontor = defaultNavOffice()
+                })
+
+        produceMessage(fellesformatString)
+
+        readAppRec()
+        val arenaEiaInfo = readArenaEiaInfo()
+        assertNotNull(arenaEiaInfo)
+        assertEquals(7, arenaEiaInfo.pasientData.spesreg)
     }
 
     companion object {
@@ -280,7 +343,8 @@ class PaleIT {
             backoutConsumer = session.createConsumer(backoutQueue)
         }
 
-        fun consumeMessage(consumer: MessageConsumer): String = consumer.receive(2000).run {
+        fun consumeMessage(consumer: MessageConsumer): String? = consumer.receive(2000).run {
+            if (this == null) return null
             if (this !is TextMessage) throw RuntimeException("Got unexpected message type")
             println(this.text)
             this.text
