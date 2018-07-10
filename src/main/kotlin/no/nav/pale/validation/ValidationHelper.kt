@@ -9,52 +9,38 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-
-val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyyyy")
-val personIndividualDigitsBetween1900to1999 = IntRange(0,499)
-val personIndividualDigitsBetween1854to1899 = IntRange(500,749)
-val personIndividualDigitsBetween2000to2039 = IntRange(500,999)
-val personIndividualDigitsBetween1940to1999 = IntRange(900,999)
 
 fun extractBornDate(personIdent: String): LocalDate =
-        LocalDate.parse(personIdent.substring(0, 4).let {
-            if (isDNR(personIdent)) {
-                (it[0] - 4) + it.substring(1)
-            } else {
-                it
-            }
-        } + findbornyear(personIdent), personNumberDateFormat)
+        LocalDate.of(extractBornYear(personIdent), extractBornMonth(personIdent), extractBornDay(personIdent))
 
 
-fun findbornyear(personIdent: String): String {
-    var bornyear = ""
-    val lastTwoDigistOfyear = extractLastTwoDigistOfyear(personIdent)
-    val indicidualDigist = extractIndividualDigits(personIdent)
-    if (personIndividualDigitsBetween1900to1999.contains(indicidualDigist.toInt())) {
-        bornyear+= "19$lastTwoDigistOfyear"
+fun extractBornYear(personIdent: String): Int {
+    val lastTwoDigitsOfYear = extractLastTwoDigistOfyear(personIdent)
+    val individualDigits = extractIndividualDigits(personIdent)
+    if (individualDigits in (0..499)) {
+        return 1900 + lastTwoDigitsOfYear
     }
-    else if (personIndividualDigitsBetween1854to1899.contains(indicidualDigist.toInt()) &&
-            IntRange(54,99).contains(lastTwoDigistOfyear.toInt())) {
-        bornyear+= "18$lastTwoDigistOfyear"
+
+    if (individualDigits in 500..749) {
+        return 1800 + lastTwoDigitsOfYear
     }
-    else if (personIndividualDigitsBetween2000to2039.contains(indicidualDigist.toInt()) &&
-            IntRange(0,39).contains(lastTwoDigistOfyear.toInt())) {
-        bornyear+= "20$lastTwoDigistOfyear"
+
+    if (individualDigits in 500..999) {
+        return 2000 + lastTwoDigitsOfYear
     }
-    else if (personIndividualDigitsBetween1940to1999.contains(indicidualDigist.toInt()) &&
-            IntRange(40,99).contains(lastTwoDigistOfyear.toInt())) {
-        bornyear+= "19$lastTwoDigistOfyear"
-    }
-    return bornyear
+    return 1900 + lastTwoDigitsOfYear
 }
 
+fun extractBornDay(personIdent: String): Int {
+    val day = personIdent.substring(0..1).toInt()
+    return if (day < 40) day else day - 40
+}
 
-fun extractIndividualDigits(personIdent: String): String =
-        personIdent.substring(6, 9)
+fun extractBornMonth(personIdent: String): Int = personIdent.substring(2..3).toInt()
 
-fun extractLastTwoDigistOfyear(personIdent: String): String =
-        personIdent.substring(4, 6)
+fun extractIndividualDigits(personIdent: String): Int = personIdent.substring(6, 9).toInt()
+
+fun extractLastTwoDigistOfyear(personIdent: String): Int = personIdent.substring(4, 6).toInt()
 
 
 fun collectFlowStatistics(outcomes: List<Outcome>) {

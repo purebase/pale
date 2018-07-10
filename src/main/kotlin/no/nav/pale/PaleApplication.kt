@@ -289,20 +289,24 @@ fun listen(
                     arenaProducer.send(session.createTextMessage().apply {
                         // TODO: Add sperrekode here for sperrekode 7
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor)
+                        fun Outcome.toSystemSvar(): ArenaEiaInfo.EiaData.SystemSvar =
+                                ArenaEiaInfo.EiaData.SystemSvar().apply {
+                                    meldingsPrioritet = outcomeType.messagePriority.priorityNumber.toBigInteger()
+                                    meldingsNr = outcomeType.messageNumber.toBigInteger()
+                                    meldingsTekst = formattedMessage
+                                }
+
                         arenaEiaInfo.eiaData = ArenaEiaInfo.EiaData().apply {
                             systemSvar.addAll(validationResult.outcomes
                                     .filter {
-                                        it.outcomeType == OutcomeType.LEGEERKLAERING_MOTTAT
-                                                || it.outcomeType.messagePriority == Priority.FOLLOW_UP
+                                                it.outcomeType.messagePriority == Priority.FOLLOW_UP
                                                 || it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING
                                     }
-                                    .map {
-                                        ArenaEiaInfo.EiaData.SystemSvar().apply {
-                                            meldingsPrioritet = it.outcomeType.messagePriority.priorityNumber.toBigInteger()
-                                            meldingsNr = it.outcomeType.messageNumber.toBigInteger()
-                                            meldingsTekst = it.formattedMessage
-                                        }
-                                    })
+                                    .map { it.toSystemSvar() })
+
+                            if (systemSvar.isEmpty()) {
+                                systemSvar.add(OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome().toSystemSvar())
+                            }
                         }
                         text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
                     })
@@ -419,11 +423,6 @@ fun validateMessage(fellesformat: EIFellesformat, personV3: PersonV3, orgnaisasj
     val samhandler = runBlocking { samhandlerDeferred.await() }
 
     outcomes.addAll(postSARFlow(fellesformat, samhandler))
-
-    // TODO:Add tests for LEGEERKLAERING_MOTTAT
-    if (outcomes.isEmpty()) {
-        outcomes += OutcomeType.LEGEERKLAERING_MOTTAT.toOutcome()
-    }
 
     return outcomes.toResult(findBestSamhandlerPraksis(samhandler, fellesformat)?.samhandlerPraksis?.tss_ident)
 }

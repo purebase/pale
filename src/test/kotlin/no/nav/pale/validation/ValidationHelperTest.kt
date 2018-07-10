@@ -10,7 +10,7 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
-import org.junit.Assert
+import org.junit.Assert.*
 import org.junit.Test
 import java.time.LocalDate
 
@@ -23,55 +23,61 @@ class ValidationHelperTest {
     @Test
     fun shouldExtractDoctorIdentFromSenderFNR() {
         val fnr = extractDoctorIdentFromSender(fellesformat)
-        Assert.assertEquals("04030350265", fnr?.id)
+        assertEquals("04030350265", fnr?.id)
     }
 
     @Test
     fun shouldExtractDoctorIdentFromSenderDNR() {
         val dnr = extractDoctorIdentFromSender(fellesformatWithDNr)
-        Assert.assertEquals("45069800525", dnr?.id)
+        assertEquals("45069800525", dnr?.id)
     }
 
     @Test
     fun shouldExtractDoctorIdentFromSignature() {
         val fnr = extractDoctorIdentFromSignature(fellesformat)
-        Assert.assertEquals("04030350265", fnr)
+        assertEquals("04030350265", fnr)
+    }
+
+    @Test
+    fun testPre500IndividualNumberCauses19xxBornDate() {
+        // We're using the first possible valid person number for the date 1.1.1905
+        assertEquals(extractBornDate("03110511220").year, 1905)
     }
 
     @Test
     fun shouldExtractSenderOrganisationName() {
         val organisationName = extractSenderOrganisationName(fellesformat)
-        Assert.assertEquals("Kule helsetjenester AS", organisationName)
+        assertEquals("Kule helsetjenester AS", organisationName)
     }
 
     @Test
     fun shouldExtractPersonIdent() {
         val patientFnr = extractPersonIdent(legeerklaring)
-        Assert.assertEquals("12128913767", patientFnr)
+        assertEquals("12128913767", patientFnr)
     }
 
     @Test
     fun shouldExtractPatientSurname() {
         val patientSurname = extractPatientSurname(legeerklaring)
-        Assert.assertEquals("Bergheim", patientSurname)
+        assertEquals("Bergheim", patientSurname)
     }
 
     @Test
     fun shouldExtractPatientFirstname() {
         val patientFirst = extractPatientFirstName(legeerklaring)
-        Assert.assertEquals("Daniel", patientFirst)
+        assertEquals("Daniel", patientFirst)
     }
 
     @Test
     fun shouldExtractBornDateFNR() {
         val patientBornDate = extractBornDate("12128913767")
-        Assert.assertEquals(LocalDate.of(1989,12,12), patientBornDate)
+        assertEquals(LocalDate.of(1989,12,12), patientBornDate)
     }
 
     @Test
     fun shouldExtractBornDateDNR() {
         val patientBornDate = extractBornDate("45069800525")
-        Assert.assertEquals(LocalDate.of(1998,6,5), patientBornDate)
+        assertEquals(LocalDate.of(1998,6,5), patientBornDate)
     }
 
     @Test
@@ -85,7 +91,7 @@ class ValidationHelperTest {
         val doctorPersonnumber = extractDoctorIdentFromSender(fellesformat)?.id!!
         val familierelasjon = findDoctorInRelations(patient, doctorPersonnumber)!!
 
-        Assert.assertEquals(RelationType.fromKodeverkValue(familierelasjon.tilRolle.value)?.kodeverkVerdi, RelationType.EKTEFELLE.kodeverkVerdi)
+        assertEquals(RelationType.fromKodeverkValue(familierelasjon.tilRolle.value)?.kodeverkVerdi, RelationType.EKTEFELLE.kodeverkVerdi)
     }
 
     @Test
@@ -94,9 +100,9 @@ class ValidationHelperTest {
         val signatureDate = extractSignatureDate(fellesformat)
         val expectetsignatureDate = LocalDate.of(2017,12,29)
 
-        Assert.assertEquals(expectetsignatureDate.year, signatureDate.year)
-        Assert.assertEquals(expectetsignatureDate.month, signatureDate.month)
-        Assert.assertEquals(expectetsignatureDate.dayOfMonth, signatureDate.dayOfMonth)
+        assertEquals(expectetsignatureDate.year, signatureDate.year)
+        assertEquals(expectetsignatureDate.month, signatureDate.month)
+        assertEquals(expectetsignatureDate.dayOfMonth, signatureDate.dayOfMonth)
     }
 
     @Test
@@ -104,7 +110,7 @@ class ValidationHelperTest {
 
         val organisationNumberFromSender = extractOrganisationNumberFromSender(fellesformat)
 
-        Assert.assertEquals("223456789",organisationNumberFromSender?.id)
+        assertEquals("223456789",organisationNumberFromSender?.id)
 
     }
 

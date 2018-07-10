@@ -3,6 +3,7 @@ package no.nav.pale.datagen
 import com.devskiller.jfairy.Fairy
 import com.devskiller.jfairy.producer.company.Company
 import com.devskiller.jfairy.producer.person.PersonProperties
+import com.devskiller.jfairy.producer.person.PersonProvider
 import io.ktor.util.toLocalDateTime
 import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.LegeerklaeringType
@@ -204,7 +205,7 @@ fun defaultNavOffice(): Organisasjonsenhet = Organisasjonsenhet().apply {
 
 fun telephoneNumber(person: Person) = Random((person.aktoer as PersonIdent).ident.ident.toLong()).nextInt(10000000) + 90000000
 
-fun defaultPerson(personProperties: Array<PersonProperties.PersonProperty> = arrayOf(), vararg famillyRelations: Familierelasjon): Person {
+fun defaultPerson(vararg personProperties: PersonProperties.PersonProperty, famillyRelations: Array<Familierelasjon> = arrayOf()): Person {
     val person = fairy.person(*personProperties)
     return Person()
             .withAktoer(PersonIdent().withIdent(NorskIdent()
@@ -523,7 +524,7 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
 
 fun generatePersonNumber(bornDate: LocalDate): String {
     val personDate = bornDate.format(personNumberDateFormat)
-    return (11111..50099)
+    return (if (bornDate.year > 2000) (50011..99999) else (11111..50099))
             .map { "$personDate$it" }
             .first {
                 validatePersonAndDNumber(it)

@@ -2,6 +2,7 @@ package no.nav.pale
 
 import ai.grakn.redismock.RedisServer
 import com.devskiller.jfairy.producer.person.PersonProperties
+import com.devskiller.jfairy.producer.person.PersonProvider
 import io.ktor.application.call
 import io.ktor.content.PartData
 import io.ktor.http.ContentType
@@ -15,20 +16,19 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.runBlocking
+import no.nav.model.apprec.AppRec
+import no.nav.model.arenainfo.ArenaEiaInfo
+import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.client.PdfClient
-import no.nav.pale.client.Samhandler
 import no.nav.pale.client.SarClient
 import no.nav.pale.datagen.*
+import no.nav.pale.utils.assertArenaInfoContains
 import no.nav.pale.utils.randomPort
+import no.nav.pale.validation.*
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
-import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
-import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetstyper
-import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.GeografiskTilknytning
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
@@ -44,21 +44,17 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
 import org.mockito.Mockito.*
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
+import java.io.StringReader
 import java.nio.file.Files
 import java.nio.file.Paths
-import javax.jms.ConnectionFactory
-import javax.jms.Connection
-import javax.jms.Queue
-import javax.jms.MessageProducer
-import javax.jms.TextMessage
-import javax.jms.BytesMessage
+import javax.jms.*
 import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 
@@ -70,11 +66,20 @@ class PaleIT {
         reset(personV3Mock, organisasjonEnhetV2Mock)
     }
 
+    fun readAppRec(): AppRec {
+        val fellesformat = fellesformatJaxBContext.createUnmarshaller()
+                .unmarshal(StringReader(consumeMessage(apprecConsumer))) as EIFellesformat
+        return fellesformat.appRec
+    }
+
+    fun readArenaEiaInfo(): ArenaEiaInfo = arenaEiaInfoJaxBContext.createUnmarshaller()
+                .unmarshal(StringReader(consumeMessage(arenaConsumer))) as ArenaEiaInfo
+
     @Test
     fun testFullFlowExceptionSendMessageToBOQ() {
         produceMessage(IOUtils.toString(PaleIT::class.java.getResourceAsStream("/legeerklaering.xml"), Charsets.ISO_8859_1))
 
-        val messageOnBoq = consumeMessage(backoutQueue)
+        val messageOnBoq = consumeMessage(backoutConsumer)
 
         assertEquals("Should be",
                 String(Files.readAllBytes(Paths.get(
@@ -84,8 +89,8 @@ class PaleIT {
 
     @Test
     fun testPersonOver70() {
-        val person = defaultPerson(personProperties = arrayOf(PersonProperties.minAge(71)))
-        val fellesformat = defaultFellesformat(person = defaultPerson())
+        val person = defaultPerson(PersonProperties.ageBetween(71, PersonProvider.MAX_AGE))
+        val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
@@ -103,17 +108,15 @@ class PaleIT {
 
         produceMessage(fellesformatString)
 
-        val apprecMessage = consumeMessage(apprecQueue)
-        val arenaMessage = consumeMessage(arenaQueue)
-        println("Result from default message")
-        println(apprecMessage)
-        println(arenaMessage)
+        readAppRec()
+        val arenaEiaInfo = readArenaEiaInfo()
+        assertArenaInfoContains(arenaEiaInfo, OutcomeType.PATIENT_IS_OVER_70)
     }
 
     @Test
     fun testMessageWithoutErrorsShouldCreateOkAppRec() {
-        val person = defaultPerson()
-        val fellesformat = defaultFellesformat(person = defaultPerson())
+        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
@@ -131,11 +134,9 @@ class PaleIT {
 
         produceMessage(fellesformatString)
 
-        val apprecMessage = consumeMessage(apprecQueue)
-        val arenaMessage = consumeMessage(arenaQueue)
-        println("Result from default message")
-        println(apprecMessage)
-        println(arenaMessage)
+        readAppRec()
+        val arenaEiaInfo = readArenaEiaInfo()
+        assertArenaInfoContains(arenaEiaInfo, OutcomeType.LEGEERKLAERING_MOTTAT)
     }
 
     companion object {
@@ -164,10 +165,11 @@ class PaleIT {
         private lateinit var producer: MessageProducer
         private lateinit var job: Job
 
-        lateinit var inputQueue: Queue
-        lateinit var arenaQueue: Queue
-        lateinit var apprecQueue: Queue
-        lateinit var backoutQueue: Queue
+        private lateinit var session: Session
+
+        lateinit var arenaConsumer: MessageConsumer
+        lateinit var apprecConsumer: MessageConsumer
+        lateinit var backoutConsumer: MessageConsumer
 
         private val redisServer = RedisServer.newRedisServer()
 
@@ -214,11 +216,11 @@ class PaleIT {
 
             queueConnection = connectionFactory.createConnection()
             queueConnection.start()
-            val session = queueConnection.createSession()
-            inputQueue = session.createQueue("input_queue")
-            arenaQueue = session.createQueue("arena_queue")
-            apprecQueue = session.createQueue("apprec_queue")
-            backoutQueue = session.createQueue("backout_queue")
+            session = queueConnection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+            val inputQueue = session.createQueue("input_queue")
+            val arenaQueue = session.createQueue("arena_queue")
+            val apprecQueue = session.createQueue("apprec_queue")
+            val backoutQueue = session.createQueue("backout_queue")
 
             diagnosisWebserver = createHttpServer(diagnosisWebServerPort, "TEST")
 
@@ -226,27 +228,20 @@ class PaleIT {
 
             job = listen(pdfClient, jedis, personV3Client, organisasjonEnhetV2Client, journalbehandlingClient, sarClient,
                     inputQueue, arenaQueue, apprecQueue, backoutQueue, queueConnection)
+
+            arenaConsumer = session.createConsumer(arenaQueue)
+            apprecConsumer = session.createConsumer(apprecQueue)
+            backoutConsumer = session.createConsumer(backoutQueue)
         }
 
-        fun consumeMessage(queue: Queue): String = queueConnection.createSession().use {
-            val consumer = it.createConsumer(queue)
-            val message = consumer.receive(2000)
-            when (message) {
-                is BytesMessage -> {
-                    val bytes = ByteArray(message.bodyLength.toInt())
-                    message.readBytes(bytes)
-                    bytes.toString(Charsets.ISO_8859_1)
-                }
-                is TextMessage -> message.text
-                else -> throw RuntimeException("Invalid message type ${message::class.java}")
-            }
+        fun consumeMessage(consumer: MessageConsumer): String = consumer.receive(2000).run {
+            if (this !is TextMessage) throw RuntimeException("Got unexpected message type")
+            println(this.text)
+            this.text
         }
 
         fun produceMessage(message: String) {
-            val session = queueConnection.createSession()
-            val inputQueue = session.createQueue("input_queue")
             val textMessage = session.createTextMessage(message)
-            val producer = session.createProducer(inputQueue)
             producer.send(textMessage)
             log.info("Pushed message to queue")
         }
