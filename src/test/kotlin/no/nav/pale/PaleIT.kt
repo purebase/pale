@@ -31,7 +31,9 @@ import no.nav.pale.utils.randomPort
 import no.nav.pale.validation.OutcomeType
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
+import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
+import no.nav.tjeneste.virksomhet.person.v3.feil.PersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
@@ -218,6 +220,21 @@ class PaleIT {
         val arenaEiaInfo = readArenaEiaInfo()
         assertNotNull(arenaEiaInfo)
         assertArenaInfoContains(arenaEiaInfo, OutcomeType.MARRIED_TO_PATIENT)
+    }
+
+    @Test
+    fun testTPSReturnsMissing() {
+        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        `when`(personV3Mock.hentPerson(any())).thenThrow(HentPersonPersonIkkeFunnet("Person ikke funnet", PersonIkkeFunnet()))
+
+        val appRec = readAppRec()
+
+        assertEquals(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.s, appRec.error[0].s)
     }
 
     fun defaultMocks(person: Person) {

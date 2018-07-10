@@ -400,9 +400,10 @@ fun validateMessage(
                 ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
     }
 
-    val person = try { runBlocking {
-        personDeferred.await()
-    }
+    val person = try {
+        runBlocking {
+            personDeferred.await()
+        }
     } catch (e: HentPersonPersonIkkeFunnet) {
         // TODO:Add tests for adding apprec on this error
         outcomes += OutcomeType.PATIENT_NOT_FOUND_TPS.toOutcome(
