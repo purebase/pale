@@ -1,6 +1,7 @@
 package no.nav.pale
 
 import ai.grakn.redismock.RedisServer
+import com.devskiller.jfairy.producer.person.PersonProperties
 import io.ktor.application.call
 import io.ktor.content.PartData
 import io.ktor.http.ContentType
@@ -17,9 +18,19 @@ import kotlinx.coroutines.experimental.runBlocking
 import no.nav.pale.client.PdfClient
 import no.nav.pale.client.Samhandler
 import no.nav.pale.client.SarClient
+import no.nav.pale.datagen.*
 import no.nav.pale.utils.randomPort
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetstyper
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.GeografiskTilknytning
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl
 import org.apache.activemq.artemis.core.server.ActiveMQServer
@@ -34,12 +45,12 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
-import org.mockito.Mockito.mock
+import org.mockito.Mockito.*
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.jms.ConnectionFactory
@@ -52,18 +63,79 @@ import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 
 class PaleIT {
-    //TODO create more IT tests
+    //TODO create more ITs
+
+    @Before
+    fun resetMocks() {
+        reset(personV3Mock, organisasjonEnhetV2Mock)
+    }
+
     @Test
     fun testFullFlowExceptionSendMessageToBOQ() {
-        produceMessage(IOUtils.toByteArray(PaleIT::class.java.getResourceAsStream("/legeerklaering.xml")))
+        produceMessage(IOUtils.toString(PaleIT::class.java.getResourceAsStream("/legeerklaering.xml"), Charsets.ISO_8859_1))
 
         val messageOnBoq = consumeMessage(backoutQueue)
 
         assertEquals("Should be",
                 String(Files.readAllBytes(Paths.get(
-                        PaleIT::class.java.getResource("/legeerklaering.xml").toURI())),
-                        Charset.forName("ISO-8859-1")),
+                        PaleIT::class.java.getResource("/legeerklaering.xml").toURI())), Charsets.ISO_8859_1),
                 messageOnBoq)
+    }
+
+    @Test
+    fun testPersonOver70() {
+        val person = defaultPerson(personProperties = arrayOf(PersonProperties.minAge(71)))
+        val fellesformat = defaultFellesformat(person = defaultPerson())
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
+
+        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
+                .withAktoer(person.aktoer)
+                .withNavn(person.personnavn)
+                .withGeografiskTilknytning(Kommune()
+                        .withGeografiskTilknytning("navkontor")))
+
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+                .thenReturn(FinnNAVKontorResponse().apply {
+                    navKontor = defaultNavOffice()
+                })
+
+        produceMessage(fellesformatString)
+
+        val apprecMessage = consumeMessage(apprecQueue)
+        val arenaMessage = consumeMessage(arenaQueue)
+        println("Result from default message")
+        println(apprecMessage)
+        println(arenaMessage)
+    }
+
+    @Test
+    fun testMessageWithoutErrorsShouldCreateOkAppRec() {
+        val person = defaultPerson()
+        val fellesformat = defaultFellesformat(person = defaultPerson())
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
+
+        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
+                .withAktoer(person.aktoer)
+                .withNavn(person.personnavn)
+                .withGeografiskTilknytning(Kommune()
+                        .withGeografiskTilknytning("navkontor")))
+
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+                .thenReturn(FinnNAVKontorResponse().apply {
+                    navKontor = defaultNavOffice()
+                })
+
+        produceMessage(fellesformatString)
+
+        val apprecMessage = consumeMessage(apprecQueue)
+        val arenaMessage = consumeMessage(arenaQueue)
+        println("Result from default message")
+        println(apprecMessage)
+        println(arenaMessage)
     }
 
     companion object {
@@ -156,11 +228,10 @@ class PaleIT {
                     inputQueue, arenaQueue, apprecQueue, backoutQueue, queueConnection)
         }
 
-        fun consumeMessage(queue: Queue): String {
-            val session = queueConnection.createSession()
-            val consumer = session.createConsumer(queue)
-            val message = consumer.receive()
-            return when (message) {
+        fun consumeMessage(queue: Queue): String = queueConnection.createSession().use {
+            val consumer = it.createConsumer(queue)
+            val message = consumer.receive(2000)
+            when (message) {
                 is BytesMessage -> {
                     val bytes = ByteArray(message.bodyLength.toInt())
                     message.readBytes(bytes)
@@ -171,21 +242,19 @@ class PaleIT {
             }
         }
 
-        fun produceMessage(bytes: ByteArray) {
-                val session = queueConnection.createSession()
-                val inputQueue = session.createQueue("input_queue")
-                val bytesMessage = session.createBytesMessage()
-                bytesMessage.writeBytes(bytes)
-                val producer = session.createProducer(inputQueue)
-
-                producer.send(bytesMessage)
-                log.info("Pushed message to queue")
+        fun produceMessage(message: String) {
+            val session = queueConnection.createSession()
+            val inputQueue = session.createQueue("input_queue")
+            val textMessage = session.createTextMessage(message)
+            val producer = session.createProducer(inputQueue)
+            producer.send(textMessage)
+            log.info("Pushed message to queue")
         }
 
         private fun createHttpMock() {
             mockWebserver = embeddedServer(Netty, mockHttpServerPort) {
                 routing {
-                    post("/{pdfType}") {
+                    post("/create_pdf/v1/genpdf/pale/{pdfType}") {
                         call.respondText("Mocked PDF", ContentType.parse("application/pdf"))
                     }
 
@@ -197,8 +266,8 @@ class PaleIT {
                             when (part) {
                                 is PartData.FileItem -> {
                                     val stream = part.streamProvider()
-                                    val bytes = IOUtils.toByteArray(stream)
-                                    produceMessage(bytes)
+                                    val string = IOUtils.toString(stream, Charsets.ISO_8859_1)
+                                    produceMessage(string)
                                 }
                             }
                         }
@@ -207,7 +276,7 @@ class PaleIT {
                     get("/rest/sar/samh") {
                         val ident = call.request.queryParameters["ident"]
                         call.respondJson {
-                            arrayOf<Samhandler>()
+                            arrayOf(defaultSamhandler(defaultPerson()))
                         }
                     }
                 }

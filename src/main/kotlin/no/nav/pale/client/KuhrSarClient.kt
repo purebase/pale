@@ -43,8 +43,6 @@ data class Samhandler(
     val samh_id: String,
     val navn: String,
     val samh_type_kode: String,
-    val gyldig_fra: LocalDateTime?,
-    val gyldig_til: LocalDateTime?,
     val behandling_utfall_kode: String,
     val unntatt_veiledning: String,
     val godkjent_manuell_krav: String,
@@ -57,10 +55,6 @@ data class Samhandler(
     val samh_praksis: List<SamhandlerPraksis>,
     val samh_avtale: List<SamhandlerAvtale>,
     val samh_direkte_oppgjor_avtale: List<SamhandlerDirekteOppgjoerAvtale>,
-    val samh_fbv_godkjent_avd: List<SamhandlerUnderAvdelingFBVGodkjent>?,
-    val samh_kommentar: List<SamhandlerKommentar>?,
-    val samh_saerskilte_takster: List<SamhandlerSaerskileTakster>?,
-    val samh_vikar: List<SamhandlerVikar>?,
     val samh_email: List<SamhEmail>?
 )
 
@@ -70,20 +64,6 @@ data class SamhandlerBregHovedenhet(
     val institusjonellsektorkodekode: String,
     val naeringskode1kode: String,
     val naeringskode2kode: String?
-)
-
-data class SamhandlerKommentar(
-    val avsluttet_bruker_id: String?,
-    val avsluttet_kommentar_type_kode: String?,
-    val avsluttet_regdatetime: String?,
-    val avsluttet_tekst: String?,
-    val bruker_id: String?,
-    val kommentar_type_kode: String?,
-    val merknad_nr: String?,
-    val regdatetime: String?,
-    val samh_id: String?,
-    val samh_kommentar_id: String?,
-    val tekst: String?
 )
 
 data class SamhandlerIdent(
@@ -126,18 +106,7 @@ data class SamhandlerPraksis(
     val samh_praksis_id: String,
     val samh_praksis_konto: List<SamhandlerPraksisKonto>,
     val samh_praksis_periode: List<SamhandlerPeriode>,
-    val samh_praksis_email: List<SamhandlerPraksisEmail>?,
-    val samh_praksis_vikar: List<SamhandlerPraksisVikar>?
-)
-data class SamhandlerVikar(
-    val gylding_fra: String?,
-    val gylding_til: String?,
-    val prosent_stilling: String?,
-    val samhandler_ident: String?,
-    val samhandler_type_kode: String?,
-    val samh_vikar_for_id: String?,
-    val samh_id: String?,
-    val samh_vikar_id: String?
+    val samh_praksis_email: List<SamhandlerPraksisEmail>?
 )
 
 data class SamhandlerPraksisKonto(
@@ -146,24 +115,6 @@ data class SamhandlerPraksisKonto(
     val konto: String,
     val samh_praksis_id: String,
     val samh_praksis_konto_id: String
-)
-
-data class SamhandlerPraksisVikar(
-    val beskrivelse: String?,
-    val gylding_alledager: String?,
-    val gylding_fra: String?,
-    val gylding_fredag: String?,
-    val gylding_lørdag: String?,
-    val gylding_mandag: String?,
-    val gylding_tirsdag: String?,
-    val gylding_onsdag: String?,
-    val gylding_torsdag: String?,
-    val gylding_søndag: String?,
-    val gylding_til: String?,
-    val prosent_stilling: String?,
-    val samh_praksis_vikar_for_id: String?,
-    val samh_praksis_id: String?,
-    val vakant: String?
 )
 
 data class SamhandlerPeriode(
@@ -191,15 +142,6 @@ data class SamhandlerDirekteOppgjoerAvtale(
     val monster_avtale_mottatt_dato: LocalDateTime?,
     val samh_id: String,
     val samh_direkte_oppgjor_avtale_id: String
-)
-
-data class SamhandlerUnderAvdelingFBVGodkjent(
-    val avdelingsnavn: String?,
-    val resh_id: String?,
-    val samhandler_id: String,
-    val samh_fbv_godkjent_avd_id: String,
-    val samh_id: String,
-    val samh_fbv_godkjent_tjeneste: List<SamhandlerFBVGodkjentTjeneste>?
 )
 
 data class SamhandlerFBVGodkjentTjeneste(

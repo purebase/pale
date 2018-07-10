@@ -109,7 +109,7 @@ val apprecMarshaller: Marshaller = apprecJaxBContext.createMarshaller()
 val newInstance: DatatypeFactory = DatatypeFactory.newInstance()
 val retryInterval = arrayOf(1000L * 60, 2000L * 60, 2000L * 60, 5000L * 60)
 
-private val log = LoggerFactory.getLogger("pale-application")
+private val log = LoggerFactory.getLogger("nav.pale-application")
 
 class PaleApplication
 
@@ -260,6 +260,11 @@ fun listen(
                 throw e
             }
 
+            if (log.isDebugEnabled) {
+                log.debug("Outcomes for this message.")
+                validationResult.outcomes.forEach { log.debug(it.formattedMessage) }
+            }
+
             if (validationResult.outcomes.any { it.outcomeType.messagePriority == Priority.RETUR }) {
                 log.warn("Message has been sent in return $defaultKeyFormat", *defaultKeyValues)
                 log.info("Sending apprec for $defaultKeyFormat", *defaultKeyValues)
@@ -282,9 +287,24 @@ fun listen(
                     log.info("Sending message to arena $defaultKeyFormat {}", *defaultKeyValues,
                             keyValue("manualHandling", manualHandling))
                     arenaProducer.send(session.createTextMessage().apply {
+                        // TODO: Add sperrekode here for sperrekode 7
                         val arenaEiaInfo = createArenaEiaInfo(fellesformat, validationResult.tssId, null, validationResult.navkontor)
+                        arenaEiaInfo.eiaData = ArenaEiaInfo.EiaData().apply {
+                            systemSvar.addAll(validationResult.outcomes
+                                    .filter {
+                                        it.outcomeType == OutcomeType.LEGEERKLAERING_MOTTAT
+                                                || it.outcomeType.messagePriority == Priority.FOLLOW_UP
+                                                || it.outcomeType.messagePriority == Priority.MANUAL_PROCESSING
+                                    }
+                                    .map {
+                                        ArenaEiaInfo.EiaData.SystemSvar().apply {
+                                            meldingsPrioritet = it.outcomeType.messagePriority.priorityNumber.toBigInteger()
+                                            meldingsNr = it.outcomeType.messageNumber.toBigInteger()
+                                            meldingsTekst = it.formattedMessage
+                                        }
+                                    })
+                        }
                         text = arenaEiaInfoMarshaller.toString(arenaEiaInfo)
-                        arenaProducer.send(this)
                     })
                 } else {
                     log.info("Not sending message to arena $defaultKeyFormat", *defaultKeyValues)

@@ -2,6 +2,8 @@ package no.nav.pale.datagen
 
 import com.devskiller.jfairy.Fairy
 import com.devskiller.jfairy.producer.company.Company
+import com.devskiller.jfairy.producer.person.PersonProperties
+import io.ktor.util.toLocalDateTime
 import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.LegeerklaeringType
 import no.nav.pale.mapping.TypeTiltak
@@ -48,14 +50,18 @@ import no.nav.model.pale.Virksomhet
 import no.nav.model.pale.VurderingArbeidsevne
 import no.nav.model.pale.VurderingFunksjonsevne
 import no.nav.model.pale.VurderingYrkesskade
+import no.nav.pale.client.*
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.*
 import org.junit.Test
 import java.io.StringWriter
 import java.math.BigInteger
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
-import java.util.Random
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
@@ -86,17 +92,153 @@ class TestDataGenerator {
     }
 }
 
-fun defaultFellesformat(): EIFellesformat {
+class GeneratedAddress(var city: String? = null) : Gateadresse()
+
+fun defaultSamhandler(person: Person): Samhandler {
+    val personNumber = (person.aktoer as PersonIdent).ident.ident
+    val random = Random(personNumber.toLong())
+    val samhandlerIdent = random.nextInt(1000000000)+1000000000
+    val samhandlerIdentId = random.nextInt(1000000000)+1000000000
+    val samhandlerPraksisId = random.nextInt(1000000000)+1000000000
+    return Samhandler(
+            samh_id = samhandlerIdent.toString(),
+            navn = person.personnavn.sammensattNavn,
+            samh_type_kode = "LE",
+            behandling_utfall_kode = "auto",
+            unntatt_veiledning = "1",
+            godkjent_manuell_krav = "0",
+            ikke_godkjent_for_refusjon = "0",
+            godkjent_egenandel_refusjon = "0",
+            godkjent_for_fil = "0",
+            endringslogg_tidspunkt_siste = LocalDateTime.now().minusDays(14),
+            samh_praksis = listOf(
+                    SamhandlerPraksis(
+                            navn = "Legesenter 12",
+                            refusjon_type_kode = "normal_refusjon",
+                            laerer = "0",
+                            lege_i_spesialisering = "0",
+                            tidspunkt_resync_periode = LocalDateTime.now().minusYears(1),
+                            tidspunkt_registrert = LocalDateTime.now().minusYears(5),
+                            samh_praksis_status_kode = "aktiv",
+                            telefonnr = telephoneNumber(person).toString(),
+                            arbeids_kommune_nr = "0123",
+                            arbeids_postnr = "0123",
+                            arbeids_adresse_linje_1 = "Oppdiktet gate 123",
+                            arbeids_adresse_linje_2 = null,
+                            arbeids_adresse_linje_3 = null,
+                            arbeids_adresse_linje_4 = null,
+                            arbeids_adresse_linje_5 = null,
+                            tss_ident = (random.nextInt(1000000000)+1000000000).toString(),
+                            samh_praksis_type_kode = "FALE",
+                            samh_id = samhandlerIdent.toString(),
+                            samh_praksis_id = samhandlerPraksisId.toString(),
+                            samh_praksis_konto = listOf(SamhandlerPraksisKonto(
+                                    tidspunkt_registrert = LocalDateTime.now().minusYears(5),
+                                    registrert_av_id = "AB123CDE",
+                                    konto = "12341212345",
+                                    samh_praksis_id = samhandlerPraksisId.toString(),
+                                    samh_praksis_konto_id = (random.nextInt(1000000000)+1000000000).toString()
+                            )),
+                            samh_praksis_periode = listOf(SamhandlerPeriode(
+                                    endret_ved_import = "0",
+                                    sist_endret = LocalDateTime.now().minusYears(5),
+                                    slettet = "0",
+                                    gyldig_fra = Date(0).toLocalDateTime(),
+                                    gyldig_til = null,
+                                    samh_praksis_id = samhandlerPraksisId.toString(),
+                                    samh_praksis_periode_id = (random.nextInt(1000000000)+1000000000).toString()
+                            )),
+                            samh_praksis_email = listOf(SamhandlerPraksisEmail(
+                                    samh_praksis_email_id = (random.nextInt(1000000000)+1000000000).toString(),
+                                    samh_praksis_id = samhandlerPraksisId.toString(),
+                                    email = "void@dev.null",
+                                    primaer_email = null
+                            )),
+
+                            post_postnr = null,
+                            post_kommune_nr = null,
+                            post_adresse_linje_1 = null,
+                            post_adresse_linje_2 = null,
+                            post_adresse_linje_3 = null,
+                            post_adresse_linje_4 = null,
+                            post_adresse_linje_5 = null,
+                            her_id = null,
+                            resh_id = null,
+                            ident = "2"
+                    )
+            ),
+            breg_hovedenhet = null,
+            samh_ident = listOf(
+                    SamhandlerIdent(
+                            samh_id = samhandlerIdent.toString(),
+                            samh_ident_id = samhandlerIdentId.toString(),
+                            ident = (person.aktoer as PersonIdent).ident.ident,
+                            ident_type_kode = "FNR",
+                            aktiv_ident = "1"
+                    ),
+                    SamhandlerIdent(
+                            samh_id = samhandlerIdent.toString(),
+                            samh_ident_id = samhandlerIdentId.toString(),
+                            ident = "1234567",
+                            ident_type_kode = "HPR",
+                            aktiv_ident = "1"
+                    )),
+            samh_avtale = listOf(),
+            samh_email = listOf(),
+            samh_direkte_oppgjor_avtale = listOf(SamhandlerDirekteOppgjoerAvtale(
+                    gyldig_fra = LocalDateTime.now().minusYears(15),
+                    samh_id = samhandlerIdent.toString(),
+                    samh_direkte_oppgjor_avtale_id = "1000050000",
+                    koll_avtale_mottatt_dato = null,
+                    monster_avtale_mottatt_dato = null
+            ))
+    )
+}
+
+fun defaultNavOffice(): Organisasjonsenhet = Organisasjonsenhet().apply {
+    enhetNavn = "NAV Sverige"
+    enhetId = "nav123"
+    organisasjonsnummer = generateOrganisationNumber()
+    status = Enhetsstatus.AKTIV
+}
+
+fun telephoneNumber(person: Person) = Random((person.aktoer as PersonIdent).ident.ident.toLong()).nextInt(10000000) + 90000000
+
+fun defaultPerson(personProperties: Array<PersonProperties.PersonProperty> = arrayOf(), vararg famillyRelations: Familierelasjon): Person {
+    val person = fairy.person(*personProperties)
+    return Person()
+            .withAktoer(PersonIdent().withIdent(NorskIdent()
+                    .withType(Personidenter().withValue("FNR"))
+                    .withIdent(generatePersonNumber(person.dateOfBirth))))
+            .withPersonnavn(Personnavn()
+                    .withFornavn(person.firstName)
+                    .withMellomnavn(person.middleName)
+                    .withEtternavn(person.lastName)
+                    .withSammensattNavn("${person.firstName} ${person.middleName} ${person.lastName}"))
+            .withBostedsadresse(Bostedsadresse()
+                    .withStrukturertAdresse(GeneratedAddress(person.address.city)
+                            .withLandkode(Landkoder().withValue("NO"))
+                            .withBolignummer(person.address.streetNumber)
+                            .withPoststed(Postnummer().withValue(person.address.postalCode))
+                            .withGatenavn(person.address.street)
+                            .withHusnummer(person.address.apartmentNumber.toIntOrNull())
+                    )
+                    .withEndringstidspunkt(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().minusYears(1)))))
+            .withPostadresse(Postadresse()
+                    .withUstrukturertAdresse(UstrukturertAdresse()
+                            .withAdresselinje1(person.address.addressLine1)
+                            .withAdresselinje2(person.address.addressLine2))
+                    .withEndringstidspunkt(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().minusYears(1)))))
+            .withHarFraRolleI(*famillyRelations)
+
+}
+
+fun defaultFellesformat(person: Person = defaultPerson(), doctor: Person = defaultPerson(), doctorTelephoneNumber: Int = telephoneNumber(doctor)): EIFellesformat {
+
     val organisationData = fairy.company()
     val orgAddr = fairy.person().address
     val navAddr = fairy.person().address
     val navOffice = "NAV Oslo"
-
-    val doctor = fairy.person()
-    val doctorPersonNumber = generatePersonNumber(doctor.dateOfBirth)
-
-    val patientData = fairy.person()
-    val patientPersonNumber = generatePersonNumber(patientData.dateOfBirth)
 
     return EIFellesformat().apply {
         msgHead = MsgHead().apply {
@@ -106,7 +248,7 @@ fun defaultFellesformat(): EIFellesformat {
                     dn = "LEGEERKL"
                 }
                 miGversion = "v1.2 2006-05-24"
-                genDate = datatypeFactory.newXMLGregorianCalendar()
+                genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().minusDays(1)))
                 msgId = UUID.randomUUID().toString()
                 sender = Sender().apply {
                     organisation = Organisation().apply {
@@ -120,20 +262,21 @@ fun defaultFellesformat(): EIFellesformat {
                             city = orgAddr.city
                         }
                         healthcareProfessional = HealthcareProfessional().apply {
-                            givenName = doctor.firstName
-                            middleName = doctor.middleName
-                            familyName = doctor.lastName
+                            givenName = doctor.personnavn.fornavn
+                            middleName = doctor.personnavn.mellomnavn
+                            familyName = doctor.personnavn.etternavn
                             ident.add(generateHerIdent())
                             ident.add(generateHPRIdent())
-                            ident.add(generatePersonNumberIdent(doctorPersonNumber))
+                            ident.add(generatePersonNumberIdent((doctor.aktoer as PersonIdent).ident.ident))
                             address = MsgHeadAddress().apply {
-                                streetAdr = doctor.address.addressLine1
-                                postalCode = doctor.address.postalCode
-                                city = doctor.address.city
+                                val generatedAddress = doctor.bostedsadresse.strukturertAdresse as GeneratedAddress
+                                streetAdr = doctor.postadresse.ustrukturertAdresse.adresselinje1
+                                postalCode = generatedAddress.poststed.value
+                                city = generatedAddress.city
                             }
                             teleCom.add(TeleCom().apply {
                                 teleAddress = MsgHeadURL().apply {
-                                    v = doctor.telephoneNumber
+                                    v = doctorTelephoneNumber.toString()
                                 }
                                 typeTelecom = MsgHeadCS().apply {
                                     dn = "Hovedtelefon"
@@ -153,10 +296,10 @@ fun defaultFellesformat(): EIFellesformat {
                             }
                         }
                         patient = Patient().apply {
-                            givenName = patientData.firstName
-                            middleName = patientData.middleName
-                            familyName = patientData.lastName
-                            ident.add(generatePersonNumberIdent(patientPersonNumber))
+                            givenName = person.personnavn.fornavn
+                            middleName = person.personnavn.mellomnavn
+                            familyName = person.personnavn.etternavn
+                            ident.add(generatePersonNumberIdent((person.aktoer as PersonIdent).ident.ident))
                         }
                     }
                 }
@@ -173,10 +316,10 @@ fun defaultFellesformat(): EIFellesformat {
                                 flereArbeidsforhold = ThreadLocalRandom.current().nextInt(0, 2 + 1).toBigInteger()
                                 pasient = Pasient().apply {
                                     navn = TypeNavn().apply {
-                                        fornavn = patientData.firstName
-                                        mellomnavn = patientData.middleName
-                                        etternavn = patientData.lastName
-                                        fodselsnummer = patientPersonNumber
+                                        fornavn = person.personnavn.fornavn
+                                        mellomnavn = person.personnavn.mellomnavn
+                                        etternavn = person.personnavn.etternavn
+                                        fodselsnummer = (person.aktoer as PersonIdent).ident.ident
                                         trygdekontor = navOffice
                                     }
                                     arbeidsforhold = Arbeidsforhold().apply {
@@ -198,9 +341,10 @@ fun defaultFellesformat(): EIFellesformat {
                                                 personAdr.add(TypeAdresse().apply {
                                                     adressetype = TypeAdressetype.H
                                                     postalAddress.add(TypePostalAddress().apply {
-                                                        streetAddress = patientData.address.addressLine1
-                                                        postalCode = patientData.address.postalCode
-                                                        city = patientData.address.city
+                                                        val generatedAddress = doctor.bostedsadresse.strukturertAdresse as GeneratedAddress
+                                                        streetAddress = doctor.postadresse.ustrukturertAdresse.adresselinje1
+                                                        postalCode = generatedAddress.poststed.value
+                                                        city = generatedAddress.city
                                                         country = "Norway"
                                                     })
                                                 })
@@ -213,13 +357,13 @@ fun defaultFellesformat(): EIFellesformat {
                                             utredningsPlan = fairy.textProducer().paragraph()
                                             nyeLegeopplysninger = fairy.textProducer().paragraph()
                                             henvistUtredning = HenvistUtredning().apply {
-                                                henvistDato = datatypeFactory.newXMLGregorianCalendar()
+                                                henvistDato = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now()))
                                                 antattVentetid = random.nextInt(10).toBigInteger()
                                                 spesifikasjon = fairy.textProducer().paragraph()
                                             }
                                         }
                                         diagnoseArbeidsuforhet = DiagnoseArbeidsuforhet().apply {
-                                            arbeidsuforFra = datatypeFactory.newXMLGregorianCalendar()
+                                            arbeidsuforFra = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now()))
                                             diagnoseKodesystem = DiagnoseKodesystem().apply {
                                                 kodesystem = ThreadLocalRandom.current().nextInt(0, 2 + 1).toBigInteger()
                                                 enkeltdiagnose.add(Enkeltdiagnose().apply {
@@ -234,7 +378,7 @@ fun defaultFellesformat(): EIFellesformat {
                                                 })
                                                 vurderingYrkesskade = VurderingYrkesskade().apply {
                                                     borVurderes = random.nextBoolean().toBigInteger()
-                                                    skadeDato = datatypeFactory.newXMLGregorianCalendar()
+                                                    skadeDato = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now()))
                                                 }
                                                 statusPresens = fairy.textProducer().paragraph()
                                                 symptomerBehandling = fairy.textProducer().paragraph()
@@ -285,11 +429,11 @@ fun defaultFellesformat(): EIFellesformat {
         }
         mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
             ediLoggId = UUID.randomUUID().toString()
-            avsender = doctorPersonNumber
+            avsender = (doctor.aktoer as PersonIdent).ident.ident
             ebXMLSamtaleId = random.nextInt(999999).toString()
             avsenderRef = random.nextInt(999999).toString()
-            avsenderFnrFraDigSignatur = doctorPersonNumber
-            mottattDatotid = datatypeFactory.newXMLGregorianCalendar()
+            avsenderFnrFraDigSignatur = (doctor.aktoer as PersonIdent).ident.ident
+            mottattDatotid = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now()))
             ebRole = "Lege"
             ebService = "Legemelding"
             ebAction = "Legeerklaring"
@@ -379,7 +523,7 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
 
 fun generatePersonNumber(bornDate: LocalDate): String {
     val personDate = bornDate.format(personNumberDateFormat)
-    return (11111..99999)
+    return (11111..50099)
             .map { "$personDate$it" }
             .first {
                 validatePersonAndDNumber(it)

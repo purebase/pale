@@ -96,8 +96,7 @@ class SarClientTest {
                         samh_praksis_id = "12356",
                         samh_praksis_konto = emptyList(),
                         samh_praksis_periode = createSamhanderPeriode(LocalDateTime.now().plusDays(1L), LocalDateTime.now().plusDays(23L)),
-                        samh_praksis_email = emptyList(),
-                        samh_praksis_vikar = emptyList()
+                        samh_praksis_email = emptyList()
                 )
         )
         return samhandlerPraksisListe
@@ -135,8 +134,6 @@ class SarClientTest {
                         samh_id = "12345",
                         navn = "Kule Helsetjenester As",
                         samh_type_kode = "LE",
-                        gyldig_fra = LocalDateTime.now().minusDays(2L),
-                        gyldig_til = LocalDateTime.now().plusDays(2L),
                         behandling_utfall_kode = "1",
                         unntatt_veiledning = "1",
                         godkjent_manuell_krav = "1",
@@ -155,10 +152,6 @@ class SarClientTest {
                         samh_praksis = createSamhandlerPraksis(),
                         samh_avtale = emptyList(),
                         samh_direkte_oppgjor_avtale = emptyList(),
-                        samh_fbv_godkjent_avd = emptyList(),
-                        samh_kommentar = emptyList(),
-                        samh_saerskilte_takster = emptyList(),
-                        samh_vikar = emptyList(),
                         samh_email = emptyList()
                 )
         )

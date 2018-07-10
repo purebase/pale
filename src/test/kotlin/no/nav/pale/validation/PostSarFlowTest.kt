@@ -154,9 +154,8 @@ class PostSarFlowTest {
                     samh_praksis_id = "12356",
                     samh_praksis_konto = emptyList(),
                     samh_praksis_periode = createSamhanderPeriode(praksisGydligfra, praksisGyldigtil),
-                    samh_praksis_email = emptyList(),
-                    samh_praksis_vikar = emptyList()
-                    )
+                    samh_praksis_email = listOf()
+            )
         )
     return samhandlerPraksisListe
 }
@@ -193,8 +192,6 @@ class PostSarFlowTest {
                         samh_id = "1000288339",
                         navn = "Kule Helsetjenester As",
                         samh_type_kode = samhalnderTypekode,
-                        gyldig_fra = LocalDateTime.now().minusDays(2L),
-                        gyldig_til = LocalDateTime.now().plusDays(2L),
                         behandling_utfall_kode = "1",
                         unntatt_veiledning = "1",
                         godkjent_manuell_krav = "1",
@@ -213,10 +210,6 @@ class PostSarFlowTest {
                         samh_praksis = createSamhandlerPraksis(praksisGydligfra,praksisGyldigtil ,navn,aktiv),
                         samh_avtale = emptyList(),
                         samh_direkte_oppgjor_avtale = emptyList(),
-                        samh_fbv_godkjent_avd = emptyList(),
-                        samh_kommentar = emptyList(),
-                        samh_saerskilte_takster = emptyList(),
-                        samh_vikar = emptyList(),
                         samh_email = emptyList()
                 )
         )
