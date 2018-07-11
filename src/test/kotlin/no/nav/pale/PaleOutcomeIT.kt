@@ -2,9 +2,6 @@ package no.nav.pale
 
 import com.devskiller.jfairy.producer.person.PersonProperties
 import com.devskiller.jfairy.producer.person.PersonProvider
-import no.nav.model.apprec.AppRec
-import no.nav.model.arenainfo.ArenaEiaInfo
-import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.Ident
 import no.nav.model.msghead.MsgHeadCV
 import no.nav.pale.datagen.datatypeFactory
@@ -30,10 +27,9 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.mockito.Mockito.reset
-import java.io.StringReader
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
+import java.util.GregorianCalendar
 
 class PaleOutcomeIT {
     @Before
@@ -285,7 +281,7 @@ class PaleOutcomeIT {
         e.defaultMocks(person)
 
         e.produceMessage(fellesformatString)
-        
+
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
         assertArenaInfoContains(arenaEiaInfo, OutcomeType.REGISTERED_DEAD_IN_TPS)
