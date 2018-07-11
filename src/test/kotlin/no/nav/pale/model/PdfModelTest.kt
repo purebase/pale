@@ -1,6 +1,7 @@
 package no.nav.pale.model
 
 import no.nav.pale.datagen.defaultFellesformat
+import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.mapping.mapFellesformatToFagmelding
 import no.nav.pale.objectMapper
 import org.junit.Test
@@ -116,7 +117,7 @@ class PdfModelTest {
 
     @Test
     fun testFellesformatToFagmelding() {
-        val pdfModel = mapFellesformatToFagmelding(defaultFellesformat())
+        val pdfModel = mapFellesformatToFagmelding(defaultFellesformat(defaultPerson()))
 
         println(TimeZone.getDefault().id)
         println(pdfModel.sykdomsOpplysninger.arbeidsufoerFra?.zone?.id)

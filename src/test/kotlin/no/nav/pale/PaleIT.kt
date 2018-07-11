@@ -30,6 +30,7 @@ import no.nav.pale.utils.assertArenaInfoContains
 import no.nav.pale.utils.randomPort
 import no.nav.pale.validation.OutcomeType
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
+import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.meldinger.FinnNAVKontorResponse
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.binding.PersonV3
@@ -37,6 +38,7 @@ import no.nav.tjeneste.virksomhet.person.v3.feil.PersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.GeografiskTilknytning
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
@@ -314,7 +316,7 @@ class PaleIT {
             (aktoer as PersonIdent).ident.ident = ""
         }
 
-        val fellesformat = defaultFellesformat(doctor = doctor)
+        val fellesformat = defaultFellesformat(defaultPerson(), doctor = doctor)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         produceMessage(fellesformatString)
@@ -331,7 +333,7 @@ class PaleIT {
             (aktoer as PersonIdent).ident.ident = "12345678912"
         }
 
-        val fellesformat = defaultFellesformat(doctor = doctor)
+        val fellesformat = defaultFellesformat(defaultPerson(), doctor = doctor)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         produceMessage(fellesformatString)
@@ -344,7 +346,7 @@ class PaleIT {
 
     @Test
     fun testInvalidGenDateReceipt() {
-        val fellesformat = defaultFellesformat().apply {
+        val fellesformat = defaultFellesformat(defaultPerson()).apply {
             msgHead.msgInfo.genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().plusDays(1)))
         }
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
@@ -360,18 +362,12 @@ class PaleIT {
     @Test
     fun testNoNavOfficeCausesMissingPatientInfoReceipt() {
         val person = defaultPerson()
-        val fellesformat = defaultFellesformat()
+        val fellesformat = defaultFellesformat(person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         produceMessage(fellesformatString)
 
-        defaultMocks(person)
-        reset(organisasjonEnhetV2Mock)
-
-        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
-                .thenReturn(FinnNAVKontorResponse().apply {
-                    navKontor = null
-                })
+        defaultMocks(person, navOffice = null)
 
         val apprec = readAppRec()
         assertEquals("Avvist", apprec.status.dn)
@@ -379,18 +375,21 @@ class PaleIT {
         assertEquals(ApprecError.MISSING_PATIENT_INFO.v, apprec.error[0].v)
     }
 
-    fun defaultMocks(person: Person) {
+    fun defaultMocks(
+        person: Person,
+        navOffice: Organisasjonsenhet? = defaultNavOffice(),
+        geografiskTilknytning: GeografiskTilknytning? = Kommune().withGeografiskTilknytning("navkontor")
+    ) {
         `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
 
         `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
                 .withAktoer(person.aktoer)
                 .withNavn(person.personnavn)
-                .withGeografiskTilknytning(Kommune()
-                        .withGeografiskTilknytning("navkontor")))
+                .withGeografiskTilknytning(geografiskTilknytning))
 
         `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
                 .thenReturn(FinnNAVKontorResponse().apply {
-                    navKontor = defaultNavOffice()
+                    navKontor = navOffice
                 })
     }
 

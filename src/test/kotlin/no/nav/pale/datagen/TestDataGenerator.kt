@@ -110,7 +110,7 @@ class TestDataGenerator {
         val result = StringWriter().let {
             val marshaller = fellesformatJaxBContext.createMarshaller()
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-            marshaller.marshal(defaultFellesformat(), it)
+            marshaller.marshal(defaultFellesformat(defaultPerson()), it)
             it.toString()
         }
 
@@ -262,7 +262,7 @@ fun defaultPerson(
             .withHarFraRolleI(*familyRelations)
 }
 
-fun defaultFellesformat(person: Person = defaultPerson(), doctor: Person = defaultPerson(), doctorTelephoneNumber: Int = telephoneNumber(doctor)): EIFellesformat {
+fun defaultFellesformat(person: Person, doctor: Person = defaultPerson(), doctorTelephoneNumber: Int = telephoneNumber(doctor)): EIFellesformat {
 
     val organisationData = fairy.company()
     val orgAddr = fairy.person().address
