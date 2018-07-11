@@ -22,7 +22,7 @@ pipeline {
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
                     } else {
-                        sh './gradlew clean'
+                        //sh './gradlew clean'
                         env.DEPLOY_TO = 'production'
                     }
                     changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog.toString()
@@ -101,7 +101,7 @@ pipeline {
             archiveArtifacts artifacts: 'build/reports/rules.csv', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/build/libs/*', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/build/install/*', allowEmptyArchive: true
-            deleteDir()
+            //deleteDir()
         }
         success {
             githubStatus 'success'
