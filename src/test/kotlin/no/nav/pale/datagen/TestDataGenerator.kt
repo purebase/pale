@@ -233,13 +233,14 @@ fun telephoneNumber(person: Person): Int = Random((person.aktoer as PersonIdent)
 
 fun defaultPerson(
     vararg personProperties: PersonProperties.PersonProperty = defaultPersonProperties,
-    familyRelations: Array<Familierelasjon> = arrayOf()
+    familyRelations: Array<Familierelasjon> = arrayOf(),
+    useDNumber: Boolean = false
 ): Person {
     val person = fairy.person(*personProperties)
     return Person()
             .withAktoer(PersonIdent().withIdent(NorskIdent()
                     .withType(Personidenter().withValue("FNR"))
-                    .withIdent(generatePersonNumber(person.dateOfBirth))))
+                    .withIdent(generatePersonNumber(person.dateOfBirth, useDNumber))))
             .withPersonnavn(Personnavn()
                     .withFornavn(person.firstName)
                     .withMellomnavn(person.middleName)
@@ -550,8 +551,10 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
     return orgNumber[8] - '0' == checksum1Final
 }
 
-fun generatePersonNumber(bornDate: LocalDate): String {
-    val personDate = bornDate.format(personNumberDateFormat)
+fun generatePersonNumber(bornDate: LocalDate, useDNumber: Boolean = false): String {
+    val personDate = bornDate.format(personNumberDateFormat).let {
+        if (useDNumber) "${it[0] + 4}${it.substring(1)}" else it
+    }
     return (if (bornDate.year > 2000) (75011..99999) else (11111..50099))
             .map { "$personDate$it" }
             .first {
