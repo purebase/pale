@@ -16,13 +16,13 @@ pipeline {
         stage('initialize') {
             steps {
                 ciSkip 'check'
-                sh './gradlew clean'
                 script {
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
                         env.APPLICATION_VERSION = "${applicationVersionGradle}.${env.BUILD_ID}-${env.COMMIT_HASH_SHORT}"
                     } else {
+                        sh './gradlew clean'
                         env.DEPLOY_TO = 'production'
                     }
                     changeLog = utils.gitVars(env.APPLICATION_NAME).changeLog.toString()
