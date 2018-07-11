@@ -379,6 +379,9 @@ fun validateMessage(
     val outcomes = mutableListOf<Outcome>()
 
     outcomes.addAll(validationFlow(fellesformat))
+    if (outcomes.any { it.outcomeType.shouldReturnEarly() }) {
+        return outcomes.toResult()
+    }
 
     outcomes.addAll(preTPSFlow(fellesformat))
 

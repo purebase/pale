@@ -39,6 +39,7 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Kommune
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentGeografiskTilknytningResponse
 import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import no.nav.virksomhet.tjenester.arkiv.journalbehandling.v1.binding.Journalbehandling
@@ -69,6 +70,8 @@ import redis.clients.jedis.Jedis
 import java.io.StringReader
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.ZonedDateTime
+import java.util.GregorianCalendar
 import javax.jms.Connection
 import javax.jms.ConnectionFactory
 import javax.jms.MessageConsumer
@@ -76,10 +79,12 @@ import javax.jms.MessageProducer
 import javax.jms.Session
 import javax.jms.TextMessage
 import javax.naming.InitialContext
+import javax.xml.datatype.DatatypeFactory
 import javax.xml.ws.Endpoint
 
 class PaleIT {
     // TODO create more ITs
+    private val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
 
     @Before
     fun resetMocks() {
@@ -124,7 +129,7 @@ class PaleIT {
 
     @Test
     fun testMessageWithoutErrorsShouldCreateOkAppRec() {
-        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val person = defaultPerson()
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
@@ -139,7 +144,7 @@ class PaleIT {
 
     @Test
     fun testDuplicateReturnsCorrectApprec() {
-        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val person = defaultPerson()
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
@@ -161,7 +166,7 @@ class PaleIT {
 
     @Test
     fun testSperrekode6CausesNoArenaEiaInfo() {
-        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
+        val person = defaultPerson().apply {
             diskresjonskode = Diskresjonskoder().apply {
                 value = "SPSF"
             }
@@ -179,7 +184,7 @@ class PaleIT {
 
     @Test
     fun testSperreKode7CausesArenaMessage() {
-        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
+        val person = defaultPerson().apply {
             diskresjonskode = Diskresjonskoder().apply {
                 value = "SPFO"
             }
@@ -199,8 +204,8 @@ class PaleIT {
 
     @Test
     fun testPatientMarriedToDoctor() {
-        val doctor = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
-        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)).apply {
+        val doctor = defaultPerson()
+        val person = defaultPerson().apply {
             this.harFraRolleI.add(
                     Familierelasjon().withTilPerson(doctor)
                             .withTilRolle(Familierelasjoner()
@@ -222,7 +227,7 @@ class PaleIT {
 
     @Test
     fun testTPSReturnsMissing() {
-        val person = defaultPerson(PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69))
+        val person = defaultPerson()
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
@@ -233,6 +238,145 @@ class PaleIT {
         val appRec = readAppRec()
 
         assertEquals(ApprecError.PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER.s, appRec.error[0].s)
+    }
+
+    @Test
+    fun testMissingPatientFirstnameMissingReceipt() {
+        val person = defaultPerson().apply {
+            personnavn.fornavn = null
+        }
+
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA.s, apprec.error[0].s)
+        assertEquals(ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testMissingPatientSurnameMissingReceipt() {
+        val person = defaultPerson().apply {
+            personnavn.etternavn = null
+        }
+
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA.s, apprec.error[0].s)
+        assertEquals(ApprecError.PATIENT_LASTNAME_IS_NOT_IN_SCHEMA.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testMissingPersonNumberReceipt() {
+        val person = defaultPerson().apply {
+            (aktoer as PersonIdent).ident.ident = ""
+        }
+
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA.s, apprec.error[0].s)
+        assertEquals(ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testInvalidPersonNumberReceipt() {
+        val person = defaultPerson().apply {
+            (aktoer as PersonIdent).ident.ident = "12345678912"
+        }
+
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG.s, apprec.error[0].s)
+        assertEquals(ApprecError.PATIENT_PERSON_NUMBER_IS_WRONG.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testMissingDoctorPersonNumberReceipt() {
+        val doctor = defaultPerson().apply {
+            (aktoer as PersonIdent).ident.ident = ""
+        }
+
+        val fellesformat = defaultFellesformat(doctor = doctor)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.s, apprec.error[0].s)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testInvalidDoctorPersonNumberReceipt() {
+        val doctor = defaultPerson().apply {
+            (aktoer as PersonIdent).ident.ident = "12345678912"
+        }
+
+        val fellesformat = defaultFellesformat(doctor = doctor)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.s, apprec.error[0].s)
+        assertEquals(ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testInvalidGenDateReceipt() {
+        val fellesformat = defaultFellesformat().apply {
+            msgHead.msgInfo.genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().plusDays(1)))
+        }
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.GEN_DATE_ERROR.s, apprec.error[0].s)
+        assertEquals(ApprecError.GEN_DATE_ERROR.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testNoNavOfficeCausesMissingPatientInfoReceipt() {
+        val person = defaultPerson()
+        val fellesformat = defaultFellesformat()
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        produceMessage(fellesformatString)
+
+        defaultMocks(person)
+        reset(organisasjonEnhetV2Mock)
+
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+                .thenReturn(FinnNAVKontorResponse().apply {
+                    navKontor = null
+                })
+
+        val apprec = readAppRec()
+        assertEquals("Avvist", apprec.status.dn)
+        assertEquals(ApprecError.MISSING_PATIENT_INFO.s, apprec.error[0].s)
+        assertEquals(ApprecError.MISSING_PATIENT_INFO.v, apprec.error[0].v)
     }
 
     fun defaultMocks(person: Person) {

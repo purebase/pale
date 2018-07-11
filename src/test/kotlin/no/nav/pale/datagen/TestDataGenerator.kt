@@ -3,6 +3,7 @@ package no.nav.pale.datagen
 import com.devskiller.jfairy.Fairy
 import com.devskiller.jfairy.producer.company.Company
 import com.devskiller.jfairy.producer.person.PersonProperties
+import com.devskiller.jfairy.producer.person.PersonProvider
 import io.ktor.util.toLocalDateTime
 import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.LegeerklaeringType
@@ -91,6 +92,10 @@ val fairy: Fairy = Fairy.create(Locale("no", "NO"))
 val random: Random = Random()
 val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
 val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
+
+val defaultPersonProperties = arrayOf(
+        PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)
+)
 
 fun Company.getCenterName(): String =
         this.name.replace("AS", when (this.name.length % 3) {
@@ -223,9 +228,13 @@ fun defaultNavOffice(): Organisasjonsenhet = Organisasjonsenhet().apply {
     status = Enhetsstatus.AKTIV
 }
 
-fun telephoneNumber(person: Person) = Random((person.aktoer as PersonIdent).ident.ident.toLong()).nextInt(10000000) + 90000000
+fun telephoneNumber(person: Person): Int = Random((person.aktoer as PersonIdent).ident.ident.toLongOrNull() ?: 0)
+            .nextInt(10000000) + 90000000
 
-fun defaultPerson(vararg personProperties: PersonProperties.PersonProperty, famillyRelations: Array<Familierelasjon> = arrayOf()): Person {
+fun defaultPerson(
+    vararg personProperties: PersonProperties.PersonProperty = defaultPersonProperties,
+    familyRelations: Array<Familierelasjon> = arrayOf()
+): Person {
     val person = fairy.person(*personProperties)
     return Person()
             .withAktoer(PersonIdent().withIdent(NorskIdent()
@@ -250,7 +259,7 @@ fun defaultPerson(vararg personProperties: PersonProperties.PersonProperty, fami
                             .withAdresselinje1(person.address.addressLine1)
                             .withAdresselinje2(person.address.addressLine2))
                     .withEndringstidspunkt(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().minusYears(1)))))
-            .withHarFraRolleI(*famillyRelations)
+            .withHarFraRolleI(*familyRelations)
 }
 
 fun defaultFellesformat(person: Person = defaultPerson(), doctor: Person = defaultPerson(), doctorTelephoneNumber: Int = telephoneNumber(doctor)): EIFellesformat {
@@ -543,7 +552,7 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
 
 fun generatePersonNumber(bornDate: LocalDate): String {
     val personDate = bornDate.format(personNumberDateFormat)
-    return (if (bornDate.year > 2000) (50011..99999) else (11111..50099))
+    return (if (bornDate.year > 2000) (75011..99999) else (11111..50099))
             .map { "$personDate$it" }
             .first {
                 validatePersonAndDNumber(it)
