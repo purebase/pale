@@ -19,10 +19,11 @@ import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.client.PdfClient
+import no.nav.pale.client.Samhandler
 import no.nav.pale.client.SarClient
 import no.nav.pale.datagen.defaultNavOffice
 import no.nav.pale.datagen.defaultPerson
-import no.nav.pale.datagen.defaultSamhandler
+import no.nav.pale.datagen.toSamhandler
 import no.nav.pale.utils.randomPort
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.binding.OrganisasjonEnhetV2
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
@@ -60,10 +61,15 @@ import javax.jms.TextMessage
 import javax.naming.InitialContext
 import javax.xml.ws.Endpoint
 
+interface SamhandlerProvider {
+    fun getSamhandlerList(): List<Samhandler>
+}
+
 class EmbeddedEnvironment {
     val personV3Mock: PersonV3 = Mockito.mock(PersonV3::class.java)
     val organisasjonEnhetV2Mock: OrganisasjonEnhetV2 = Mockito.mock(OrganisasjonEnhetV2::class.java)
     val journalbehandlingMock: Journalbehandling = Mockito.mock(Journalbehandling::class.java)
+    val samhandlerMock: SamhandlerProvider = Mockito.mock(SamhandlerProvider::class.java)
     val diagnosisWebServerPort = randomPort()
     val diagnosisWebServerUrl = "http://localhost:$diagnosisWebServerPort"
 
@@ -174,8 +180,10 @@ class EmbeddedEnvironment {
 
     fun defaultMocks(
         person: Person,
+        doctor: Person? = defaultPerson(),
         navOffice: Organisasjonsenhet? = defaultNavOffice(),
-        geografiskTilknytning: GeografiskTilknytning? = Kommune().withGeografiskTilknytning("navkontor")
+        geografiskTilknytning: GeografiskTilknytning? = Kommune().withGeografiskTilknytning("navkontor"),
+        samhandlerList: List<Samhandler> = listOfNotNull(doctor?.toSamhandler())
     ) {
         Mockito.`when`(personV3Mock.hentPerson(ArgumentMatchers.any())).thenReturn(HentPersonResponse().withPerson(person))
 
@@ -188,6 +196,7 @@ class EmbeddedEnvironment {
                 .thenReturn(FinnNAVKontorResponse().apply {
                     navKontor = navOffice
                 })
+        Mockito.`when`(samhandlerMock.getSamhandlerList()).thenReturn(samhandlerList)
     }
 
     fun consumeMessage(consumer: MessageConsumer): String? = consumer.receive(2000).run {
@@ -227,7 +236,7 @@ class EmbeddedEnvironment {
                 get("/rest/sar/samh") {
                     val ident = call.request.queryParameters["ident"]
                     call.respondJson {
-                        arrayOf(defaultSamhandler(defaultPerson()))
+                        samhandlerMock.getSamhandlerList()
                     }
                 }
             }

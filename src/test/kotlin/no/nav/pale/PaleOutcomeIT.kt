@@ -127,6 +127,21 @@ class PaleOutcomeIT {
         assertArenaInfoContains(arenaEiaInfo, OutcomeType.MARRIED_TO_PATIENT)
     }
 
+    @Test
+    fun testBehandlerNotInSar() {
+        val person = defaultPerson()
+        val fellesformat = defaultFellesformat(person = person)
+        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
+
+        e.defaultMocks(person, doctor = null)
+
+        e.produceMessage(fellesformatString)
+
+        readAppRec()
+        val arenaEiaInfo = readArenaEiaInfo()
+        assertArenaInfoContains(arenaEiaInfo, OutcomeType.BEHANDLER_NOT_SAR)
+    }
+
     companion object {
         val e: EmbeddedEnvironment = EmbeddedEnvironment()
 

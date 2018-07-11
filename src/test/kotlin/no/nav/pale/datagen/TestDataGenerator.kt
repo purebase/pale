@@ -120,15 +120,15 @@ class TestDataGenerator {
 
 class GeneratedAddress(var city: String? = null) : Gateadresse()
 
-fun defaultSamhandler(person: Person): Samhandler {
-    val personNumber = (person.aktoer as PersonIdent).ident.ident
+fun Person.toSamhandler(): Samhandler {
+    val personNumber = (this.aktoer as PersonIdent).ident.ident
     val random = Random(personNumber.toLong())
     val samhandlerIdent = random.nextInt(1000000000) + 1000000000
     val samhandlerIdentId = random.nextInt(1000000000) + 1000000000
     val samhandlerPraksisId = random.nextInt(1000000000) + 1000000000
     return Samhandler(
             samh_id = samhandlerIdent.toString(),
-            navn = person.personnavn.sammensattNavn,
+            navn = this.personnavn.sammensattNavn,
             samh_type_kode = "LE",
             behandling_utfall_kode = "auto",
             unntatt_veiledning = "1",
@@ -146,7 +146,7 @@ fun defaultSamhandler(person: Person): Samhandler {
                             tidspunkt_resync_periode = LocalDateTime.now().minusYears(1),
                             tidspunkt_registrert = LocalDateTime.now().minusYears(5),
                             samh_praksis_status_kode = "aktiv",
-                            telefonnr = telephoneNumber(person).toString(),
+                            telefonnr = telephoneNumber(this).toString(),
                             arbeids_kommune_nr = "0123",
                             arbeids_postnr = "0123",
                             arbeids_adresse_linje_1 = "Oppdiktet gate 123",
@@ -198,7 +198,7 @@ fun defaultSamhandler(person: Person): Samhandler {
                     SamhandlerIdent(
                             samh_id = samhandlerIdent.toString(),
                             samh_ident_id = samhandlerIdentId.toString(),
-                            ident = (person.aktoer as PersonIdent).ident.ident,
+                            ident = (this.aktoer as PersonIdent).ident.ident,
                             ident_type_kode = "FNR",
                             aktiv_ident = "1"
                     ),
