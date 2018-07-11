@@ -144,15 +144,6 @@ data class SamhandlerDirekteOppgjoerAvtale(
     val samh_direkte_oppgjor_avtale_id: String
 )
 
-data class SamhandlerFBVGodkjentTjeneste(
-    val fbv_tjeneste_kode: String?,
-    val gyldig_fra: LocalDateTime,
-    val gyldig_til: LocalDateTime?,
-    val samh_fbv_godkjent_avd_id: String?,
-    val samh_fbv_godkjent_tjeneste_id: String?,
-    val samh_id: String
-)
-
 data class SamhandlerPraksisEmail(
     val samh_praksis_email_id: String,
     val samh_praksis_id: String,
@@ -166,12 +157,4 @@ data class SamhEmail(
     val email: String,
     val primaer_email: String,
     val email_type_kode: String
-)
-
-data class SamhandlerSaerskileTakster(
-    val gydling_fra: String,
-    val gylding_til: String?,
-    val saerskilte_takst_text: String?,
-    val samh_id: String?,
-    val samh_saerskilte_takst_id: String?
 )
