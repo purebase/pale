@@ -1,33 +1,24 @@
 package no.nav.pale.validation
 
-import no.nav.pale.utils.readToFellesformat
+import no.nav.pale.datagen.datatypeFactory
+import no.nav.pale.datagen.createFamilyRelation
+import no.nav.pale.datagen.defaultFellesformat
+import no.nav.pale.datagen.defaultPerson
+import no.nav.pale.utils.assertOutcomesContain
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Person
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personidenter
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
-import java.util.GregorianCalendar
-import javax.xml.datatype.DatatypeFactory
 
 class PostTPSRuleFlowTest {
-
-    val fellesformat = readToFellesformat("/legeerklaering.xml")
-
     @Test
     fun shouldCreateOutcomeTypeRegisterteDodITPS() {
-        val person = Person().apply {
-            doedsdato = Doedsdato().apply {
-                doedsdato = DatatypeFactory.newInstance().newXMLGregorianCalendar(GregorianCalendar())
-            }
-        }
+        val person = defaultPerson()
+                .withDoedsdato(Doedsdato().withDoedsdato(datatypeFactory.newXMLGregorianCalendar()))
 
-        val outcomeList = postTPSFlow(fellesformat, person)
+        val outcomeList = postTPSFlow(defaultFellesformat(person), person)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTERED_DEAD_IN_TPS }
 
         assertEquals(OutcomeType.REGISTERED_DEAD_IN_TPS, outcome?.outcomeType)
@@ -35,130 +26,68 @@ class PostTPSRuleFlowTest {
 
     @Test
     fun shouldCreateOutcomeTypeGiftMedPasient() {
+        val doctor = defaultPerson()
+        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("EKTE", doctor)))
 
-        val patient = Person().apply {
-            val familierelasjon = familierelasjon("EKTE")
-            harFraRolleI.add(familierelasjon)
-        }
-
-        val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.MARRIED_TO_PATIENT }
-
-        assertEquals(OutcomeType.MARRIED_TO_PATIENT, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.MARRIED_TO_PATIENT,
+                postTPSFlow(defaultFellesformat(patient, doctor), patient))
     }
 
     @Test
     fun shouldCreateOutcomeTypeRegistertPartnerMedPasient() {
+        val doctor = defaultPerson()
+        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("REPA", doctor)))
 
-        val patient = Person().apply {
-            val familierelasjon = familierelasjon("REPA")
-            harFraRolleI.add(familierelasjon)
-        }
-
-        val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.REGISTERED_PARTNER_WITH_PATIENT }
-
-        assertEquals(OutcomeType.REGISTERED_PARTNER_WITH_PATIENT, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.REGISTERED_PARTNER_WITH_PATIENT,
+                postTPSFlow(defaultFellesformat(patient, doctor), patient))
     }
 
     @Test
-    fun shouldCreateOutcomeTypeForelderTilPasient() {
+    fun testMotherIsPatientsDoctor() {
+        val mother = defaultPerson()
+        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("MORA", mother)))
 
-        val patientFARA = Person().apply {
-            val familierelasjon = familierelasjon("FARA")
-            harFraRolleI.add(familierelasjon)
-        }
-
-        val patientMORA = Person().apply {
-            val familierelasjon = familierelasjon("MORA")
-            harFraRolleI.add(familierelasjon)
-        }
-
-        val outcomeListFARA = postTPSFlow(fellesformat, patientFARA)
-        val outcomeListMORA = postTPSFlow(fellesformat, patientMORA)
-        val outcomeFARA = outcomeListFARA.find { it.outcomeType == OutcomeType.PARENT_TO_PATIENT }
-        val outcomeMORA = outcomeListMORA.find { it.outcomeType == OutcomeType.PARENT_TO_PATIENT }
-
-        assertEquals(OutcomeType.PARENT_TO_PATIENT, outcomeFARA?.outcomeType)
-        assertEquals(OutcomeType.PARENT_TO_PATIENT, outcomeMORA?.outcomeType)
+        assertOutcomesContain(OutcomeType.PARENT_TO_PATIENT,
+                postTPSFlow(defaultFellesformat(patient, doctor = mother), patient))
     }
 
     @Test
-    fun shouldCreateOutcomeTypeBarnAvPasient() {
+    fun testFatherIsPatientsDoctor() {
+        val father = defaultPerson()
+        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("FARA", father)))
 
-        val patient = Person().apply {
-            val familierelasjon = familierelasjon("BARN")
-            harFraRolleI.add(familierelasjon)
-        }
+        assertOutcomesContain(OutcomeType.PARENT_TO_PATIENT,
+                postTPSFlow(defaultFellesformat(patient, doctor = father), patient))
+    }
 
-        val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.CHILD_OF_PATIENT }
+    @Test
+    fun testChildIsDoctorIsPatientsChild() {
+        val doctor = defaultPerson()
+        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("BARN", doctor)))
 
-        assertEquals(OutcomeType.CHILD_OF_PATIENT, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.CHILD_OF_PATIENT,
+                postTPSFlow(defaultFellesformat(patient, doctor = doctor), patient))
     }
 
     @Test
     fun shouldCreateRuntimeExceptionWhenPersonHarFraRollItilRolleValueIsNull() {
-
-        val patient = Person().apply {
-            val familierelasjon = Familierelasjon().apply {
-                tilRolle = Familierelasjoner().apply {
-                    value = null
-                }
-                tilPerson = Person().apply {
-
-                    val doctorIdent = extractDoctorIdentFromSender(fellesformat)!!
-                    aktoer = PersonIdent().apply {
-                        ident = NorskIdent().apply {
-                            ident = doctorIdent.id
-                            type = Personidenter().apply {
-                                value = doctorIdent.typeId.v
-                            }
-                        }
-                    }
-                }
-            }
-            harFraRolleI.add(familierelasjon)
-        }
+        val doctor = defaultPerson()
+        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation(null, doctor)))
 
         try {
-            postTPSFlow(fellesformat, patient)
+            postTPSFlow(defaultFellesformat(patient, doctor = doctor), patient)
+            fail("Null as role should cause exception")
         } catch (e: RuntimeException) {
-            assertEquals("relations.tilRolle.value must not be null", e.message)
+            e.printStackTrace()
         }
     }
 
     @Test
     fun shouldCreateOutcomeTypePatientEmigrated() {
+        val patient = defaultPerson().withPersonstatus(Personstatus()
+                .withPersonstatus(Personstatuser().withValue("UTVA")))
 
-        val patient = Person().apply {
-            personstatus = Personstatus().apply {
-                personstatus = Personstatuser().apply {
-                    value = "UTVA"
-                }
-            }
-        }
-        val outcomeList = postTPSFlow(fellesformat, patient)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PATIENT_EMIGRATED }
-
-        assertEquals(OutcomeType.PATIENT_EMIGRATED, outcome?.outcomeType)
-    }
-
-    fun familierelasjon(faimilierelasjon: String): Familierelasjon = Familierelasjon().apply {
-        tilRolle = Familierelasjoner().apply {
-            value = faimilierelasjon
-        }
-        tilPerson = Person().apply {
-
-            aktoer = PersonIdent().apply {
-                ident = NorskIdent().apply {
-                    val doctorIdent = extractDoctorIdentFromSender(fellesformat)!!
-                    ident = doctorIdent.id
-                    type = Personidenter().apply {
-                        value = doctorIdent.typeId.v
-                    }
-                }
-            }
-        }
+        assertOutcomesContain(OutcomeType.PATIENT_EMIGRATED,
+                postTPSFlow(defaultFellesformat(patient), patient))
     }
 }

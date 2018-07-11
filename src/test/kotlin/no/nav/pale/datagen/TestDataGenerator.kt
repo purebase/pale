@@ -62,6 +62,7 @@ import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bostedsadresse
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Gateadresse
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Landkoder
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
@@ -230,6 +231,11 @@ fun defaultNavOffice(): Organisasjonsenhet = Organisasjonsenhet().apply {
 
 fun telephoneNumber(person: Person): Int = Random((person.aktoer as PersonIdent).ident.ident.toLongOrNull() ?: 0)
             .nextInt(10000000) + 90000000
+
+fun createFamilyRelation(type: String?, other: Person): Familierelasjon =
+        Familierelasjon()
+                .withTilRolle(Familierelasjoner().withValue(type))
+                .withTilPerson(other)
 
 fun defaultPerson(
     vararg personProperties: PersonProperties.PersonProperty = defaultPersonProperties,

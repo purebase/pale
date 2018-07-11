@@ -15,12 +15,7 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeBehandlerNotSar() {
-        val samhandler = createSamhandlerListe(
-                "Kule Helsetjenester As",
-                "aktiv",
-                "LE",
-                LocalDateTime.now().plusDays(1L),
-                LocalDateTime.now().plusDays(23L))
+        val samhandler = listOf<Samhandler>()
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_NOT_SAR }
