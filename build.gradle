@@ -75,43 +75,55 @@ task printVersion() {
     }
 }
 
-task generateJaxb2() {
-    doLast {
-        print("$projectDir/src/main/resources/binding.xjb")
-        jaxb2SourceDir.deleteDir()
-        jaxb2SourceDir.mkdirs()
+class Jaxb2Task extends DefaultTask {
+    @OutputDirectory
+    File outputDir
+    @InputDirectory
+    File sourceDir
+    @InputDirectory
+    File xjbDir
 
+    @TaskAction
+    def generateFiles() {
+        outputDir.deleteDir()
+        outputDir.mkdirs()
         ant.taskdef(
-                classpath: configurations.generateJaxb2.asPath,
+                classpath: project.configurations.generateJaxb2.asPath,
                 name: 'xjc',
                 classname: 'org.jvnet.jaxb2_commons.xjc.XJC2Task'
         )
 
         ant.xjc(
-                destdir: jaxb2SourceDir,
+                destdir: outputDir,
                 package: 'no.nav.model.pale',
-                schema: "$projectDir/src/main/resources/xsd/NAV-Legeerklaring-2008-06-06.xsd",
+                schema: "$sourceDir/NAV-Legeerklaring-2008-06-06.xsd",
                 encoding: 'UTF-8',
                 fork: "true"
         )
 
         ant.xjc(
-                destdir: jaxb2SourceDir,
-                schema: "$projectDir/src/main/resources/xsd/Fellesformat_1.0.xsd",
+                destdir: outputDir,
+                schema: "$sourceDir/Fellesformat_1.0.xsd",
                 encoding: 'UTF-8',
                 fork: "true"
         ) {
-            binding(dir: "$projectDir/src/main/xjb", includes: "fellesformat_apprec.xjb")
+            binding(dir: xjbDir, includes: "fellesformat_apprec.xjb")
         }
 
         ant.xjc(
-                destdir: jaxb2SourceDir,
+                destdir: outputDir,
                 package: 'no.nav.model.arenainfo',
-                schema: "$projectDir/src/main/resources/xsd/ArenaInfo2-1.xsd",
+                schema: "$sourceDir/ArenaInfo2-1.xsd",
                 encoding: 'UTF-8',
                 fork: "true"
         )
     }
+}
+
+task generateJaxb2(type: Jaxb2Task) {
+    outputDir = jaxb2SourceDir
+    sourceDir = file("$projectDir/src/main/resources/xsd")
+    xjbDir = file("$projectDir/src/main/xjb")
 }
 
 sourceSets {
