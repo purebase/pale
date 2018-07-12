@@ -18,6 +18,6 @@ fun assertArenaInfoContains(arenaEiaInfo: ArenaEiaInfo, o: OutcomeType) {
 }
 
 fun assertOutcomesContain(expected: OutcomeType, outcomes: List<Outcome>) {
-    assertTrue("Expected list of outcomes ${outcomes.map { it.outcomeType }} to contain expected",
+    assertTrue("Expected list of outcomes ${outcomes.map { it.outcomeType }} to contain $expected",
             outcomes.any { it.outcomeType == expected })
 }

@@ -8,7 +8,9 @@ import no.nav.model.msghead.Ident
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAccessor
 
 fun extractBornDate(personIdent: String): LocalDate =
         LocalDate.of(extractBornYear(personIdent), extractBornMonth(personIdent), extractBornDay(personIdent))
@@ -83,10 +85,16 @@ fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informas
 fun extractLegeerklaering(fellesformat: EIFellesformat): Legeerklaring =
         fellesformat.msgHead.document[0].refDoc.content.any[0] as Legeerklaring
 
-fun extractSignatureDate(fellesformat: EIFellesformat): LocalDateTime =
-        fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime()
+fun extractSignatureDate(fellesformat: EIFellesformat): ZonedDateTime =
+        fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime()
+
+fun extractReceivedDate(fellesformat: EIFellesformat): ZonedDateTime =
+        fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime()
 
 fun extractOrganisationNumberFromSender(fellesformat: EIFellesformat): Ident? =
         fellesformat.msgHead.msgInfo.sender.organisation.ident.find {
             it.typeId.v == "ENH"
         }
+
+val dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+fun format(date: TemporalAccessor): String = dateFormat.format(date)

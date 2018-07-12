@@ -269,8 +269,13 @@ fun defaultPerson(
             .withHarFraRolleI(*familyRelations)
 }
 
-fun defaultFellesformat(person: Person, doctor: Person = defaultPerson(), doctorTelephoneNumber: Int = telephoneNumber(doctor)): EIFellesformat {
-
+fun defaultFellesformat(
+    person: Person,
+    doctor: Person = defaultPerson(),
+    doctorTelephoneNumber: Int = telephoneNumber(doctor),
+    signatureDate: ZonedDateTime = ZonedDateTime.now().minusDays(1),
+    receivedDate: ZonedDateTime = ZonedDateTime.now()
+): EIFellesformat {
     val organisationData = fairy.company()
     val orgAddr = fairy.person().address
     val navAddr = fairy.person().address
@@ -284,7 +289,7 @@ fun defaultFellesformat(person: Person, doctor: Person = defaultPerson(), doctor
                     dn = "LEGEERKL"
                 }
                 miGversion = "v1.2 2006-05-24"
-                genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().minusDays(1)))
+                genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(signatureDate))
                 msgId = UUID.randomUUID().toString()
                 sender = Sender().apply {
                     organisation = Organisation().apply {
@@ -335,7 +340,9 @@ fun defaultFellesformat(person: Person, doctor: Person = defaultPerson(), doctor
                             givenName = person.personnavn.fornavn
                             middleName = person.personnavn.mellomnavn
                             familyName = person.personnavn.etternavn
-                            ident.add(generatePersonNumberIdent((person.aktoer as PersonIdent).ident.ident))
+                            val personIdent = (person.aktoer as PersonIdent).ident.ident
+                            if (personIdent != null)
+                                ident.add(generatePersonNumberIdent(personIdent))
                         }
                     }
                 }
@@ -469,7 +476,7 @@ fun defaultFellesformat(person: Person, doctor: Person = defaultPerson(), doctor
             ebXMLSamtaleId = random.nextInt(999999).toString()
             avsenderRef = random.nextInt(999999).toString()
             avsenderFnrFraDigSignatur = (doctor.aktoer as PersonIdent).ident.ident
-            mottattDatotid = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now()))
+            mottattDatotid = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(receivedDate))
             ebRole = "Lege"
             ebService = "Legemelding"
             ebAction = "Legeerklaring"

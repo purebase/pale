@@ -25,7 +25,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     BEHANDLER_NOT_SAR(18, "Behandler er ikke registrert i SAR.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
     // This rule is disabled, due to EPJ systems do not send in a fnr or dnr, it is not required.
     // PERSON_NUMBER_NOT_FOUND(30, "Fødselsnummeret eller D-nummeret til %s" + " finnes ikke i skjemaet.", Priority.RETUR, Type.FAGLIG),
-    INVALID_PERSON_NUMBER_OR_D_NUMBER(31, "Fødselsnummeret eller D-nummeret %s til %s er feil.", Priority.RETUR, Type.FAGLIG),
+    INVALID_PERSON_NUMBER_OR_D_NUMBER(31, "Fødselsnummeret eller D-nummeret %2\$s til %1\$s er feil.", Priority.RETUR, Type.FAGLIG),
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PATIENT_FIRST_NAME_NOT_FOUND(34, "Pasientens fornavn finnes ikke i skjema.", Priority.RETUR, Type.FAGLIG),
     PERSON_NUMBER_NOT_11_DIGITS(47, "%s sitt fødselsnummer eller D-nummer %s er ikke 11 tegn. Det er %s tegn langt.", Priority.RETUR, Type.FAGLIG),

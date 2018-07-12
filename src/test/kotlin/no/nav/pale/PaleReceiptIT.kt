@@ -15,7 +15,6 @@ import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.`when`
 import java.time.ZonedDateTime
-import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
 
 class PaleReceiptIT {
@@ -183,9 +182,7 @@ class PaleReceiptIT {
 
     @Test
     fun testInvalidGenDateReceipt() {
-        val fellesformat = defaultFellesformat(defaultPerson()).apply {
-            msgHead.msgInfo.genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.now().plusDays(1)))
-        }
+        val fellesformat = defaultFellesformat(defaultPerson(), signatureDate = ZonedDateTime.now().plusDays(1))
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.produceMessage(fellesformatString)

@@ -3,7 +3,6 @@ package no.nav.pale.validation
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.ApprecError
 import no.nav.pale.mapping.formatName
-import java.time.LocalDateTime
 
 fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
     val legeerklaering = extractLegeerklaering(fellesformat)
@@ -12,7 +11,11 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
     val outcome = mutableListOf<Outcome>()
 
     val patient = legeerklaering.pasientopplysninger.pasient.navn
-    val patientName = "${patient.etternavn} ${patient.fornavn} ${patient.mellomnavn}"
+    val patientName = if (patient.mellomnavn == null) {
+        "${patient.etternavn} ${patient.fornavn}"
+    } else {
+        "${patient.etternavn} ${patient.fornavn} ${patient.mellomnavn}"
+    }
     if (patientIdent == null || patientIdent.trim().isEmpty()) {
         outcome += OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(
                 apprecError = ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA)
@@ -59,10 +62,10 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
                 apprecError = ApprecError.PATIENT_NAME_IS_NOT_IN_SCHEMA)
     }
 
-    if (extractSignatureDate(fellesformat).isAfter(LocalDateTime.now())) {
-        outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(
-                fellesformat.mottakenhetBlokk.mottattDatotid.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
-                fellesformat.msgHead.msgInfo.genDate.toGregorianCalendar().toZonedDateTime().toLocalDateTime(),
+    val signatureDate = extractSignatureDate(fellesformat)
+    val receivedDate = extractReceivedDate(fellesformat)
+    if (signatureDate.isAfter(receivedDate)) {
+        outcome += OutcomeType.SIGNATURE_TOO_NEW.toOutcome(format(receivedDate), format(signatureDate),
                 apprecError = ApprecError.GEN_DATE_ERROR)
     }
 
