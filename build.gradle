@@ -69,6 +69,12 @@ avro {
     fieldVisibility = "PRIVATE"
 }
 
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}
+
 task printVersion() {
     doLast {
         println(version)
