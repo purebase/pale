@@ -5,6 +5,7 @@ import no.nav.pale.client.SamhandlerBregHovedenhet
 import no.nav.pale.client.SamhandlerIdent
 import no.nav.pale.client.SamhandlerPeriode
 import no.nav.pale.client.SamhandlerPraksis
+import no.nav.pale.utils.assertOutcomesContain
 import no.nav.pale.utils.readToFellesformat
 import org.junit.Assert
 import org.junit.Test
@@ -15,13 +16,7 @@ class PostSarFlowTest {
 
     @Test
     fun shouldCreateOutcomeBehandlerNotSar() {
-        val samhandler = listOf<Samhandler>()
-
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_NOT_SAR }
-
-        Assert.assertEquals(OutcomeType.BEHANDLER_NOT_SAR, outcome?.outcomeType)
-        Assert.assertEquals(1, outcomeList.size)
+        assertOutcomesContain(OutcomeType.BEHANDLER_NOT_SAR, postSARFlow(fellesformat, listOf()))
     }
 
     @Test
@@ -33,80 +28,66 @@ class PostSarFlowTest {
                 LocalDateTime.now().minusDays(1L),
                 LocalDateTime.now().plusDays(23L))
 
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.ADDRESS_MISSING_SAR }
-
-        Assert.assertEquals(OutcomeType.ADDRESS_MISSING_SAR, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.ADDRESS_MISSING_SAR, postSARFlow(fellesformat, samhandler))
     }
 
     @Test
     fun shouldCreateOutcomeTypeBehandlerTssidEmergencyRoomLEVA() {
         val samhandler = createSamhandlerListe(
-                "Kule Helsetjenester As",
-                "aktiv",
-                "LE",
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(23L))
+                navn = "Kule Helsetjenester As",
+                aktiv = "aktiv",
+                samhalnderTypekode = "LE",
+                praksisGydligfra = LocalDateTime.now().minusDays(1L),
+                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
 
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM }
-
-        Assert.assertEquals(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM, postSARFlow(fellesformat, samhandler))
     }
 
     @Test
     fun shouldCreateOutcomeBehandlerDNumberButHasValidPersonNumberInSar() {
         val samhandler = createSamhandlerListe(
-                "Kule Helsetjenester As",
-                "aktiv",
-                "LE",
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(23L))
+                navn = "Kule Helsetjenester As",
+                aktiv = "aktiv",
+                samhalnderTypekode = "LE",
+                praksisGydligfra = LocalDateTime.now().minusDays(1L),
+                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
 
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR }
-
-        Assert.assertEquals(OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR,
+                postSARFlow(fellesformat, samhandler))
     }
 
     @Test
     fun shouldCreateOutcomeNoValidTssidPracticeTypeSar() {
         val samhandler = createSamhandlerListe(
-                "Kule Helsetjenester As",
-                "aktiv",
-                "FT",
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(23L))
+                navn = "Kule Helsetjenester As",
+                aktiv = "aktiv",
+                samhalnderTypekode = "FT",
+                praksisGydligfra = LocalDateTime.now().minusDays(1L),
+                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
 
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR }
-
-        Assert.assertEquals(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR, postSARFlow(fellesformat, samhandler))
     }
 
     @Test
     fun shouldCreateOutcomeUncertianResponseSarShouldVerifiedIfUnder90PercentMatch() {
         val samhandler = createSamhandlerListe(
-                "Legevakten Helse As",
-                "aktiv",
-                "FT",
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(23L))
+                navn = "Legevakten Helse As",
+                aktiv = "aktiv",
+                samhalnderTypekode = "FT",
+                praksisGydligfra = LocalDateTime.now().minusDays(1L),
+                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
 
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED }
-
-        Assert.assertEquals(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, postSARFlow(fellesformat, samhandler))
     }
 
     @Test
     fun shouldNOTCreateOutcomeUncertianResponseSarShouldVerifiedifOver90PercentMatch() {
         val samhandler = createSamhandlerListe(
-                "Kule Helsetjenester As",
-                "aktiv",
-                "FT",
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(23L))
+                navn = "Kule Helsetjenester As",
+                aktiv = "aktiv",
+                samhalnderTypekode = "FT",
+                praksisGydligfra = LocalDateTime.now().minusDays(1L),
+                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
 
         val outcomeList = postSARFlow(fellesformat, samhandler)
         val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED }
