@@ -47,6 +47,7 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -185,14 +186,14 @@ class EmbeddedEnvironment {
         geografiskTilknytning: GeografiskTilknytning? = Kommune().withGeografiskTilknytning("navkontor"),
         samhandlerList: List<Samhandler> = listOfNotNull(doctor?.toSamhandler())
     ) {
-        Mockito.`when`(personV3Mock.hentPerson(ArgumentMatchers.any())).thenReturn(HentPersonResponse().withPerson(person))
+        Mockito.`when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
 
-        Mockito.`when`(personV3Mock.hentGeografiskTilknytning(ArgumentMatchers.any())).thenReturn(HentGeografiskTilknytningResponse()
+        Mockito.`when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
                 .withAktoer(person.aktoer)
                 .withNavn(person.personnavn)
                 .withGeografiskTilknytning(geografiskTilknytning))
 
-        Mockito.`when`(organisasjonEnhetV2Mock.finnNAVKontor(ArgumentMatchers.any()))
+        Mockito.`when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
                 .thenReturn(FinnNAVKontorResponse().apply {
                     navKontor = navOffice
                 })

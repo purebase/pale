@@ -395,15 +395,15 @@ fun validateMessage(
     }
 
     val personDeferred = retryWithInterval(retryInterval, "hent_person") {
-        println(personV3)
+        println("personV3: $personV3")
         val response = personV3.hentPerson(HentPersonRequest()
                 .withAktoer(PersonIdent().withIdent(
                         NorskIdent()
                                 .withIdent(extractPersonIdent(legeerklaering)!!)
                                 .withType(Personidenter().withValue(patientIdentType)))
                 ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER))
-        println(response)
-        println(objectMapper.writeValueAsString(response))
+        println("response $response")
+        println("response as json ${objectMapper.writeValueAsString(response)}")
         response.person
     }
 
