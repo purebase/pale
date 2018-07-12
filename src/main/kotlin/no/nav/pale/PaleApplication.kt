@@ -395,12 +395,16 @@ fun validateMessage(
     }
 
     val personDeferred = retryWithInterval(retryInterval, "hent_person") {
-        personV3.hentPerson(HentPersonRequest()
+        println(personV3)
+        val response = personV3.hentPerson(HentPersonRequest()
                 .withAktoer(PersonIdent().withIdent(
                         NorskIdent()
                                 .withIdent(extractPersonIdent(legeerklaering)!!)
                                 .withType(Personidenter().withValue(patientIdentType)))
-                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER)).person
+                ).withInformasjonsbehov(Informasjonsbehov.FAMILIERELASJONER))
+        println(response)
+        println(objectMapper.writeValueAsString(response))
+        response.person
     }
 
     val person = try {
