@@ -212,6 +212,9 @@ class EmbeddedEnvironment {
         log.info("Pushed message to queue")
     }
 
+    fun produceMessage(fellesformat: EIFellesformat) =
+            produceMessage(fellesformatJaxBContext.createMarshaller().toString(fellesformat))
+
     private fun createHttpMock(): ApplicationEngine = embeddedServer(Netty, mockHttpServerPort) {
             routing {
                 post("/create_pdf/v1/genpdf/pale/{pdfType}") {

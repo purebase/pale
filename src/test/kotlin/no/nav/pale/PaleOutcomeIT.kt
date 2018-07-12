@@ -8,6 +8,7 @@ import no.nav.pale.datagen.datatypeFactory
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.generatePersonNumber
+import no.nav.pale.datagen.ident
 import no.nav.pale.utils.assertArenaInfoContains
 import no.nav.pale.validation.OutcomeType
 import no.nav.pale.validation.extractBornDate
@@ -15,7 +16,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjon
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
-import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
 import org.apache.commons.io.IOUtils
@@ -51,12 +51,9 @@ class PaleOutcomeIT {
     @Test
     fun testPersonOver70() {
         val person = defaultPerson(PersonProperties.ageBetween(71, PersonProvider.MAX_AGE))
-        val fellesformat = defaultFellesformat(person = person)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -70,12 +67,9 @@ class PaleOutcomeIT {
                 value = "SPSF"
             }
         }
-        val fellesformat = defaultFellesformat(person = person)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person))
 
         e.readAppRec()
         assertNull(e.consumeMessage(e.arenaConsumer))
@@ -88,12 +82,9 @@ class PaleOutcomeIT {
                 value = "SPFO"
             }
         }
-        val fellesformat = defaultFellesformat(person = person)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -106,12 +97,9 @@ class PaleOutcomeIT {
         val doctor = defaultPerson()
         val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
                 .withTilRolle(Familierelasjoner().withValue(RelationType.EKTEFELLE.kodeverkVerdi)))
-        val fellesformat = defaultFellesformat(person = person, doctor = doctor)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -124,12 +112,9 @@ class PaleOutcomeIT {
         val doctor = defaultPerson()
         val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
                 .withTilRolle(Familierelasjoner().withValue(RelationType.REGISTRERT_PARTNER_MED.kodeverkVerdi)))
-        val fellesformat = defaultFellesformat(person = person, doctor = doctor)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -142,12 +127,9 @@ class PaleOutcomeIT {
         val doctor = defaultPerson()
         val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
                 .withTilRolle(Familierelasjoner().withValue(RelationType.FAR.kodeverkVerdi)))
-        val fellesformat = defaultFellesformat(person = person, doctor = doctor)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -160,12 +142,9 @@ class PaleOutcomeIT {
         val doctor = defaultPerson()
         val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
                 .withTilRolle(Familierelasjoner().withValue(RelationType.MOR.kodeverkVerdi)))
-        val fellesformat = defaultFellesformat(person = person, doctor = doctor)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -178,12 +157,9 @@ class PaleOutcomeIT {
         val doctor = defaultPerson()
         val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
                 .withTilRolle(Familierelasjoner().withValue(RelationType.BARN.kodeverkVerdi)))
-        val fellesformat = defaultFellesformat(person = person, doctor = doctor)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -194,12 +170,9 @@ class PaleOutcomeIT {
     @Test
     fun testBehandlerNotInSar() {
         val person = defaultPerson()
-        val fellesformat = defaultFellesformat(person = person)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person, doctor = null)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -212,12 +185,8 @@ class PaleOutcomeIT {
             personstatus = Personstatus().withPersonstatus(Personstatuser().withValue("UTVA"))
         }
 
-        val fellesformat = defaultFellesformat(person = person)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
-
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -232,21 +201,18 @@ class PaleOutcomeIT {
         val doctor = defaultPerson()
 
         val fellesformat = defaultFellesformat(person, doctor = doctor)
-        val existingPersonNumber = (person.aktoer as PersonIdent).ident.ident
-        val dnr = generatePersonNumber(extractBornDate(existingPersonNumber), useDNumber = true)
+        val dnr = generatePersonNumber(extractBornDate(person.ident()), useDNumber = true)
         fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur = dnr
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.clear()
         fellesformat.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.add(Ident().apply {
             typeId = MsgHeadCV().apply {
-                v = "FNR"
+                v = "DNR"
             }
             id = dnr
         })
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(fellesformat)
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -257,12 +223,8 @@ class PaleOutcomeIT {
     fun testDoctorIsThePatient() {
         val doctor = defaultPerson()
 
-        val fellesformat = defaultFellesformat(doctor, doctor = doctor)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
-
         e.defaultMocks(doctor, doctor = doctor)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(doctor, doctor = doctor))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
@@ -274,12 +236,8 @@ class PaleOutcomeIT {
         val person = defaultPerson()
                 .withDoedsdato(Doedsdato().withDoedsdato(datatypeFactory.newXMLGregorianCalendar(GregorianCalendar())))
 
-        val fellesformat = defaultFellesformat(person)
-        val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
-
         e.defaultMocks(person)
-
-        e.produceMessage(fellesformatString)
+        e.produceMessage(defaultFellesformat(person))
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()

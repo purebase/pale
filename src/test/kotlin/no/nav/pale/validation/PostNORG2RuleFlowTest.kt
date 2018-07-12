@@ -1,9 +1,9 @@
 package no.nav.pale.validation
 
-import no.nav.pale.mapping.ApprecError
+import no.nav.pale.utils.assertOutcomesContain
 import no.nav.pale.utils.readToFellesformat
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
-import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PostNORG2RuleFlowTest {
@@ -12,41 +12,19 @@ class PostNORG2RuleFlowTest {
 
     @Test
     fun shouldCreateOutcomeTypePersonHasNoNavKontorWhenEmptyEnghetId() {
-        val navKontor = Organisasjonsenhet().apply {
+        val navOffice = Organisasjonsenhet().apply {
             enhetId = ""
             enhetNavn = "NAV Sagene"
         }
-
-        val outcomeList = postNORG2Flow(navKontor)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PERSON_HAS_NO_NAV_KONTOR }
-
-        Assert.assertEquals(OutcomeType.PERSON_HAS_NO_NAV_KONTOR, outcome?.outcomeType)
+        assertOutcomesContain(OutcomeType.PERSON_HAS_NO_NAV_KONTOR, postNORG2Flow(navOffice))
     }
 
     @Test
     fun shouldNotCreateOutcomeTypePersonHasNoNavKontor() {
-        val navKontor = Organisasjonsenhet().apply {
+        val navOffice = Organisasjonsenhet().apply {
             enhetId = "1234"
             enhetNavn = "NAV Sagene"
         }
-
-        val outcomeList = postNORG2Flow(navKontor)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.PERSON_HAS_NO_NAV_KONTOR }
-
-        Assert.assertEquals(null, outcome?.outcomeType)
-    }
-
-    @Test
-    fun shouldCreateApprecErrorMissingPatientInfo() {
-
-        val navKontor = Organisasjonsenhet().apply {
-            enhetId = ""
-            enhetNavn = "NAV Sagene"
-        }
-
-        val outcomeList = postNORG2Flow(navKontor)
-        val outcome = outcomeList.find { it.apprecError == ApprecError.MISSING_PATIENT_INFO }
-
-        Assert.assertEquals(ApprecError.MISSING_PATIENT_INFO, outcome?.apprecError)
+        assertTrue("Should not contain any outcomes", postNORG2Flow(navOffice).isEmpty())
     }
 }

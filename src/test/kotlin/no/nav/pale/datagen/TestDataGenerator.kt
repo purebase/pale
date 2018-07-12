@@ -122,7 +122,7 @@ class TestDataGenerator {
 class GeneratedAddress(var city: String? = null) : Gateadresse()
 
 fun Person.toSamhandler(): Samhandler {
-    val personNumber = (this.aktoer as PersonIdent).ident.ident
+    val personNumber = ident()
     val random = Random(personNumber.toLong())
     val samhandlerIdent = random.nextInt(1000000000) + 1000000000
     val samhandlerIdentId = random.nextInt(1000000000) + 1000000000
@@ -199,7 +199,7 @@ fun Person.toSamhandler(): Samhandler {
                     SamhandlerIdent(
                             samh_id = samhandlerIdent.toString(),
                             samh_ident_id = samhandlerIdentId.toString(),
-                            ident = (this.aktoer as PersonIdent).ident.ident,
+                            ident = ident(),
                             ident_type_kode = "FNR",
                             aktiv_ident = "1"
                     ),
@@ -229,7 +229,7 @@ fun defaultNavOffice(): Organisasjonsenhet = Organisasjonsenhet().apply {
     status = Enhetsstatus.AKTIV
 }
 
-fun telephoneNumber(person: Person): Int = Random((person.aktoer as PersonIdent).ident.ident.toLongOrNull() ?: 0)
+fun telephoneNumber(person: Person): Int = Random(person.ident().toLongOrNull() ?: 0)
             .nextInt(10000000) + 90000000
 
 fun createFamilyRelation(type: String?, other: Person): Familierelasjon =
@@ -308,7 +308,7 @@ fun defaultFellesformat(
                             familyName = doctor.personnavn.etternavn
                             ident.add(generateHerIdent())
                             ident.add(generateHPRIdent())
-                            ident.add(generatePersonNumberIdent((doctor.aktoer as PersonIdent).ident.ident))
+                            ident.add(generatePersonNumberIdent(doctor.ident()))
                             address = MsgHeadAddress().apply {
                                 val generatedAddress = doctor.bostedsadresse.strukturertAdresse as GeneratedAddress
                                 streetAdr = doctor.postadresse.ustrukturertAdresse.adresselinje1
@@ -340,7 +340,7 @@ fun defaultFellesformat(
                             givenName = person.personnavn.fornavn
                             middleName = person.personnavn.mellomnavn
                             familyName = person.personnavn.etternavn
-                            val personIdent = (person.aktoer as PersonIdent).ident.ident
+                            val personIdent = person.identAllowNull()
                             if (personIdent != null)
                                 ident.add(generatePersonNumberIdent(personIdent))
                         }
@@ -362,7 +362,7 @@ fun defaultFellesformat(
                                         fornavn = person.personnavn.fornavn
                                         mellomnavn = person.personnavn.mellomnavn
                                         etternavn = person.personnavn.etternavn
-                                        fodselsnummer = (person.aktoer as PersonIdent).ident.ident
+                                        fodselsnummer = person.identAllowNull()
                                         trygdekontor = navOffice
                                     }
                                     arbeidsforhold = Arbeidsforhold().apply {
@@ -472,10 +472,10 @@ fun defaultFellesformat(
         }
         mottakenhetBlokk = EIFellesformat.MottakenhetBlokk().apply {
             ediLoggId = UUID.randomUUID().toString()
-            avsender = (doctor.aktoer as PersonIdent).ident.ident
+            avsender = doctor.ident()
             ebXMLSamtaleId = random.nextInt(999999).toString()
             avsenderRef = random.nextInt(999999).toString()
-            avsenderFnrFraDigSignatur = (doctor.aktoer as PersonIdent).ident.ident
+            avsenderFnrFraDigSignatur = doctor.ident()
             mottattDatotid = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(receivedDate))
             ebRole = "Lege"
             ebService = "Legemelding"
@@ -483,6 +483,9 @@ fun defaultFellesformat(
         }
     }
 }
+
+fun Person.identAllowNull(): String? = (this.aktoer as PersonIdent).ident.ident
+fun Person.ident(): String = identAllowNull()!!
 
 fun Boolean.toBigInteger(): BigInteger =
         if (this) {

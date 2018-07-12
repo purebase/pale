@@ -46,36 +46,37 @@ class PostTPSRuleFlowTest {
     fun testMotherIsPatientsDoctor() {
         val mother = defaultPerson()
         val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("MORA", mother)))
+        val fellesformat = defaultFellesformat(person = patient, doctor = mother)
 
-        assertOutcomesContain(OutcomeType.PARENT_TO_PATIENT,
-                postTPSFlow(defaultFellesformat(patient, doctor = mother), patient))
+        assertOutcomesContain(OutcomeType.PARENT_TO_PATIENT, postTPSFlow(fellesformat, patient))
     }
 
     @Test
     fun testFatherIsPatientsDoctor() {
         val father = defaultPerson()
         val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("FARA", father)))
+        val fellesformat = defaultFellesformat(person = patient, doctor = father)
 
-        assertOutcomesContain(OutcomeType.PARENT_TO_PATIENT,
-                postTPSFlow(defaultFellesformat(patient, doctor = father), patient))
+        assertOutcomesContain(OutcomeType.PARENT_TO_PATIENT, postTPSFlow(fellesformat, patient))
     }
 
     @Test
     fun testChildIsDoctorIsPatientsChild() {
         val doctor = defaultPerson()
         val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("BARN", doctor)))
+        val fellesformat = defaultFellesformat(patient, doctor = doctor)
 
-        assertOutcomesContain(OutcomeType.CHILD_OF_PATIENT,
-                postTPSFlow(defaultFellesformat(patient, doctor = doctor), patient))
+        assertOutcomesContain(OutcomeType.CHILD_OF_PATIENT, postTPSFlow(fellesformat, patient))
     }
 
     @Test
     fun shouldCreateRuntimeExceptionWhenPersonHarFraRollItilRolleValueIsNull() {
         val doctor = defaultPerson()
         val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation(null, doctor)))
+        val fellesformat = defaultFellesformat(patient, doctor = doctor)
 
         try {
-            postTPSFlow(defaultFellesformat(patient, doctor = doctor), patient)
+            postTPSFlow(fellesformat, patient)
             fail("Null as role should cause exception")
         } catch (e: RuntimeException) {
             e.printStackTrace()
@@ -84,10 +85,11 @@ class PostTPSRuleFlowTest {
 
     @Test
     fun shouldCreateOutcomeTypePatientEmigrated() {
-        val patient = defaultPerson().withPersonstatus(Personstatus()
-                .withPersonstatus(Personstatuser().withValue("UTVA")))
+        val patient = defaultPerson()
+                .withPersonstatus(Personstatus().withPersonstatus(Personstatuser().withValue("UTVA")))
+        val fellesformat = defaultFellesformat(patient)
 
         assertOutcomesContain(OutcomeType.PATIENT_EMIGRATED,
-                postTPSFlow(defaultFellesformat(patient), patient))
+                postTPSFlow(fellesformat, patient))
     }
 }
