@@ -19,22 +19,21 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
 import org.apache.commons.io.IOUtils
+import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
-import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import org.mockito.Mockito.reset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.GregorianCalendar
 
 class PaleOutcomeIT {
-    @Before
+    @After
     fun resetMocks() {
-        reset(e.personV3Mock, e.organisasjonEnhetV2Mock)
+        e.resetMocks()
     }
 
     @Test

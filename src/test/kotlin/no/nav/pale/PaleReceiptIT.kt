@@ -8,19 +8,16 @@ import no.nav.pale.validation.OutcomeType
 import no.nav.tjeneste.virksomhet.person.v3.binding.HentPersonPersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.feil.PersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
+import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.`when`
 import java.time.ZonedDateTime
-import javax.xml.datatype.DatatypeFactory
 
 class PaleReceiptIT {
-    private val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
-
-    @Before
+    @After
     fun resetMocks() {
         e.resetMocks()
     }
