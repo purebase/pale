@@ -46,7 +46,6 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.slf4j.Logger
