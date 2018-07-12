@@ -17,7 +17,7 @@ pipeline {
             steps {
                 ciSkip 'check'
                 script {
-                    sh './gradlew clean'
+                    //sh './gradlew clean'
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
@@ -101,7 +101,7 @@ pipeline {
             archiveArtifacts artifacts: 'build/reports/rules.csv', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/build/libs/*', allowEmptyArchive: true
             archiveArtifacts artifacts: '**/build/install/*', allowEmptyArchive: true
-            deleteDir()
+            //deleteDir()
         }
         success {
             githubStatus 'success'
