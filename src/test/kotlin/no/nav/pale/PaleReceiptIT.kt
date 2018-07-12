@@ -29,7 +29,6 @@ class PaleReceiptIT {
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
         e.produceMessage(fellesformatString)
 
         e.readAppRec()
@@ -45,7 +44,6 @@ class PaleReceiptIT {
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
         e.defaultMocks(person)
-
         e.produceMessage(fellesformatString)
 
         e.readAppRec()
@@ -66,9 +64,9 @@ class PaleReceiptIT {
         val fellesformat = defaultFellesformat(person = person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
+        `when`(e.personV3Mock.hentPerson(any()))
+                .thenThrow(HentPersonPersonIkkeFunnet("Person ikke funnet", PersonIkkeFunnet()))
         e.produceMessage(fellesformatString)
-
-        `when`(e.personV3Mock.hentPerson(any())).thenThrow(HentPersonPersonIkkeFunnet("Person ikke funnet", PersonIkkeFunnet()))
 
         val appRec = e.readAppRec()
 
@@ -196,9 +194,8 @@ class PaleReceiptIT {
         val fellesformat = defaultFellesformat(person)
         val fellesformatString = fellesformatJaxBContext.createMarshaller().toString(fellesformat)
 
-        e.produceMessage(fellesformatString)
-
         e.defaultMocks(person, navOffice = null)
+        e.produceMessage(fellesformatString)
 
         val apprec = e.readAppRec()
         assertEquals("Avvist", apprec.status.dn)
