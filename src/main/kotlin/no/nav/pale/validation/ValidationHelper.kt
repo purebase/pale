@@ -79,7 +79,7 @@ fun isDNR(personIdent: String): Boolean =
 fun findDoctorInRelations(patient: no.nav.tjeneste.virksomhet.person.v3.informasjon.Person, doctorPersonnumber: String): Familierelasjon? =
         patient.harFraRolleI.find {
             val aktoer = it.tilPerson.aktoer
-            aktoer is PersonIdent /*&& aktoer.ident.type.value == "FNR" */&& aktoer.ident.ident == doctorPersonnumber
+            aktoer is PersonIdent /*&& aktoer.ident.type.value == "FNR" */ && aktoer.ident.ident == doctorPersonnumber
         }
 
 fun extractLegeerklaering(fellesformat: EIFellesformat): Legeerklaring =
