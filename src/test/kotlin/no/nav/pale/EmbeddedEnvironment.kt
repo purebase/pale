@@ -15,6 +15,7 @@ import io.ktor.server.netty.Netty
 import io.prometheus.client.CollectorRegistry
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.runBlocking
+import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.model.apprec.AppRec
 import no.nav.model.arenainfo.ArenaEiaInfo
 import no.nav.model.fellesformat.EIFellesformat
@@ -132,6 +133,7 @@ class EmbeddedEnvironment {
             serviceClass = Journalbehandling::class.java
         }.create() as Journalbehandling
 
+        //val pdfClient = PdfClient("http://localhost:8080/api")
         val pdfClient = PdfClient("$mockHttpServerUrl/create_pdf")
         val jedis = Jedis(redisServer.host, redisServer.bindPort)
 
@@ -209,6 +211,7 @@ class EmbeddedEnvironment {
     fun produceMessage(message: String) {
         val textMessage = session.createTextMessage(message)
         producer.send(textMessage)
+        log.info("Sending: {}", keyValue("message", message))
         log.info("Pushed message to queue")
     }
 

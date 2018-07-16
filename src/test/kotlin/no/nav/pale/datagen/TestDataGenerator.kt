@@ -35,6 +35,7 @@ import no.nav.model.pale.Enkeltdiagnose
 import no.nav.model.pale.ForbeholdLegeerklaring
 import no.nav.model.pale.ForslagTiltak
 import no.nav.model.pale.HenvistUtredning
+import no.nav.model.pale.Kontakt
 import no.nav.model.pale.Legeerklaring
 import no.nav.model.pale.LegeerklaringGjelder
 import no.nav.model.pale.Pasient
@@ -58,6 +59,7 @@ import no.nav.pale.client.SamhandlerPeriode
 import no.nav.pale.client.SamhandlerPraksis
 import no.nav.pale.client.SamhandlerPraksisEmail
 import no.nav.pale.client.SamhandlerPraksisKonto
+import no.nav.pale.mapping.KontaktType
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bostedsadresse
@@ -465,6 +467,15 @@ fun defaultFellesformat(
                                 }
                             }
                             arsakssammenhengLegeerklaring = fairy.textProducer().paragraph()
+                            val values = KontaktType.values().toMutableList()
+                            kontakt.addAll((0..random.nextInt(values.size - 1)).map {
+                                Kontakt().apply {
+                                    kontakt = values.removeAt(random.nextInt(values.size)).type.toBigInteger()
+                                    if (kontakt.toInt() == KontaktType.AnnenInstans.type) {
+                                        annenInstans = "Kongen"
+                                    }
+                                }
+                            })
                         })
                     }
                 }

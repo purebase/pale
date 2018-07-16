@@ -72,6 +72,7 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     tekst = forslagTiltak.begrensningerTiltak ?: forslagTiltak.begrunnelseIkkeTiltak
             ),
             funksjonsOgArbeidsevne = FunksjonsOgArbeidsevne(
+                    vurderingFunksjonsevne = funksjonsevne.funksjonsevne,
                     iIntektsgivendeArbeid = ArbeidssituasjonType.InntektsgivendeArbeid in funksjonsevne.arbeidssituasjon,
                     hjemmearbeidende = ArbeidssituasjonType.Hjemmearbeidende in funksjonsevne.arbeidssituasjon,
                     student = ArbeidssituasjonType.Student in funksjonsevne.arbeidssituasjon,
@@ -100,7 +101,7 @@ fun mapFellesformatToFagmelding(fellesformat: EIFellesformat): Fagmelding {
                     skalKontakteBehandlendeLege = KontaktType.BehandlendeLege in legeerklaering.kontakt,
                     skalKontakteArbeidsgiver = KontaktType.Arbeidsgiver in legeerklaering.kontakt,
                     skalKontakteBasisgruppe = KontaktType.Basisgruppe in legeerklaering.kontakt,
-                    kontakteAnnenInstans = legeerklaering.kontakt.find { it.kontakt.toInt() == KontaktType.AnnenInstans.type }?.annenInstans,
+                    kontakteAnnenInstans = legeerklaering.kontakt.find { it.kontakt?.toInt() == KontaktType.AnnenInstans.type }?.annenInstans,
                     oenskesKopiAvVedtak = legeerklaering.andreOpplysninger?.onskesKopi?.let { it.toInt() == 1 } ?: false
             ),
             pasientenBurdeIkkeVite = legeerklaering.forbeholdLegeerklaring.borTilbakeholdes,
@@ -207,4 +208,4 @@ enum class KontaktType(val type: Int) {
 }
 
 operator fun Iterable<no.nav.model.pale.Kontakt>.contains(kontaktType: KontaktType): Boolean =
-        any { it.kontakt.toInt() == kontaktType.type }
+        any { it.kontakt?.toInt() == kontaktType.type }

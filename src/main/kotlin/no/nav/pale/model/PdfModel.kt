@@ -112,6 +112,7 @@ data class ForslagTilTiltak(
 )
 
 data class FunksjonsOgArbeidsevne(
+    val vurderingFunksjonsevne: String,
     val iIntektsgivendeArbeid: Boolean,
     val hjemmearbeidende: Boolean,
     val student: Boolean,

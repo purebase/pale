@@ -72,6 +72,7 @@ class PdfModelTest {
 
                 ),
                 funksjonsOgArbeidsevne = FunksjonsOgArbeidsevne(
+                        vurderingFunksjonsevne = "Kan ikke spise annet enn Taco",
                         iIntektsgivendeArbeid = false,
                         hjemmearbeidende = false,
                         student = false,
