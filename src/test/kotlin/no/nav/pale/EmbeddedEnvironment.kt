@@ -133,7 +133,7 @@ class EmbeddedEnvironment {
             serviceClass = Journalbehandling::class.java
         }.create() as Journalbehandling
 
-        //val pdfClient = PdfClient("http://localhost:8080/api")
+        // val pdfClient = PdfClient("http://localhost:8080/api")
         val pdfClient = PdfClient("$mockHttpServerUrl/create_pdf")
         val jedis = Jedis(redisServer.host, redisServer.bindPort)
 
