@@ -79,6 +79,7 @@ import org.apache.wss4j.dom.handler.WSHandlerConstants
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
+import redis.clients.jedis.exceptions.JedisConnectionException
 import java.io.IOException
 import java.io.StringReader
 import java.io.StringWriter
@@ -242,16 +243,19 @@ fun listen(
                         *defaultKeyValues)
             }
 
-            val jedisSha256String = jedis.get(sha256String)
-            val duplicate = jedisSha256String != null
+            try {
+                val redisEdiLoggId = jedis.get(sha256String)
+                val duplicate = redisEdiLoggId != null
 
-            if (duplicate) {
-                sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, ApprecError.DUPLICATE)
-                log.warn("Message marked as duplicate $defaultKeyFormat", jedisSha256String,
-                        *defaultKeyValues)
-                return@setMessageListener
-            } else if (ediLoggId != null) {
-                jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
+                if (duplicate) {
+                    sendReceipt(session, receiptProducer, fellesformat, ApprecStatus.avvist, ApprecError.DUPLICATE)
+                    log.warn("Message marked as duplicate $defaultKeyFormat", redisEdiLoggId, *defaultKeyValues)
+                    return@setMessageListener
+                } else if (ediLoggId != null) {
+                    jedis.setex(sha256String, TimeUnit.DAYS.toSeconds(7).toInt(), ediLoggId)
+                }
+            } catch (connectionException: JedisConnectionException) {
+                log.warn("Unable to contact redis, will allow possible duplicates.", connectionException)
             }
 
             val validationResult = try {
