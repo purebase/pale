@@ -1,224 +1,110 @@
 package no.nav.pale.validation
 
-import no.nav.pale.client.Samhandler
-import no.nav.pale.client.SamhandlerBregHovedenhet
-import no.nav.pale.client.SamhandlerIdent
-import no.nav.pale.client.SamhandlerPeriode
-import no.nav.pale.client.SamhandlerPraksis
+import no.nav.pale.datagen.defaultFellesformat
+import no.nav.pale.datagen.defaultPerson
+import no.nav.pale.datagen.defaultSamhandlerPraksis
+import no.nav.pale.datagen.generateAktoer
+import no.nav.pale.datagen.generatePersonNumber
+import no.nav.pale.datagen.ident
+import no.nav.pale.datagen.toSamhandler
 import no.nav.pale.utils.assertOutcomesContain
-import no.nav.pale.utils.readToFellesformat
-import org.junit.Assert
+import no.nav.pale.utils.assertOutcomesNotContain
 import org.junit.Test
-import java.time.LocalDateTime
 
 class PostSarFlowTest {
-    val fellesformat = readToFellesformat("/validation/legeerklaeringWithDNR.xml")
-
     @Test
-    fun shouldCreateOutcomeBehandlerNotSar() {
-        assertOutcomesContain(OutcomeType.BEHANDLER_NOT_SAR, postSARFlow(fellesformat, listOf()))
+    fun testCreatesOutcomeWhenSamhandlerNotFound() {
+        val fellesformat = defaultFellesformat(person = defaultPerson())
+        assertOutcomesContain(OutcomeType.BEHANDLER_NOT_SAR,
+                postSARFlow(fellesformat, listOf()))
     }
 
     @Test
-    fun shouldCreateOutcomeTypeAddresseMissingSar() {
-        val samhandler = createSamhandlerListe(
-                "Kule Helsetjenester As",
-                "aktiv",
-                "LE",
-                LocalDateTime.now().minusDays(1L),
-                LocalDateTime.now().plusDays(23L))
-
-        assertOutcomesContain(OutcomeType.ADDRESS_MISSING_SAR, postSARFlow(fellesformat, samhandler))
+    fun testCreatesOutcomeOnMissingAddress() {
+        val doctor = defaultPerson()
+        val samhandlerPraksis = doctor.defaultSamhandlerPraksis(addressLine1 = null)
+        val fellesformat = defaultFellesformat(
+                person = defaultPerson(),
+                doctor = doctor,
+                samhandlerPraksis = samhandlerPraksis
+        )
+        val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
+        assertOutcomesContain(OutcomeType.ADDRESS_MISSING_SAR,
+                postSARFlow(fellesformat, samhandlerList))
     }
 
     @Test
-    fun shouldCreateOutcomeTypeBehandlerTssidEmergencyRoomLEVA() {
-        val samhandler = createSamhandlerListe(
-                navn = "Kule Helsetjenester As",
-                aktiv = "aktiv",
-                samhalnderTypekode = "LE",
-                praksisGydligfra = LocalDateTime.now().minusDays(1L),
-                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
-
-        assertOutcomesContain(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM, postSARFlow(fellesformat, samhandler))
+    fun testCreatesOutcomeOnLegevakt() {
+        val doctor = defaultPerson()
+        val samhandlerPraksis = doctor.defaultSamhandlerPraksis(praksisTypeKode = "LEVA")
+        val fellesformat = defaultFellesformat(
+                person = defaultPerson(),
+                doctor = doctor,
+                samhandlerPraksis = samhandlerPraksis
+        )
+        val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
+        assertOutcomesContain(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM,
+                postSARFlow(fellesformat, samhandlerList))
     }
 
     @Test
-    fun shouldCreateOutcomeBehandlerDNumberButHasValidPersonNumberInSar() {
-        val samhandler = createSamhandlerListe(
-                navn = "Kule Helsetjenester As",
-                aktiv = "aktiv",
-                samhalnderTypekode = "LE",
-                praksisGydligfra = LocalDateTime.now().minusDays(1L),
-                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
+    fun testCreatesOutcomeDNRInFellesformatButHasFNRInSAR() {
+        val doctor = defaultPerson(useDNumber = true)
+        val doctorFNR = generatePersonNumber(extractBornDate(doctor.ident()))
+        val samhandlerPraksis = doctor.defaultSamhandlerPraksis()
+        val fellesformat = defaultFellesformat(
+                person = defaultPerson(),
+                doctor = doctor,
+                samhandlerPraksis = samhandlerPraksis
+        )
+        doctor.aktoer = generateAktoer(extractBornDate(doctorFNR), useDNumber = false)
 
+        val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
         assertOutcomesContain(OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR,
-                postSARFlow(fellesformat, samhandler))
+                postSARFlow(fellesformat, samhandlerList))
     }
 
     @Test
-    fun shouldCreateOutcomeNoValidTssidPracticeTypeSar() {
-        val samhandler = createSamhandlerListe(
-                navn = "Kule Helsetjenester As",
-                aktiv = "aktiv",
-                samhalnderTypekode = "FT",
-                praksisGydligfra = LocalDateTime.now().minusDays(1L),
-                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
-
-        assertOutcomesContain(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR, postSARFlow(fellesformat, samhandler))
+    fun testReturnsOutcomeOnNoValidSamhandlerPraksisTypeKode() {
+        val doctor = defaultPerson()
+        val samhandlerPraksis = doctor.defaultSamhandlerPraksis()
+        val fellesformat = defaultFellesformat(
+                person = defaultPerson(),
+                doctor = doctor,
+                samhandlerPraksis = samhandlerPraksis
+        )
+        val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis),
+                samhandlerTypeKode = "FT"))
+        assertOutcomesContain(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR,
+                postSARFlow(fellesformat, samhandlerList))
     }
 
     @Test
-    fun shouldCreateOutcomeUncertianResponseSarShouldVerifiedIfUnder90PercentMatch() {
-        val samhandler = createSamhandlerListe(
-                navn = "Legevakten Helse As",
-                aktiv = "aktiv",
-                samhalnderTypekode = "FT",
-                praksisGydligfra = LocalDateTime.now().minusDays(1L),
-                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
+    fun testReturnsOutcomeOnUncertainSarResponse() {
+        val doctor = defaultPerson()
+        val fellesformat = defaultFellesformat(
+                person = defaultPerson(),
+                doctor = doctor,
+                samhandlerPraksis = doctor.defaultSamhandlerPraksis()
+        )
+        val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(doctor.defaultSamhandlerPraksis(name = "THISSHOULDNOTEXIST"))))
 
-        assertOutcomesContain(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, postSARFlow(fellesformat, samhandler))
+        assertOutcomesContain(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED,
+                postSARFlow(fellesformat, samhandlerList))
     }
 
     @Test
-    fun shouldNOTCreateOutcomeUncertianResponseSarShouldVerifiedifOver90PercentMatch() {
-        val samhandler = createSamhandlerListe(
-                navn = "Kule Helsetjenester As",
-                aktiv = "aktiv",
-                samhalnderTypekode = "FT",
-                praksisGydligfra = LocalDateTime.now().minusDays(1L),
-                praksisGyldigtil = LocalDateTime.now().plusDays(23L))
-
-        val outcomeList = postSARFlow(fellesformat, samhandler)
-        val outcome = outcomeList.find { it.outcomeType == OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED }
-
-        Assert.assertNotEquals(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED, outcome?.outcomeType)
-    }
-
-    fun createSamhandlerPraksis(
-        praksisGydligfra: LocalDateTime,
-        praksisGyldigtil: LocalDateTime,
-        navn: String,
-        aktiv: String
-    ): List<SamhandlerPraksis> {
-        val samhandlerPraksisListe = mutableListOf<SamhandlerPraksis>()
-        samhandlerPraksisListe.add(
-                SamhandlerPraksis(
-                        refusjon_type_kode = "231",
-                        laerer = "Nope",
-                        lege_i_spesialisering = "Nope",
-                        tidspunkt_resync_periode = LocalDateTime.now(),
-                        tidspunkt_registrert = LocalDateTime.now().minusDays(1L),
-                        samh_praksis_status_kode = aktiv,
-                        telefonnr = "89343300",
-                        arbeids_kommune_nr = "1201",
-                        arbeids_postnr = "0657",
-                        arbeids_adresse_linje_1 = "",
-                        arbeids_adresse_linje_2 = "Langt vekke",
-                        arbeids_adresse_linje_3 = "",
-                        arbeids_adresse_linje_4 = "",
-                        arbeids_adresse_linje_5 = "",
-                        her_id = "12345",
-                        post_adresse_linje_1 = "",
-                        post_adresse_linje_2 = "",
-                        post_adresse_linje_3 = "",
-                        post_adresse_linje_4 = "",
-                        post_adresse_linje_5 = "",
-                        post_kommune_nr = "1201",
-                        post_postnr = "",
-                        resh_id = "",
-                        tss_ident = "1213455",
-                        navn = navn,
-                        ident = "1",
-                        samh_praksis_type_kode = "LEVA",
-                        samh_id = "1234",
-                        samh_praksis_id = "12356",
-                        samh_praksis_konto = emptyList(),
-                        samh_praksis_periode = createSamhanderPeriode(praksisGydligfra, praksisGyldigtil),
-                        samh_praksis_email = listOf()
-                )
+    fun testDoesNotContainOutcomeWhenMatchingOver90Percentage() {
+        val doctor = defaultPerson()
+        val samhandlerPraksis = doctor.defaultSamhandlerPraksis()
+        val fellesformat = defaultFellesformat(
+                person = defaultPerson(),
+                doctor = doctor,
+                samhandlerPraksis = samhandlerPraksis
         )
-        return samhandlerPraksisListe
-    }
+        val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
 
-    fun createSamhandlerIdentListe(): List<SamhandlerIdent> {
-        val samhandlerIdentListe = mutableListOf<SamhandlerIdent>()
-        samhandlerIdentListe.add(
-                SamhandlerIdent(
-                        samh_id = "1000288339",
-                        ident = "1",
-                        samh_ident_id = "04030350265",
-                        ident_type_kode = "FNR",
-                        aktiv_ident = "1"
-                )
-        )
-
-        samhandlerIdentListe.add(
-                SamhandlerIdent(
-                        samh_id = "1000288341",
-                        ident = "1",
-                        samh_ident_id = "74030350265",
-                        ident_type_kode = "DNR",
-                        aktiv_ident = "1"
-                )
-        )
-
-        return samhandlerIdentListe
-    }
-
-    fun createSamhandlerListe(
-        navn: String,
-        aktiv: String,
-        samhalnderTypekode: String,
-        praksisGydligfra: LocalDateTime,
-        praksisGyldigtil: LocalDateTime
-    ): List<Samhandler> {
-        val samhandlerListe = mutableListOf<Samhandler>()
-        samhandlerListe.add(
-                Samhandler(
-                        samh_id = "1000288339",
-                        navn = "Kule Helsetjenester As",
-                        samh_type_kode = samhalnderTypekode,
-                        behandling_utfall_kode = "1",
-                        unntatt_veiledning = "1",
-                        godkjent_manuell_krav = "1",
-                        ikke_godkjent_for_refusjon = "1",
-                        godkjent_egenandel_refusjon = "1",
-                        godkjent_for_fil = "1",
-                        breg_hovedenhet = SamhandlerBregHovedenhet(
-                                organisasjonsnummer = "12314551",
-                                organisasjonsform = "Tull",
-                                institusjonellsektorkodekode = "asdasd",
-                                naeringskode1kode = "1234",
-                                naeringskode2kode = ""
-                        ),
-                        endringslogg_tidspunkt_siste = LocalDateTime.now(),
-                        samh_ident = createSamhandlerIdentListe(),
-                        samh_praksis = createSamhandlerPraksis(praksisGydligfra, praksisGyldigtil, navn, aktiv),
-                        samh_avtale = emptyList(),
-                        samh_direkte_oppgjor_avtale = emptyList(),
-                        samh_email = emptyList()
-                )
-        )
-
-        return samhandlerListe
-    }
-
-    fun createSamhanderPeriode(praksisgyldig_fra: LocalDateTime, praksisgyldig_til: LocalDateTime): List<SamhandlerPeriode> {
-        val samhandlerPeriodeListe = mutableListOf<SamhandlerPeriode>()
-        samhandlerPeriodeListe.add(
-                SamhandlerPeriode(
-                        endret_ved_import = "hendelse",
-                        sist_endret = LocalDateTime.now(),
-                        slettet = "Nope",
-                        gyldig_fra = praksisgyldig_fra,
-                        gyldig_til = praksisgyldig_til,
-                        samh_praksis_id = "12356",
-                        samh_praksis_periode_id = "1234"
-
-                )
-        )
-
-        return samhandlerPeriodeListe
+        assertOutcomesNotContain(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED,
+                postSARFlow(fellesformat, samhandlerList))
     }
 }

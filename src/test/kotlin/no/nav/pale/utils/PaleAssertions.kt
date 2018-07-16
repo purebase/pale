@@ -21,3 +21,8 @@ fun assertOutcomesContain(expected: OutcomeType, outcomes: List<Outcome>) {
     assertTrue("Expected list of outcomes ${outcomes.map { it.outcomeType }} to contain $expected",
             outcomes.any { it.outcomeType == expected })
 }
+
+fun assertOutcomesNotContain(notExpected: OutcomeType, outcomes: List<Outcome>) {
+    assertTrue("Expected list of outcomes ${outcomes.map { it.outcomeType }} to not contain $notExpected",
+            outcomes.none { it.outcomeType == notExpected })
+}

@@ -2,13 +2,10 @@ package no.nav.pale.datagen
 
 import com.devskiller.jfairy.Fairy
 import com.devskiller.jfairy.producer.company.Company
+import com.devskiller.jfairy.producer.person.Address
 import com.devskiller.jfairy.producer.person.PersonProperties
 import com.devskiller.jfairy.producer.person.PersonProvider
 import io.ktor.util.toLocalDateTime
-import no.nav.pale.fellesformatJaxBContext
-import no.nav.pale.mapping.LegeerklaeringType
-import no.nav.pale.mapping.TypeTiltak
-import no.nav.pale.validation.validatePersonAndDNumber
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.Document
 import no.nav.model.msghead.HealthcareProfessional
@@ -59,7 +56,11 @@ import no.nav.pale.client.SamhandlerPeriode
 import no.nav.pale.client.SamhandlerPraksis
 import no.nav.pale.client.SamhandlerPraksisEmail
 import no.nav.pale.client.SamhandlerPraksisKonto
+import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.KontaktType
+import no.nav.pale.mapping.LegeerklaeringType
+import no.nav.pale.mapping.TypeTiltak
+import no.nav.pale.validation.validatePersonAndDNumber
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Enhetsstatus
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Bostedsadresse
@@ -123,16 +124,127 @@ class TestDataGenerator {
 
 class GeneratedAddress(var city: String? = null) : Gateadresse()
 
-fun Person.toSamhandler(): Samhandler {
-    val personNumber = ident()
-    val random = Random(personNumber.toLong())
-    val samhandlerIdent = random.nextInt(1000000000) + 1000000000
-    val samhandlerIdentId = random.nextInt(1000000000) + 1000000000
-    val samhandlerPraksisId = random.nextInt(1000000000) + 1000000000
+fun createSamhanderPeriode(
+    praksisgyldig_fra: LocalDateTime = LocalDateTime.now().minusYears(10),
+    praksisgyldig_til: LocalDateTime = LocalDateTime.now().plusYears(10)
+): SamhandlerPeriode {
+    return SamhandlerPeriode(
+            endret_ved_import = "hendelse",
+            sist_endret = LocalDateTime.now(),
+            slettet = "Nope",
+            gyldig_fra = praksisgyldig_fra,
+            gyldig_til = praksisgyldig_til,
+            samh_praksis_id = "12356",
+            samh_praksis_periode_id = "1234"
+
+    )
+}
+
+fun Person.defaultSamhandlerPraksis(
+    company: Company = fairy.company(),
+    address: Address = fairy.person().address,
+    name: String = company.name,
+    addressLine1: String? = address.addressLine1,
+    addressLine2: String? = address.addressLine2,
+    praksisTypeKode: String = "FALE",
+    samhandlerPraksisId: Int = random.nextInt(1000000000) + 1000000000
+): SamhandlerPraksis =
+        SamhandlerPraksis(
+                navn = name,
+                refusjon_type_kode = "normal_refusjon",
+                laerer = "0",
+                lege_i_spesialisering = "0",
+                tidspunkt_resync_periode = LocalDateTime.now().minusYears(1),
+                tidspunkt_registrert = LocalDateTime.now().minusYears(5),
+                samh_praksis_status_kode = "aktiv",
+                telefonnr = telephoneNumber(this).toString(),
+                arbeids_kommune_nr = "0123",
+                arbeids_postnr = "0123",
+                arbeids_adresse_linje_1 = addressLine1,
+                arbeids_adresse_linje_2 = addressLine2,
+                arbeids_adresse_linje_3 = null,
+                arbeids_adresse_linje_4 = null,
+                arbeids_adresse_linje_5 = null,
+                tss_ident = (random.nextInt(1000000000) + 1000000000).toString(),
+                samh_praksis_type_kode = praksisTypeKode,
+                samh_id = samhIdents().samhandlerIdent.toString(),
+                samh_praksis_id = samhandlerPraksisId.toString(),
+                samh_praksis_konto = listOf(SamhandlerPraksisKonto(
+                        tidspunkt_registrert = LocalDateTime.now().minusYears(5),
+                        registrert_av_id = "AB123CDE",
+                        konto = "12341212345",
+                        samh_praksis_id = samhandlerPraksisId.toString(),
+                        samh_praksis_konto_id = (random.nextInt(1000000000) + 1000000000).toString()
+                )),
+                samh_praksis_periode = listOf(SamhandlerPeriode(
+                        endret_ved_import = "0",
+                        sist_endret = LocalDateTime.now().minusYears(5),
+                        slettet = "0",
+                        gyldig_fra = Date(0).toLocalDateTime(),
+                        gyldig_til = null,
+                        samh_praksis_id = samhandlerPraksisId.toString(),
+                        samh_praksis_periode_id = (random.nextInt(1000000000) + 1000000000).toString()
+                )),
+                samh_praksis_email = listOf(SamhandlerPraksisEmail(
+                        samh_praksis_email_id = (random.nextInt(1000000000) + 1000000000).toString(),
+                        samh_praksis_id = samhandlerPraksisId.toString(),
+                        email = company.email,
+                        primaer_email = null
+                )),
+
+                post_postnr = null,
+                post_kommune_nr = null,
+                post_adresse_linje_1 = null,
+                post_adresse_linje_2 = null,
+                post_adresse_linje_3 = null,
+                post_adresse_linje_4 = null,
+                post_adresse_linje_5 = null,
+                her_id = null,
+                resh_id = null,
+                ident = "2"
+        )
+
+data class SamhIdents(
+    val samhandlerIdent: Int,
+    val samhandlerIdentId: Int,
+    val hpr: SamhandlerIdent,
+    val fnr: SamhandlerIdent
+)
+
+fun Person.samhIdents(): SamhIdents {
+    val rng = Random(ident().toLongOrNull() ?: 0)
+    val samhandlerIdent = rng.nextInt(1000000000) + 1000000000
+    val samhandlerIdentId = rng.nextInt(1000000000) + 1000000000
+    return SamhIdents(
+            samhandlerIdent = samhandlerIdent,
+            samhandlerIdentId = samhandlerIdentId,
+            hpr = SamhandlerIdent(
+                    samh_id = samhandlerIdent.toString(),
+                    samh_ident_id = samhandlerIdentId.toString(),
+                    ident = rng.nextInt(10000000).toString(),
+                    ident_type_kode = "HPR",
+                    aktiv_ident = "1"
+            ),
+            fnr =
+            SamhandlerIdent(
+                    samh_id = samhandlerIdent.toString(),
+                    samh_ident_id = samhandlerIdentId.toString(),
+                    ident = ident(),
+                    ident_type_kode = "FNR",
+                    aktiv_ident = "1"
+            )
+    )
+}
+
+fun Person.toSamhandler(
+    samhandlerPraksisListe: List<SamhandlerPraksis> = listOf(defaultSamhandlerPraksis()),
+    samhandlerIdentList: List<SamhandlerIdent> = listOf(samhIdents().hpr, samhIdents().fnr),
+    samhandlerTypeKode: String = "LE"
+): Samhandler {
     return Samhandler(
-            samh_id = samhandlerIdent.toString(),
+            samh_id = samhIdents().samhandlerIdent.toString(),
             navn = this.personnavn.sammensattNavn,
-            samh_type_kode = "LE",
+            samh_type_kode = samhandlerTypeKode,
             behandling_utfall_kode = "auto",
             unntatt_veiledning = "1",
             godkjent_manuell_krav = "0",
@@ -140,83 +252,14 @@ fun Person.toSamhandler(): Samhandler {
             godkjent_egenandel_refusjon = "0",
             godkjent_for_fil = "0",
             endringslogg_tidspunkt_siste = LocalDateTime.now().minusDays(14),
-            samh_praksis = listOf(
-                    SamhandlerPraksis(
-                            navn = "Legesenter 12",
-                            refusjon_type_kode = "normal_refusjon",
-                            laerer = "0",
-                            lege_i_spesialisering = "0",
-                            tidspunkt_resync_periode = LocalDateTime.now().minusYears(1),
-                            tidspunkt_registrert = LocalDateTime.now().minusYears(5),
-                            samh_praksis_status_kode = "aktiv",
-                            telefonnr = telephoneNumber(this).toString(),
-                            arbeids_kommune_nr = "0123",
-                            arbeids_postnr = "0123",
-                            arbeids_adresse_linje_1 = "Oppdiktet gate 123",
-                            arbeids_adresse_linje_2 = null,
-                            arbeids_adresse_linje_3 = null,
-                            arbeids_adresse_linje_4 = null,
-                            arbeids_adresse_linje_5 = null,
-                            tss_ident = (random.nextInt(1000000000) + 1000000000).toString(),
-                            samh_praksis_type_kode = "FALE",
-                            samh_id = samhandlerIdent.toString(),
-                            samh_praksis_id = samhandlerPraksisId.toString(),
-                            samh_praksis_konto = listOf(SamhandlerPraksisKonto(
-                                    tidspunkt_registrert = LocalDateTime.now().minusYears(5),
-                                    registrert_av_id = "AB123CDE",
-                                    konto = "12341212345",
-                                    samh_praksis_id = samhandlerPraksisId.toString(),
-                                    samh_praksis_konto_id = (random.nextInt(1000000000) + 1000000000).toString()
-                            )),
-                            samh_praksis_periode = listOf(SamhandlerPeriode(
-                                    endret_ved_import = "0",
-                                    sist_endret = LocalDateTime.now().minusYears(5),
-                                    slettet = "0",
-                                    gyldig_fra = Date(0).toLocalDateTime(),
-                                    gyldig_til = null,
-                                    samh_praksis_id = samhandlerPraksisId.toString(),
-                                    samh_praksis_periode_id = (random.nextInt(1000000000) + 1000000000).toString()
-                            )),
-                            samh_praksis_email = listOf(SamhandlerPraksisEmail(
-                                    samh_praksis_email_id = (random.nextInt(1000000000) + 1000000000).toString(),
-                                    samh_praksis_id = samhandlerPraksisId.toString(),
-                                    email = "void@dev.null",
-                                    primaer_email = null
-                            )),
-
-                            post_postnr = null,
-                            post_kommune_nr = null,
-                            post_adresse_linje_1 = null,
-                            post_adresse_linje_2 = null,
-                            post_adresse_linje_3 = null,
-                            post_adresse_linje_4 = null,
-                            post_adresse_linje_5 = null,
-                            her_id = null,
-                            resh_id = null,
-                            ident = "2"
-                    )
-            ),
+            samh_praksis = samhandlerPraksisListe,
             breg_hovedenhet = null,
-            samh_ident = listOf(
-                    SamhandlerIdent(
-                            samh_id = samhandlerIdent.toString(),
-                            samh_ident_id = samhandlerIdentId.toString(),
-                            ident = ident(),
-                            ident_type_kode = "FNR",
-                            aktiv_ident = "1"
-                    ),
-                    SamhandlerIdent(
-                            samh_id = samhandlerIdent.toString(),
-                            samh_ident_id = samhandlerIdentId.toString(),
-                            ident = "1234567",
-                            ident_type_kode = "HPR",
-                            aktiv_ident = "1"
-                    )),
+            samh_ident = samhandlerIdentList,
             samh_avtale = listOf(),
             samh_email = listOf(),
             samh_direkte_oppgjor_avtale = listOf(SamhandlerDirekteOppgjoerAvtale(
                     gyldig_fra = LocalDateTime.now().minusYears(15),
-                    samh_id = samhandlerIdent.toString(),
+                    samh_id = samhIdents().samhandlerIdent.toString(),
                     samh_direkte_oppgjor_avtale_id = "1000050000",
                     koll_avtale_mottatt_dato = null,
                     monster_avtale_mottatt_dato = null
@@ -246,9 +289,7 @@ fun defaultPerson(
 ): Person {
     val person = fairy.person(*personProperties)
     return Person()
-            .withAktoer(PersonIdent().withIdent(NorskIdent()
-                    .withType(Personidenter().withValue("FNR"))
-                    .withIdent(generatePersonNumber(person.dateOfBirth, useDNumber))))
+            .withAktoer(generateAktoer(person.dateOfBirth, useDNumber))
             .withPersonnavn(Personnavn()
                     .withFornavn(person.firstName)
                     .withMellomnavn(person.middleName)
@@ -276,9 +317,9 @@ fun defaultFellesformat(
     doctor: Person = defaultPerson(),
     doctorTelephoneNumber: Int = telephoneNumber(doctor),
     signatureDate: ZonedDateTime = ZonedDateTime.now().minusDays(1),
-    receivedDate: ZonedDateTime = ZonedDateTime.now()
+    receivedDate: ZonedDateTime = ZonedDateTime.now(),
+    samhandlerPraksis: SamhandlerPraksis = doctor.defaultSamhandlerPraksis()
 ): EIFellesformat {
-    val organisationData = fairy.company()
     val orgAddr = fairy.person().address
     val navAddr = fairy.person().address
     val navOffice = "NAV Oslo"
@@ -295,7 +336,7 @@ fun defaultFellesformat(
                 msgId = UUID.randomUUID().toString()
                 sender = Sender().apply {
                     organisation = Organisation().apply {
-                        organisationName = organisationData.getCenterName()
+                        organisationName = samhandlerPraksis.navn
                         ident.add(generateOrganisationNumberIdent())
                         ident.add(generateHerIdent())
 
@@ -577,6 +618,10 @@ private fun validateOrgNumberMod11(orgNumber: String): Boolean {
 
     return orgNumber[8] - '0' == checksum1Final
 }
+
+fun generateAktoer(bornDate: LocalDate, useDNumber: Boolean) = PersonIdent().withIdent(NorskIdent()
+        .withType(Personidenter().withValue(if (useDNumber) "DNR" else "FNR"))
+        .withIdent(generatePersonNumber(bornDate, useDNumber)))
 
 fun generatePersonNumber(bornDate: LocalDate, useDNumber: Boolean = false): String {
     val personDate = bornDate.format(personNumberDateFormat).let {
