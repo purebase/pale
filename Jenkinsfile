@@ -17,7 +17,7 @@ pipeline {
             steps {
                 ciSkip 'check'
                 script {
-                    //sh './gradlew clean'
+                    sh './gradlew clean'
                     applicationVersionGradle = sh(script: './gradlew -q printVersion', returnStdout: true).trim()
                     env.APPLICATION_VERSION = "${applicationVersionGradle}"
                     if (applicationVersionGradle.endsWith('-SNAPSHOT')) {
