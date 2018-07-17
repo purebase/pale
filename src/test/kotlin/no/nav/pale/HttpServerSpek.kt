@@ -17,12 +17,8 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.util.concurrent.TimeUnit
 
-fun <T> ResponseBody.jsonObject(clazz: Class<T>): T =
-        objectMapper.readValue(string(), clazz)
-
-class HttpServerSpek : Spek({
+object HttpServerSpek : Spek({
     val client = OkHttpClient()
-
     val port = randomPort()
     val baseUrl = "http://localhost:$port"
     val applicationEngine = createHttpServer(port, "TEST")
@@ -39,6 +35,8 @@ class HttpServerSpek : Spek({
             assertTrue(response.isSuccessful)
         }
 
+        fun <T> ResponseBody.jsonObject(clazz: Class<T>): T =
+                objectMapper.readValue(string(), clazz)
         fun validateSelfTestStatusJson(endpoint: String) {
             val request = Request.Builder()
                     .url("$baseUrl/$endpoint")
