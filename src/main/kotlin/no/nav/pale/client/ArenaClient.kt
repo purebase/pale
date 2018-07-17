@@ -8,7 +8,7 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.mapping.formatName
 import java.math.BigInteger
 
-fun createArenaEiaInfo(
+fun createArenaInfo(
     fellesformat: EIFellesformat,
     tssId: String?,
     sperrekode: Int? = null,

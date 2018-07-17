@@ -16,7 +16,7 @@ class ArenaClientTest {
 
     private val tssid = "12454"
     private val navkontor = "0301"
-    private val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+    private val request: ArenaEiaInfo = createArenaInfo(fellesformat, tssid, null, navkontor)
 
     @Test
     fun shouldSetEdiloggId() {
@@ -41,28 +41,28 @@ class ArenaClientTest {
     @Test
     fun shouldSetMappeTypeUP() {
         val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringUP.xml")
-        val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        val request: ArenaEiaInfo = createArenaInfo(fellesformat, tssid, null, navkontor)
         assertEquals(PaleConstant.mappetypeUP.string, request.mappeType)
     }
 
     @Test
     fun shouldSetMappeTypeYA() {
         val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringYA.xml")
-        val request = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        val request = createArenaInfo(fellesformat, tssid, null, navkontor)
         assertEquals(PaleConstant.mappetypeYA.string, request.mappeType)
     }
 
     @Test
     fun shouldSetMappeTypeRP() {
         val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringRP.xml")
-        val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        val request: ArenaEiaInfo = createArenaInfo(fellesformat, tssid, null, navkontor)
         assertEquals(PaleConstant.mappetypeRP.string, request.mappeType)
     }
 
     @Test
     fun shouldSetMappeTypeSP() {
         val fellesformat: EIFellesformat = readToFellesformat("/client/legeerklaeringTypeLegeerklaringSP.xml")
-        val request: ArenaEiaInfo = createArenaEiaInfo(fellesformat, tssid, null, navkontor)
+        val request: ArenaEiaInfo = createArenaInfo(fellesformat, tssid, null, navkontor)
         assertEquals(PaleConstant.mappetypeSP.string, request.mappeType)
     }
 
