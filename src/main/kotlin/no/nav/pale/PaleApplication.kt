@@ -511,7 +511,7 @@ fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: sus
                     return@async blocking()
                 }
             } catch (e: WebServiceException) {
-                if (e !is IOException && e.cause !is IOException)
+                if (e.cause !is IOException)
                     throw e
                 log.warn("Caught IO exception trying to reach {}, retrying", callName, e)
             }
