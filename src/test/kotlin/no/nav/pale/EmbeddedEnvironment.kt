@@ -42,8 +42,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers
 import org.apache.commons.io.IOUtils
 import org.apache.cxf.BusFactory
 import org.apache.cxf.ext.logging.LoggingFeature
+import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
+import org.apache.cxf.transport.http.HTTPConduit
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
@@ -120,18 +123,21 @@ class EmbeddedEnvironment {
             features.add(LoggingFeature())
             serviceClass = PersonV3::class.java
         }.create() as PersonV3
+        configureTimeout(personV3Client)
 
         val organisasjonEnhetV2Client = JaxWsProxyFactoryBean().apply {
             address = "$wsBaseUrl/ws/norg2"
             features.add(LoggingFeature())
             serviceClass = OrganisasjonEnhetV2::class.java
         }.create() as OrganisasjonEnhetV2
+        configureTimeout(organisasjonEnhetV2Client)
 
         val journalbehandlingClient = JaxWsProxyFactoryBean().apply {
             address = "$wsBaseUrl/ws/joark"
             features.add(LoggingFeature())
             serviceClass = Journalbehandling::class.java
         }.create() as Journalbehandling
+        configureTimeout(journalbehandlingClient)
 
         // val pdfClient = PdfClient("http://localhost:8080/api")
         val pdfClient = PdfClient("$mockHttpServerUrl/create_pdf")
@@ -158,6 +164,16 @@ class EmbeddedEnvironment {
         apprecConsumer = session.createConsumer(apprecQueue)
         backoutConsumer = session.createConsumer(backoutQueue)
     }
+
+    private fun configureTimeout(service: Any) {
+        val client = ClientProxy.getClient(service)
+        val conduit = client.getConduit() as HTTPConduit
+        val httpClientPolicy = HTTPClientPolicy()
+        httpClientPolicy.connectionTimeout = 1000
+        httpClientPolicy.receiveTimeout = 1000
+        conduit.client = httpClientPolicy
+    }
+
     fun resetMocks() {
         Mockito.reset(personV3Mock, organisasjonEnhetV2Mock)
     }

@@ -39,6 +39,7 @@ import no.nav.pale.metrics.INCOMING_MESSAGE_COUNTER
 import no.nav.pale.metrics.MESSAGE_OUTCOME_COUNTER
 import no.nav.pale.metrics.QueueStatusCollector
 import no.nav.pale.metrics.REQUEST_TIME
+import no.nav.pale.metrics.RETRY_COUNTER
 import no.nav.pale.metrics.WS_CALL_TIME
 import no.nav.pale.sts.configureSTSFor
 import no.nav.pale.validation.Outcome
@@ -97,6 +98,7 @@ import javax.xml.bind.JAXBContext
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
 import javax.xml.datatype.DatatypeFactory
+import javax.xml.ws.WebServiceException
 import kotlin.math.max
 
 val objectMapper: ObjectMapper = ObjectMapper()
@@ -114,7 +116,7 @@ val fellesformatUnmarshaller: Unmarshaller = fellesformatJaxBContext.createUnmar
 val arenaMarshaller: Marshaller = arenaEiaInfoJaxBContext.createMarshaller()
 val apprecMarshaller: Marshaller = apprecJaxBContext.createMarshaller()
 val newInstance: DatatypeFactory = DatatypeFactory.newInstance()
-val retryInterval = arrayOf(1000L * 60, 2000L * 60, 2000L * 60, 5000L * 60)
+val retryInterval = arrayOf(1000L, 1000L * 60, 2000L * 60, 2000L * 60, 5000L * 60)
 
 private val log = LoggerFactory.getLogger("nav.pale-application")
 
@@ -508,9 +510,12 @@ fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: sus
                 WS_CALL_TIME.labels(callName).startTimer().use {
                     return@async blocking()
                 }
-            } catch (e: IOException) {
-                log.warn("Caught IO exception trying to reach {}", callName, e)
+            } catch (e: WebServiceException) {
+                if (e !is IOException && e.cause !is IOException)
+                    throw e
+                log.warn("Caught IO exception trying to reach {}, retrying", callName, e)
             }
+            RETRY_COUNTER.inc()
             Thread.sleep(time)
         }
 

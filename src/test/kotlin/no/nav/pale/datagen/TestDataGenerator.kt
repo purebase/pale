@@ -627,7 +627,7 @@ fun generatePersonNumber(bornDate: LocalDate, useDNumber: Boolean = false): Stri
     val personDate = bornDate.format(personNumberDateFormat).let {
         if (useDNumber) "${it[0] + 4}${it.substring(1)}" else it
     }
-    return (if (bornDate.year > 2000) (75011..99999) else (11111..50099))
+    return (if (bornDate.year >= 2000) (75011..99999) else (11111..50099))
             .map { "$personDate$it" }
             .first {
                 validatePersonAndDNumber(it)

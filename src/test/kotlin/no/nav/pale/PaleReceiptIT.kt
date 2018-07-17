@@ -10,12 +10,17 @@ import no.nav.tjeneste.virksomhet.person.v3.feil.PersonIkkeFunnet
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.NorskIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.PersonIdent
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
+import no.nav.tjeneste.virksomhet.person.v3.meldinger.HentPersonResponse
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.atLeast
+import org.mockito.Mockito.timeout
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import java.time.ZonedDateTime
 
 class PaleReceiptIT {
@@ -161,6 +166,26 @@ class PaleReceiptIT {
         assertEquals("Avvist", apprec.status.dn)
         assertEquals(ApprecError.MISSING_PATIENT_INFO.s, apprec.error[0].s)
         assertEquals(ApprecError.MISSING_PATIENT_INFO.v, apprec.error[0].v)
+    }
+
+    @Test
+    fun testTemporaryDowntime() {
+        val person = defaultPerson()
+
+        e.defaultMocks(person)
+        `when`(e.personV3Mock.hentPerson(any()))
+                .then {
+                    Thread.sleep(5000)
+                    HentPersonResponse().withPerson(person)
+                }
+                .thenReturn(HentPersonResponse().withPerson(person))
+        e.produceMessage(defaultFellesformat(person))
+
+        verify(e.personV3Mock, timeout(5000).atLeast(2)).hentPerson(any())
+
+        val apprec = e.readAppRec()
+        val arenaEiaInfo = e.readArenaEiaInfo()
+        assertArenaInfoContains(arenaEiaInfo, OutcomeType.LEGEERKLAERING_MOTTAT)
     }
 
     companion object {
