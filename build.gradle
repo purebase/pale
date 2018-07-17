@@ -68,6 +68,9 @@ configurations {
 }
 
 test {
+    useJUnitPlatform {
+        includeEngines 'spek2', 'junit-vintage'
+    }
     testLogging {
         showStandardStreams = true
     }
@@ -152,12 +155,9 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url "https://dl.bintray.com/kotlin/ktor" }
-    maven {
-        url 'https://repo.adeo.no/repository/maven-releases/'
-    }
-    maven {
-        url 'https://repo.adeo.no/repository/maven-snapshots/'
-    }
+    maven { url 'https://repo.adeo.no/repository/maven-releases/' }
+    maven { url 'https://repo.adeo.no/repository/maven-snapshots/' }
+    maven { url  "https://dl.bintray.com/spekframework/spek-dev" }
 }
 
 dependencies {
@@ -200,11 +200,14 @@ dependencies {
     implementation "org.apache.commons:commons-text:$commons_text_version"
 
     testImplementation "ai.grakn:redis-mock:$redis_mock_version"
-    testImplementation "junit:junit:$junit_version"
     testImplementation "com.devskiller:jfairy:0.6.2"
     testImplementation "org.apache.activemq:artemis-server:$artemis_version"
     testImplementation "org.apache.activemq:artemis-jms-client:$artemis_version"
 
     testImplementation "org.mockito:mockito-core:$mockito_version"
     testImplementation "org.eclipse.jetty:jetty-servlet:$jetty_version"
+    testImplementation 'org.spekframework.spek2:spek-dsl-jvm:2.0.0-alpha.1'
+    testImplementation "org.junit.vintage:junit-vintage-engine:5.2.0"
+    testRuntimeOnly "org.spekframework.spek2:spek-runtime-jvm:2.0.0-alpha.1"
+    testRuntimeOnly 'org.spekframework.spek2:spek-runner-junit5:2.0.0-alpha.1'
 }
