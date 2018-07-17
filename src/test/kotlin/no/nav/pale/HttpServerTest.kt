@@ -40,9 +40,10 @@ class HttpServerTest {
         validateSelfTest("is_alive")
     }
 
-    fun validateSelfTest(endpoint: String) {
+    private fun validateSelfTest(endpoint: String) {
         val request = Request.Builder()
                 .url("$baseUrl/$endpoint")
+                .header("Accept", "text/plain")
                 .get()
                 .build()
 
@@ -50,7 +51,7 @@ class HttpServerTest {
         assertTrue(response.isSuccessful)
     }
 
-    fun validateSelfTestStatusJson(endpoint: String) {
+    private fun validateSelfTestStatusJson(endpoint: String) {
         val request = Request.Builder()
                 .url("$baseUrl/$endpoint")
                 .header("Accept", "application/json")

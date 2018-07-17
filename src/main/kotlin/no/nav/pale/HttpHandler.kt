@@ -33,20 +33,18 @@ fun createHttpServer(port: Int = 8080, applicationVersion: String): ApplicationE
             }
         }
 
-        accept(ContentType.Any) {
-            get("/is_alive") {
-                call.respondText("I'm alive.", ContentType.Text.Plain)
-            }
+        get("/is_alive") {
+            call.respondText("I'm alive.", ContentType.Text.Plain)
+        }
 
-            get("/is_ready") {
-                call.respondText("I'm ready.", ContentType.Text.Plain)
-            }
+        get("/is_ready") {
+            call.respondText("I'm ready.", ContentType.Text.Plain)
+        }
 
-            get("/prometheus") {
-                val names = call.request.queryParameters.getAll("name[]")?.toSet() ?: setOf()
-                call.respondWrite(prometheusContentType) {
-                    TextFormat.write004(this, collectorRegistry.filteredMetricFamilySamples(names))
-                }
+        get("/prometheus") {
+            val names = call.request.queryParameters.getAll("name[]")?.toSet() ?: setOf()
+            call.respondWrite(prometheusContentType) {
+                TextFormat.write004(this, collectorRegistry.filteredMetricFamilySamples(names))
             }
         }
     }
