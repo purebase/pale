@@ -140,7 +140,7 @@ object PaleReceiptITSpek : Spek({
             e.produceMessage(defaultFellesformat(person))
 
             verify(e.personV3Mock, timeout(5000).atLeast(2)).hentPerson(any())
-            val apprec = e.readAppRec()
+            e.readAppRec().shouldHaveOkStatus()
             val arenaEiaInfo = e.readArenaEiaInfo()
             arenaEiaInfo shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
         }
