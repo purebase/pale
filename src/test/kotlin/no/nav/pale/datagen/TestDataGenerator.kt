@@ -56,7 +56,6 @@ import no.nav.pale.client.SamhandlerPeriode
 import no.nav.pale.client.SamhandlerPraksis
 import no.nav.pale.client.SamhandlerPraksisEmail
 import no.nav.pale.client.SamhandlerPraksisKonto
-import no.nav.pale.fellesformatJaxBContext
 import no.nav.pale.mapping.KontaktType
 import no.nav.pale.mapping.LegeerklaeringType
 import no.nav.pale.mapping.TypeTiltak
@@ -76,8 +75,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postadresse
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postnummer
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.UstrukturertAdresse
-import org.junit.Test
-import java.io.StringWriter
 import java.math.BigInteger
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -89,7 +86,6 @@ import java.util.Locale
 import java.util.Random
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
-import javax.xml.bind.Marshaller
 import javax.xml.datatype.DatatypeFactory
 
 val fairy: Fairy = Fairy.create(Locale("no", "NO"))
@@ -107,20 +103,6 @@ fun Company.getCenterName(): String =
             1 -> "Legekontor AS"
             else -> "AS"
         })
-
-class TestDataGenerator {
-    @Test
-    fun generateTestFellesformat() {
-        val result = StringWriter().let {
-            val marshaller = fellesformatJaxBContext.createMarshaller()
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)
-            marshaller.marshal(defaultFellesformat(defaultPerson()), it)
-            it.toString()
-        }
-
-        println(result)
-    }
-}
 
 class GeneratedAddress(var city: String? = null) : Gateadresse()
 

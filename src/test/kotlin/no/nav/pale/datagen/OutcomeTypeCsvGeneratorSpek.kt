@@ -6,7 +6,7 @@ import org.spekframework.spek2.style.specification.describe
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class OutcomeTypeCsvGeneratorSpek : Spek({
+object OutcomeTypeCsvGeneratorSpek : Spek({
     describe("OutcomeType") {
         it("Generates a OutcomeType CSV") {
             val header = "Referanse i kode;Merknad nr;Beskrivelse;Prioritet;Type"
