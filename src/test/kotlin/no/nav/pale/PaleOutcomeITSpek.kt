@@ -216,7 +216,7 @@ class PaleOutcomeIT {
 
         e.readAppRec()
         val arenaEiaInfo = e.readArenaEiaInfo()
-        assertArenaInfoContains(arenaEiaInfo, OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR)
+        assertArenaInfoContains(arenaEiaInfo, OutcomeType.BEHANDLER_HAS_FNR_USES_DNR)
     }
 
     @Test
