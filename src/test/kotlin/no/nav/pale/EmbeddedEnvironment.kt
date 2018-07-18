@@ -82,28 +82,28 @@ class EmbeddedEnvironment {
     private val mockHttpServerPort = randomPort()
     private val mockHttpServerUrl = "http://localhost:$mockHttpServerPort"
 
-    private val activeMQServer: ActiveMQServer
-    private val connectionFactory: ConnectionFactory
-    private val queueConnection: Connection
-    private val initialContext: InitialContext
+    private lateinit var activeMQServer: ActiveMQServer
+    private lateinit var connectionFactory: ConnectionFactory
+    private lateinit var queueConnection: Connection
+    private lateinit var initialContext: InitialContext
 
-    private val server: Server
+    private lateinit var server: Server
 
-    private val diagnosisWebserver: ApplicationEngine
-    private val mockWebserver: ApplicationEngine
+    private lateinit var diagnosisWebserver: ApplicationEngine
+    private lateinit var mockWebserver: ApplicationEngine
 
-    private val producer: MessageProducer
-    private val job: Job
+    private lateinit var producer: MessageProducer
+    private lateinit var job: Job
 
-    private val session: Session
+    private lateinit var session: Session
 
-    val arenaConsumer: MessageConsumer
-    val apprecConsumer: MessageConsumer
-    val backoutConsumer: MessageConsumer
+    lateinit var arenaConsumer: MessageConsumer
+    lateinit var apprecConsumer: MessageConsumer
+    lateinit var backoutConsumer: MessageConsumer
 
     private val redisServer = RedisServer.newRedisServer()
 
-    init {
+    fun start() {
         redisServer.start()
 
         activeMQServer = ActiveMQServers.newActiveMQServer(ConfigurationImpl()
@@ -178,14 +178,13 @@ class EmbeddedEnvironment {
         Mockito.reset(personV3Mock, organisasjonEnhetV2Mock)
     }
 
-    fun readAppRec(): AppRec {
-        val fellesformat = fellesformatJaxBContext.createUnmarshaller()
-                .unmarshal(StringReader(consumeMessage(apprecConsumer))) as EIFellesformat
-        return fellesformat.appRec
-    }
+    fun readAppRec(): AppRec = consumeMessage(apprecConsumer).let {
+        fellesformatJaxBContext.createUnmarshaller().unmarshal(StringReader(it)) as EIFellesformat
+    }.appRec
 
-    fun readArenaEiaInfo(): ArenaEiaInfo = arenaEiaInfoJaxBContext.createUnmarshaller()
-            .unmarshal(StringReader(consumeMessage(arenaConsumer))) as ArenaEiaInfo
+    fun readArenaEiaInfo(): ArenaEiaInfo = consumeMessage(arenaConsumer).let {
+        arenaEiaInfoJaxBContext.createUnmarshaller().unmarshal(StringReader(it)) as ArenaEiaInfo
+    }
 
     fun shutdown() {
         activeMQServer.stop(true)
@@ -203,6 +202,7 @@ class EmbeddedEnvironment {
         geografiskTilknytning: GeografiskTilknytning? = Kommune().withGeografiskTilknytning("navkontor"),
         samhandlerList: List<Samhandler> = listOfNotNull(doctor?.toSamhandler())
     ) {
+        log.info("Setting up mocks")
         Mockito.`when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
 
         Mockito.`when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()

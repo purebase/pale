@@ -20,7 +20,7 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
 
     val samhandlerPraksisMatch = SamhandlerPraksisMatch(samhandlerPraksis, calculatePercentageStringMatch(samhandlerPraksis.navn, orgName))
     if (samhandlerPraksisMatch.percentageMatch < 0.9) {
-        outcome += OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED.toOutcome((samhandlerPraksisMatch.percentageMatch.times(100.0).roundToInt()))
+        outcome += OutcomeType.UNCERTAIN_RESPONSE_SAR.toOutcome((samhandlerPraksisMatch.percentageMatch.times(100.0).roundToInt()))
     }
 
     if (samhandlerPraksis.arbeids_adresse_linje_1 == null || samhandlerPraksis.arbeids_adresse_linje_1.isEmpty()) {
@@ -36,7 +36,7 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
             .filter { it.aktiv_ident == "1" }
 
     if (isDNR(extractDoctorIdentFromSignature(fellesformat)) && samhandlerIdentFnr.isNotEmpty()) {
-        outcome += OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR
+        outcome += OutcomeType.BEHANDLER_HAS_FNR_USES_DNR
     }
 
     if (samhandler.none { it.samh_type_kode in arrayOf("LE", "KI", "TL", "MT") }) {

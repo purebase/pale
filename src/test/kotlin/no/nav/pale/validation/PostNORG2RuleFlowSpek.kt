@@ -1,8 +1,8 @@
 package no.nav.pale.validation
 
-import no.nav.pale.utils.assertOutcomesContain
+import no.nav.pale.utils.shouldContainOutcome
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
-import org.junit.Assert.assertTrue
+import org.amshove.kluent.shouldBeEmpty
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
@@ -12,8 +12,8 @@ object PostNORG2RuleFlowSpek : Spek({
             enhetId = ""
             enhetNavn = "NAV Sagene"
         }
-        it("Should create outcome for missing NAV office") {
-            assertOutcomesContain(OutcomeType.PERSON_HAS_NO_NAV_KONTOR, postNORG2Flow(navOffice))
+        it("Creates outcome for missing NAV office") {
+            postNORG2Flow(navOffice) shouldContainOutcome OutcomeType.PERSON_HAS_NO_NAV_KONTOR
         }
     }
     describe("Organisasjonsenhet call with enhetsid") {
@@ -21,8 +21,8 @@ object PostNORG2RuleFlowSpek : Spek({
             enhetId = "1234"
             enhetNavn = "NAV Sagene"
         }
-        it("Should result in no outcome") {
-            assertTrue("Should not contain any outcomes", postNORG2Flow(navOffice).isEmpty())
+        it("Results in no outcome") {
+            postNORG2Flow(navOffice).shouldBeEmpty()
         }
     }
 })

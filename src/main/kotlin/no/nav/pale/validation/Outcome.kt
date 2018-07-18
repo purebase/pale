@@ -32,13 +32,13 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PERSON_HAS_NO_NAV_KONTOR(50, "Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR, Type.FAGLIG),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.", Priority.MANUAL_PROCESSING, Type.FAGLIG),
-    BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR(75, "Behandler har angitt D-nummer, men SAR fant gyldig F-nummer.", Priority.NOTE, Type.FAGLIG),
+    BEHANDLER_HAS_FNR_USES_DNR(75, "Behandler har angitt D-nummer, men SAR fant gyldig F-nummer.", Priority.NOTE, Type.FAGLIG),
     ADDRESS_MISSING_SAR(76, "Adresse mangler i SAR.", Priority.NOTE, Type.FAGLIG),
 
     // Find best result from KUHR sar
     NO_VALID_TSSID_PRACTICE_TYPE_SAR(77, "Finner ingen gyldig praksistype i SAR.", Priority.NOTE, Type.FAGLIG),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78, "Funnet TSS ident er legevakt.", Priority.NOTE, Type.FAGLIG),
-    UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED(141, "Usikkert svar fra SAR, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
+    UNCERTAIN_RESPONSE_SAR(141, "Usikkert svar fra SAR, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE, Type.TECHNICAL),
 
     // Arena requires this outcome on successful messages if no other outcomes
     LEGEERKLAERING_MOTTAT(245, "Legeerklæring er mottatt.", Priority.NOTE, Type.FAGLIG),

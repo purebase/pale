@@ -7,99 +7,66 @@ import no.nav.pale.datagen.createFamilyRelation
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.ident
 import no.nav.pale.utils.readToFellesformat
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.amshove.kluent.shouldEqual
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 import java.time.LocalDate
 import java.time.Month
 
-class ValidationHelperTest {
+object ValidationHelperSpek : Spek({
+    describe("Validation helper tests with fnr") {
+        val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
+        val legeerklaring: Legeerklaring = extractLegeerklaering(fellesformat)
+        it("Extracts doctor ident from sender") {
+            extractDoctorIdentFromSender(fellesformat)?.id shouldEqual "04030350265"
+        }
+        it("Extracts doctors ident from signature") {
+            extractDoctorIdentFromSignature(fellesformat) shouldEqual "04030350265"
+        }
+        it("Extracts sender organization name") {
+            extractSenderOrganisationName(fellesformat) shouldEqual "Kule helsetjenester AS"
+        }
+        it("Extracts patients ident") {
+            extractPersonIdent(legeerklaring) shouldEqual "12128913767"
+        }
+        it("Extracts patients surname") {
+            extractPatientSurname(legeerklaring) shouldEqual "Bergheim"
+        }
+        it("Extracts persons first name") {
+            extractPatientFirstName(legeerklaring) shouldEqual "Daniel"
+        }
+        it("Extracts signature date") {
+            val signatureDate = extractSignatureDate(fellesformat)
 
-    private val fellesformat: EIFellesformat = readToFellesformat("/legeerklaering.xml")
-    private val legeerklaring: Legeerklaring = extractLegeerklaering(fellesformat)
-    private val fellesformatWithDNr: EIFellesformat = readToFellesformat("/validation/legeerklaeringWithDNR.xml")
-
-    @Test
-    fun shouldExtractDoctorIdentFromSenderFNR() {
-        val fnr = extractDoctorIdentFromSender(fellesformat)
-        assertEquals("04030350265", fnr?.id)
+            signatureDate.year shouldEqual 2017
+            signatureDate.month shouldEqual Month.DECEMBER
+            signatureDate.dayOfMonth shouldEqual 29
+        }
+        it("Extracts organization number from sender") {
+            extractOrganisationNumberFromSender(fellesformat)?.id shouldEqual "223456789"
+        }
     }
-
-    @Test
-    fun shouldExtractDoctorIdentFromSenderDNR() {
-        val dnr = extractDoctorIdentFromSender(fellesformatWithDNr)
-        assertEquals("45069800525", dnr?.id)
+    describe("Validation helper tests with DNR") {
+        val fellesformatWithDNr: EIFellesformat = readToFellesformat("/validation/legeerklaeringWithDNR.xml")
+        it("Extracts doctor person number from sender") {
+            extractDoctorIdentFromSender(fellesformatWithDNr)?.id shouldEqual "45069800525"
+        }
     }
-
-    @Test
-    fun shouldExtractDoctorIdentFromSignature() {
-        val fnr = extractDoctorIdentFromSignature(fellesformat)
-        assertEquals("04030350265", fnr)
+    describe("Pure helper method tests") {
+        it("Causes 19xx as born date when induvidual number is pre 500") {
+            // We're using the first possible valid person number for the date 1.1.1905
+            extractBornDate("03110511220").year shouldEqual 1905
+        }
+        it("Extracts born date from person number") {
+            extractBornDate("12128913767") shouldEqual LocalDate.of(1989, 12, 12)
+        }
+        it("Extracts born date with DNR") {
+            extractBornDate("45069800525") shouldEqual LocalDate.of(1998, 6, 5)
+        }
+        it("Finds doctor in family relations") {
+            val doctor = defaultPerson()
+            val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("EKTE", doctor)))
+            findDoctorInRelations(patient, doctor.ident())?.tilRolle?.value shouldEqual RelationType.EKTEFELLE.kodeverkVerdi
+        }
     }
-
-    @Test
-    fun testPre500IndividualNumberCauses19xxBornDate() {
-        // We're using the first possible valid person number for the date 1.1.1905
-        assertEquals(extractBornDate("03110511220").year, 1905)
-    }
-
-    @Test
-    fun shouldExtractSenderOrganisationName() {
-        val organisationName = extractSenderOrganisationName(fellesformat)
-        assertEquals("Kule helsetjenester AS", organisationName)
-    }
-
-    @Test
-    fun shouldExtractPersonIdent() {
-        val patientFnr = extractPersonIdent(legeerklaring)
-        assertEquals("12128913767", patientFnr)
-    }
-
-    @Test
-    fun shouldExtractPatientSurname() {
-        val patientSurname = extractPatientSurname(legeerklaring)
-        assertEquals("Bergheim", patientSurname)
-    }
-
-    @Test
-    fun shouldExtractPatientFirstname() {
-        val patientFirst = extractPatientFirstName(legeerklaring)
-        assertEquals("Daniel", patientFirst)
-    }
-
-    @Test
-    fun shouldExtractBornDateFNR() {
-        val patientBornDate = extractBornDate("12128913767")
-        assertEquals(LocalDate.of(1989, 12, 12), patientBornDate)
-    }
-
-    @Test
-    fun shouldExtractBornDateDNR() {
-        val patientBornDate = extractBornDate("45069800525")
-        assertEquals(LocalDate.of(1998, 6, 5), patientBornDate)
-    }
-
-    @Test
-    fun shouldfindDoctorInRelationsToPatientEktefelle() {
-        val doctor = defaultPerson()
-        val patient = defaultPerson(familyRelations = arrayOf(createFamilyRelation("EKTE", doctor)))
-        val familierelasjon = findDoctorInRelations(patient, doctor.ident())!!
-
-        assertEquals(RelationType.fromKodeverkValue(familierelasjon.tilRolle.value)?.kodeverkVerdi, RelationType.EKTEFELLE.kodeverkVerdi)
-    }
-
-    @Test
-    fun shouldExtractSignatureDate() {
-        val signatureDate = extractSignatureDate(fellesformat)
-
-        assertEquals(signatureDate.year, 2017)
-        assertEquals(signatureDate.month, Month.DECEMBER)
-        assertEquals(signatureDate.dayOfMonth, 29)
-    }
-
-    @Test
-    fun shouldExtractCompanyNumberFromSender() {
-        val organisationNumberFromSender = extractOrganisationNumberFromSender(fellesformat)
-
-        assertEquals("223456789", organisationNumberFromSender?.id)
-    }
-}
+})

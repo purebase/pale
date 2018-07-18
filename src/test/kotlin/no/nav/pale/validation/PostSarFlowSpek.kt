@@ -7,17 +7,16 @@ import no.nav.pale.datagen.generateAktoer
 import no.nav.pale.datagen.generatePersonNumber
 import no.nav.pale.datagen.ident
 import no.nav.pale.datagen.toSamhandler
-import no.nav.pale.utils.assertOutcomesContain
-import no.nav.pale.utils.assertOutcomesNotContain
+import no.nav.pale.utils.shouldContainOutcome
+import no.nav.pale.utils.shouldNotContainOutcome
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
 object PostSarFlowSpek : Spek({
     describe("No samhandler returned") {
         val fellesformat = defaultFellesformat(person = defaultPerson())
-        it("Should create outcome missing in SAR") {
-            assertOutcomesContain(OutcomeType.BEHANDLER_NOT_SAR,
-                    postSARFlow(fellesformat, listOf()))
+        it("Creates outcome missing in SAR") {
+            postSARFlow(fellesformat, listOf()) shouldContainOutcome OutcomeType.BEHANDLER_NOT_SAR
         }
     }
 
@@ -30,9 +29,8 @@ object PostSarFlowSpek : Spek({
                 samhandlerPraksis = samhandlerPraksis
         )
         val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
-        it("Should create outcome address missing in SAR") {
-            assertOutcomesContain(OutcomeType.ADDRESS_MISSING_SAR,
-                    postSARFlow(fellesformat, samhandlerList))
+        it("Creates outcome address missing in SAR") {
+            postSARFlow(fellesformat, samhandlerList) shouldContainOutcome OutcomeType.ADDRESS_MISSING_SAR
         }
     }
 
@@ -45,9 +43,8 @@ object PostSarFlowSpek : Spek({
                 samhandlerPraksis = samhandlerPraksis
         )
         val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
-        it("Should create outcome for praksis being a emergancy room") {
-            assertOutcomesContain(OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM,
-                    postSARFlow(fellesformat, samhandlerList))
+        it("Creates outcome for praksis being a emergancy room") {
+            postSARFlow(fellesformat, samhandlerList) shouldContainOutcome OutcomeType.BEHANDLER_TSSID_EMERGENCY_ROOM
         }
     }
 
@@ -64,10 +61,8 @@ object PostSarFlowSpek : Spek({
 
         val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
 
-        it("Should create outcome for missmatched ident") {
-
-            assertOutcomesContain(OutcomeType.BEHANDLER_D_NUMBER_BUT_HAS_VALID_PERSON_NUMBER_IN_SAR,
-                    postSARFlow(fellesformat, samhandlerList))
+        it("Creates outcome for missmatched ident") {
+            postSARFlow(fellesformat, samhandlerList) shouldContainOutcome OutcomeType.BEHANDLER_HAS_FNR_USES_DNR
         }
     }
 
@@ -83,9 +78,8 @@ object PostSarFlowSpek : Spek({
                 samhandlerPraksisListe = listOf(samhandlerPraksis),
                 samhandlerTypeKode = "FT")
         )
-        it("Should add outcome for no valid practice types in SAR") {
-            assertOutcomesContain(OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR,
-                    postSARFlow(fellesformat, samhandlerList))
+        it("Creates for no valid practice types in SAR") {
+            postSARFlow(fellesformat, samhandlerList) shouldContainOutcome OutcomeType.NO_VALID_TSSID_PRACTICE_TYPE_SAR
         }
     }
 
@@ -98,9 +92,8 @@ object PostSarFlowSpek : Spek({
         )
         val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(doctor.defaultSamhandlerPraksis(name = "THISSHOULDNOTEXIST"))))
 
-        it("Should add outcome for verifying sar response") {
-            assertOutcomesContain(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED,
-                    postSARFlow(fellesformat, samhandlerList))
+        it("Creates outcome for  uncertain SAR response") {
+            postSARFlow(fellesformat, samhandlerList) shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
         }
     }
 
@@ -113,9 +106,8 @@ object PostSarFlowSpek : Spek({
                 samhandlerPraksis = samhandlerPraksis
         )
         val samhandlerList = listOf(doctor.toSamhandler(samhandlerPraksisListe = listOf(samhandlerPraksis)))
-        it("Should not add outcome for verifying sar response") {
-            assertOutcomesNotContain(OutcomeType.UNCERTAIN_RESPONSE_SAR_SHOULD_VERIFIED,
-                    postSARFlow(fellesformat, samhandlerList))
+        it("Does not add outcome for verifying sar response") {
+            postSARFlow(fellesformat, samhandlerList) shouldNotContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
         }
     }
 })

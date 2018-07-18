@@ -4,34 +4,35 @@ import com.devskiller.jfairy.producer.person.PersonProperties
 import com.devskiller.jfairy.producer.person.PersonProvider
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
-import no.nav.pale.utils.assertOutcomesContain
-import org.junit.Test
+import no.nav.pale.utils.shouldContainOutcome
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
-class PreTPSRuleFlowTest {
-
-    @Test
-    fun shouldCreateOutcomeTypePasientOver70() {
+object PreTPSRuleFlowSpek : Spek({
+    describe("Patient is over 70 years old") {
         val fellesformat = defaultFellesformat(
                 person = defaultPerson(PersonProperties.ageBetween(71, PersonProvider.MAX_AGE))
         )
-        assertOutcomesContain(OutcomeType.PATIENT_IS_OVER_70, preTPSFlow(fellesformat))
+        it("Creates outcome for patient being over 70 years old") {
+            preTPSFlow(fellesformat) shouldContainOutcome OutcomeType.PATIENT_IS_OVER_70
+        }
     }
-
-    @Test
-    fun shouldCreateOutcomeTypePasientOver70Dnummer() {
+    describe("Patient is over 70 years old and have a DNR") {
         val fellesformat = defaultFellesformat(
                 person = defaultPerson(PersonProperties.ageBetween(71, PersonProvider.MAX_AGE), useDNumber = true)
         )
-        assertOutcomesContain(OutcomeType.PATIENT_IS_OVER_70, preTPSFlow(fellesformat))
+        it("Creates outcome for patient being over 70 years old") {
+            preTPSFlow(fellesformat) shouldContainOutcome OutcomeType.PATIENT_IS_OVER_70
+        }
     }
-
-    @Test
-    fun shouldCreateOutcomeTypeBehandlerErPasient() {
+    describe("Doctor is patient") {
         val person = defaultPerson()
         val fellesformat = defaultFellesformat(
                 person = person,
                 doctor = person
         )
-        assertOutcomesContain(OutcomeType.BEHANDLER_IS_PATIENT, preTPSFlow(fellesformat))
+        it("Creates outcome for doctor being the patient") {
+            preTPSFlow(fellesformat) shouldContainOutcome OutcomeType.BEHANDLER_IS_PATIENT
+        }
     }
-}
+})
