@@ -4,7 +4,6 @@ import no.nav.model.fellesformat.EIFellesformat
 import no.nav.pale.PaleApplication
 import no.nav.pale.fellesformatUnmarshaller
 import org.apache.commons.io.IOUtils
-import sun.nio.ch.IOUtil
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.URISyntaxException

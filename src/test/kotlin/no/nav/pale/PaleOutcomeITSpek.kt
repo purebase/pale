@@ -9,6 +9,7 @@ import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.generatePersonNumber
 import no.nav.pale.datagen.ident
+import no.nav.pale.utils.readResourceAsString
 import no.nav.pale.utils.shouldContainOutcome
 import no.nav.pale.utils.shouldHaveOkStatus
 import no.nav.pale.validation.OutcomeType
@@ -22,7 +23,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull
-import org.apache.commons.io.IOUtils
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import org.spekframework.spek2.style.specification.xdescribe
@@ -39,7 +39,7 @@ object PaleOutcomeITSpek : Spek({
     }
     describe("Full flow exception") {
         it("Ends on backout queue") {
-            val message = IOUtils.toString(PaleOutcomeITSpek::class.java.getResourceAsStream("/legeerklaering.xml"), Charsets.ISO_8859_1)
+            val message = readResourceAsString("/legeerklaering.xml")
             e.produceMessage(message)
             val messageOnBoq = e.consumeMessage(e.backoutConsumer)
             message shouldEqual messageOnBoq
