@@ -3,6 +3,7 @@ package no.nav.pale.mapping
 import no.nav.pale.PaleConstant
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
 import org.amshove.kluent.shouldEqual
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -96,10 +97,20 @@ object ApprecMapperSpek : Spek({
             ff.appRec.receiver.hcp.inst.typeId.v shouldEqual
                     src.msgHead.msgInfo.sender.organisation.ident.first().typeId.v
         }
-        it("Sets receivers hcpPersons name to organization healthcareProfessionals combined name") {
-            val hcp = src.msgHead.msgInfo.sender.organisation.healthcareProfessional
-            ff.appRec.receiver.hcp.inst.hcPerson.first().name shouldEqual
-                    "${hcp.familyName} ${hcp.givenName} ${hcp.middleName}".trim()
+        it("Sets receivers healthcareProfessionals combined name with no middle name") {
+            val noMiddleName = defaultFellesformat(defaultPerson(), doctor = defaultPerson().withPersonnavn(Personnavn()
+                    .withFornavn("Fornavn")
+                    .withEtternavn("Etternavnsen")))
+            createApprec(noMiddleName, ApprecStatus.ok).appRec.receiver.hcp.inst.hcPerson.first().name shouldEqual
+                    "Etternavnsen Fornavn"
+        }
+        it("Sets receivers healthcareProfessionals combined name with middle name") {
+            val withMiddleName = defaultFellesformat(defaultPerson(), doctor = defaultPerson().withPersonnavn(Personnavn()
+                    .withFornavn("Fornavn")
+                    .withMellomnavn("Mellomnavn")
+                    .withEtternavn("Etternavnsen")))
+            createApprec(withMiddleName, ApprecStatus.ok).appRec.receiver.hcp.inst.hcPerson.first().name shouldEqual
+                    "Etternavnsen Fornavn Mellomnavn"
         }
         it("Sets appRec status dn to OK") {
             ff.appRec.status.dn shouldEqual ApprecStatus.ok.dn
