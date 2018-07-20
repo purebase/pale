@@ -92,12 +92,12 @@ val datatypeFactory: DatatypeFactory = DatatypeFactory.newInstance()
 val personNumberDateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("ddMMyy")
 
 fun defaultFellesformat(
-        person: Person,
-        doctor: Person = defaultPerson(),
-        doctorTelephoneNumber: Int = telephoneNumber(doctor),
-        signatureDate: ZonedDateTime = ZonedDateTime.now().minusDays(1),
-        receivedDate: ZonedDateTime = ZonedDateTime.now(),
-        samhandlerPraksis: SamhandlerPraksis = doctor.defaultSamhandlerPraksis()
+    person: Person,
+    doctor: Person = defaultPerson(),
+    doctorTelephoneNumber: Int = telephoneNumber(doctor),
+    signatureDate: ZonedDateTime = ZonedDateTime.now().minusDays(1),
+    receivedDate: ZonedDateTime = ZonedDateTime.now(),
+    samhandlerPraksis: SamhandlerPraksis = doctor.defaultSamhandlerPraksis()
 ): EIFellesformat {
     val orgAddr = fairy.person().address
     val navAddr = fairy.person().address
