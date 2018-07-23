@@ -11,8 +11,8 @@ import no.nav.pale.utils.randomPort
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.ResponseBody
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import org.amshove.kluent.shouldBeTrue
+import org.amshove.kluent.shouldNotBeNull
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.util.concurrent.TimeUnit
@@ -32,7 +32,7 @@ object HttpServerSpek : Spek({
                     .build()
 
             val response = client.newCall(request).execute()
-            assertTrue(response.isSuccessful)
+            response.isSuccessful.shouldBeTrue()
         }
 
         fun <T> ResponseBody.jsonObject(clazz: Class<T>): T =
@@ -46,10 +46,10 @@ object HttpServerSpek : Spek({
 
             val response = client.newCall(request).execute()
 
-            assertTrue(response.isSuccessful)
+            response.isSuccessful.shouldBeTrue()
             val status = response.body()?.jsonObject(SelftestStatus::class.java)
 
-            assertNotNull(status?.status)
+            status?.status.shouldNotBeNull()
         }
 
         it("is_ready should return valid json when using Accept: application/json") {
@@ -87,13 +87,13 @@ object HttpServerSpek : Spek({
 
             val response = client.newCall(request).execute()
 
-            assertTrue(response.isSuccessful)
+            response.isSuccessful.shouldBeTrue()
             val metrics = response.body()?.string()
 
             println(metrics)
-            assertNotNull(metrics)
+            metrics.shouldNotBeNull()
             // TODO
-            // assertTrue(metrics!!.length > 10)
+            // metrics!!.length shouldBeGreaterThan 10
         }
     }
 

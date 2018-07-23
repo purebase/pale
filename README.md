@@ -9,7 +9,7 @@ doing some validation, then pushing it to our internal systems.
 * CXF
 * Gradle
 * Ktor
-* JUnit
+* Spek
 
 ### Getting started
 # Build and run tests
