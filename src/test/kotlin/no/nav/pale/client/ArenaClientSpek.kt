@@ -27,7 +27,7 @@ object ArenaClientSpek : Spek({
             request.version shouldEqual "2.0"
         }
         it("Sets schema type") {
-            request.skjemaType shouldEqual PaleConstant.LE.string
+            request.skjemaType shouldEqual "LE"
         }
         it("Sets patients person number") {
             request.pasientData.fnr shouldEqual

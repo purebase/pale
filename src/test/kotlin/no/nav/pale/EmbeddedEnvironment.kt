@@ -5,7 +5,8 @@ import io.ktor.application.call
 import io.ktor.content.PartData
 import io.ktor.http.ContentType
 import io.ktor.request.receiveMultipart
-import io.ktor.response.respondText
+import io.ktor.request.receiveText
+import io.ktor.response.respondBytes
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
@@ -51,7 +52,10 @@ import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.reset
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
@@ -69,11 +73,16 @@ interface SamhandlerProvider {
     fun getSamhandlerList(): List<Samhandler>
 }
 
+interface PdfProvider {
+    fun getPDF(postBody: String): ByteArray
+}
+
 class EmbeddedEnvironment {
-    val personV3Mock: PersonV3 = Mockito.mock(PersonV3::class.java)
-    val organisasjonEnhetV2Mock: OrganisasjonEnhetV2 = Mockito.mock(OrganisasjonEnhetV2::class.java)
-    val journalbehandlingMock: Journalbehandling = Mockito.mock(Journalbehandling::class.java)
-    val samhandlerMock: SamhandlerProvider = Mockito.mock(SamhandlerProvider::class.java)
+    val personV3Mock: PersonV3 = mock(PersonV3::class.java)
+    val organisasjonEnhetV2Mock: OrganisasjonEnhetV2 = mock(OrganisasjonEnhetV2::class.java)
+    val journalbehandlingMock: Journalbehandling = mock(Journalbehandling::class.java)
+    val samhandlerMock: SamhandlerProvider = mock(SamhandlerProvider::class.java)
+    val pdfGenMock: PdfProvider = mock(PdfProvider::class.java)
     val diagnosisWebServerPort = randomPort()
     val diagnosisWebServerUrl = "http://localhost:$diagnosisWebServerPort"
 
@@ -175,7 +184,7 @@ class EmbeddedEnvironment {
     }
 
     fun resetMocks() {
-        Mockito.reset(personV3Mock, organisasjonEnhetV2Mock)
+        reset(personV3Mock, organisasjonEnhetV2Mock, pdfGenMock)
     }
 
     fun readAppRec(): AppRec = consumeMessage(apprecConsumer).let {
@@ -203,18 +212,19 @@ class EmbeddedEnvironment {
         samhandlerList: List<Samhandler> = listOfNotNull(doctor?.toSamhandler())
     ) {
         log.info("Setting up mocks")
-        Mockito.`when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
+        `when`(personV3Mock.hentPerson(any())).thenReturn(HentPersonResponse().withPerson(person))
 
-        Mockito.`when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
+        `when`(personV3Mock.hentGeografiskTilknytning(any())).thenReturn(HentGeografiskTilknytningResponse()
                 .withAktoer(person.aktoer)
                 .withNavn(person.personnavn)
                 .withGeografiskTilknytning(geografiskTilknytning))
 
-        Mockito.`when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
+        `when`(organisasjonEnhetV2Mock.finnNAVKontor(any()))
                 .thenReturn(FinnNAVKontorResponse().apply {
                     navKontor = navOffice
                 })
-        Mockito.`when`(samhandlerMock.getSamhandlerList()).thenReturn(samhandlerList)
+        `when`(samhandlerMock.getSamhandlerList()).thenReturn(samhandlerList)
+        `when`(pdfGenMock.getPDF(anyString())).thenReturn("Sample PDF".toByteArray(Charsets.UTF_8))
     }
 
     fun consumeMessage(consumer: MessageConsumer): String? = consumer.receive(2000).run {
@@ -237,7 +247,7 @@ class EmbeddedEnvironment {
     private fun createHttpMock(): ApplicationEngine = embeddedServer(Netty, mockHttpServerPort) {
             routing {
                 post("/create_pdf/v1/genpdf/pale/{pdfType}") {
-                    call.respondText("Mocked PDF", ContentType.parse("application/pdf"))
+                    call.respondBytes(pdfGenMock.getPDF(call.receiveText()), ContentType.parse("application/pdf"))
                 }
 
                 post("/input") {

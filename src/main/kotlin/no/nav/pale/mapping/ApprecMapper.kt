@@ -48,8 +48,8 @@ fun createApprec(fellesformat: EIFellesformat, apprecStatus: ApprecStatus): EIFe
 
             originalMsgId = OriginalMsgId().apply {
                 msgType = AppRecCS().apply {
-                    v = PaleConstant.LE.string
-                    dn = PaleConstant.Legeerklæring.string
+                    v = fellesformat.msgHead.msgInfo.type.v
+                    dn = fellesformat.msgHead.msgInfo.type.dn
                 }
                 issueDate = fellesformat.msgHead.msgInfo.genDate
                 id = fellesformat.msgHead.msgInfo.msgId

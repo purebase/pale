@@ -110,7 +110,7 @@ object JoarkClientSpek : Spek({
             request.mottattDato.hour shouldEqual currentDate.hour
         }
         it("Sets content") {
-            request.innhold shouldEqual PaleConstant.Legeerklæring.string
+            request.innhold shouldEqual "Legeerklæring"
         }
         it("Sets feeding unit to null") {
             request.journalForendeEnhetId.shouldBeNull()
@@ -122,7 +122,6 @@ object JoarkClientSpek : Spek({
             request.journalstatusKode shouldEqual PaleConstant.journalstatusKodeMO.string
         }
         it("Sets document date to current date") {
-            // TODO: Should this be the date the document was created by the EPJ?
             request.dokumentDato.month shouldEqual currentDate.monthValue
             request.dokumentDato.day shouldEqual currentDate.dayOfMonth
             request.dokumentDato.hour shouldEqual currentDate.hour

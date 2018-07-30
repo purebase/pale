@@ -107,8 +107,8 @@ fun defaultFellesformat(
         msgHead = MsgHead().apply {
             msgInfo = MsgInfo().apply {
                 type = MsgHeadCS().apply {
-                    v = "Legerklæring ved arbeidsuførhet"
-                    dn = "LEGEERKL"
+                    dn = "Legeerklæring"
+                    v = "LEGEERKL"
                 }
                 miGversion = "v1.2 2006-05-24"
                 genDate = datatypeFactory.newXMLGregorianCalendar(GregorianCalendar.from(signatureDate))

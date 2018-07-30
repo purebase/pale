@@ -5,7 +5,7 @@ import no.nav.pale.datagen.defaultPerson
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 
-class FellesformatToFagmeldingSpek : Spek({
+object FellesformatToFagmeldingSpek : Spek({
     describe("Defaualt fellesformat") {
         it("Does not cause an exception when converting to fagmelding") {
             mapFellesformatToFagmelding(defaultFellesformat(defaultPerson()))

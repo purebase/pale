@@ -48,8 +48,8 @@ object PaleReceiptITSpek : Spek({
             e.produceMessage(fellesformat)
             e.readAppRec()
             e.readArenaEiaInfo() shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
-            }
-            it("Creates error receipt saying its a duplicate") {
+        }
+        it("Creates error receipt saying its a duplicate") {
             e.produceMessage(fellesformat)
             e.readAppRec() shouldContainApprecError ApprecError.DUPLICATE
             e.consumeMessage(e.arenaConsumer).shouldBeNull()

@@ -2,6 +2,8 @@ package no.nav.pale
 
 import com.devskiller.jfairy.producer.person.PersonProperties
 import com.devskiller.jfairy.producer.person.PersonProvider
+import com.nhaarman.mockito_kotlin.argumentCaptor
+import com.nhaarman.mockito_kotlin.timeout
 import no.nav.model.msghead.Ident
 import no.nav.model.msghead.MsgHeadCV
 import no.nav.pale.datagen.datatypeFactory
@@ -9,6 +11,7 @@ import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.generatePersonNumber
 import no.nav.pale.datagen.ident
+import no.nav.pale.model.Behandlingsvedlegg
 import no.nav.pale.utils.readResourceAsString
 import no.nav.pale.utils.shouldContainOutcome
 import no.nav.pale.utils.shouldHaveOkStatus
@@ -21,11 +24,12 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Familierelasjoner
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
 import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotBeNull
+import org.mockito.Mockito.verify
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
-import org.spekframework.spek2.style.specification.xdescribe
 import java.util.GregorianCalendar
 
 object PaleOutcomeITSpek : Spek({
@@ -79,7 +83,7 @@ object PaleOutcomeITSpek : Spek({
             e.readAppRec().shouldHaveOkStatus()
             val arenaEiaInfo = e.readArenaEiaInfo()
             arenaEiaInfo.shouldNotBeNull()
-            arenaEiaInfo!!.pasientData.spesreg shouldEqual 7
+            arenaEiaInfo.pasientData.spesreg shouldEqual 7
         }
     }
     describe("Patient married to the doctor") {
@@ -164,8 +168,7 @@ object PaleOutcomeITSpek : Spek({
             e.readArenaEiaInfo() shouldContainOutcome OutcomeType.PATIENT_EMIGRATED
         }
     }
-    // TODO: The result of this test is expected, however it doesn't send anything to arena or joark, do we need it?
-    xdescribe("Doctor has person number in SAR but uses DNR") {
+    describe("Doctor has person number in SAR but uses DNR") {
         it("Creates outcome for having DNR in schema but valid FNR in SAR") {
             val person = defaultPerson()
             val doctor = defaultPerson()
@@ -183,8 +186,15 @@ object PaleOutcomeITSpek : Spek({
 
             e.defaultMocks(person)
             e.produceMessage(fellesformat)
+
+            argumentCaptor<String>().apply {
+                verify(e.pdfGenMock, timeout(1000).times(2)).getPDF(capture())
+                val json = objectMapper.readValue(allValues[1], Behandlingsvedlegg::class.java)
+                json.sender.merknadNotis.map { it.number } shouldContain OutcomeType.BEHANDLER_HAS_FNR_USES_DNR.messageNumber
+            }
+
             e.readAppRec().shouldHaveOkStatus()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.BEHANDLER_HAS_FNR_USES_DNR
+            e.readArenaEiaInfo().shouldNotBeNull()
         }
     }
     describe("Doctor is the patient") {

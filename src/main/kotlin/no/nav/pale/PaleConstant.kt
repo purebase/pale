@@ -1,10 +1,7 @@
 package no.nav.pale
 
 enum class PaleConstant(val string: String) {
-    LE("LE"),
-    LEGEERKL("LEGEERKL"),
     legeerklæring("legeerklæring"),
-    Legeerklæring("Legeerklæring"),
     APPREC("APPREC"),
     APPRECVersionV1_0("1.0 2004-11-21"),
     ebRoleNav("Nav"),

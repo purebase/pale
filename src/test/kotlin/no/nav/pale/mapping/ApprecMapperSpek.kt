@@ -119,11 +119,10 @@ object ApprecMapperSpek : Spek({
             ff.appRec.status.v shouldEqual ApprecStatus.ok.v
         }
         it("Sets appRec originalMsgId") {
-            // TODO: Should this be extracted from the original fellesformat instead?
-            ff.appRec.originalMsgId.msgType.dn shouldEqual PaleConstant.Legeerklæring.string
+            ff.appRec.originalMsgId.msgType.dn shouldEqual "Legeerklæring"
         }
         it("Sets appRec originalMsgId") {
-            ff.appRec.originalMsgId.msgType.v shouldEqual PaleConstant.LE.string
+            ff.appRec.originalMsgId.msgType.v shouldEqual "LEGEERKL"
         }
         it("Sets appRec genDate as issueDate") {
             ff.appRec.originalMsgId.issueDate shouldEqual src.msgHead.msgInfo.genDate

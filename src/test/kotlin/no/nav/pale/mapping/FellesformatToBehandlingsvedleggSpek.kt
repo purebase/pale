@@ -3,6 +3,7 @@ package no.nav.pale.mapping
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.generatePersonNumber
+import no.nav.pale.objectMapper
 import no.nav.pale.validation.OutcomeType
 import no.nav.pale.validation.toOutcome
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personnavn
@@ -20,7 +21,7 @@ object FellesformatToBehandlingsvedleggSpek : Spek({
                 OutcomeType.CHILD_OF_PATIENT.toOutcome())
         val fellesformat = defaultFellesformat(defaultPerson())
         it("Won't cause an exception") {
-            mapFellesformatToBehandlingsVedlegg(fellesformat, outcomes)
+            println(objectMapper.writeValueAsString(mapFellesformatToBehandlingsVedlegg(fellesformat, outcomes)))
         }
     }
 

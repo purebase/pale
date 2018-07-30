@@ -8,7 +8,7 @@ import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
 import java.time.ZonedDateTime
 
-class PdfModelSpek : Spek({
+object PdfModelSpek : Spek({
     describe("Generate a few pdf models") {
         it("Creates a static fagmelding") {
             val pdfModel = Fagmelding(

@@ -19,7 +19,7 @@ fun createArenaInfo(
     ediloggId = fellesformat.mottakenhetBlokk.ediLoggId
     hendelseStatus = PaleConstant.tilvurdering.string
     version = PaleConstant.versjon2_0.string
-    skjemaType = PaleConstant.LE.string
+    skjemaType = "LE"
     mappeType = findMappeTypeInLegeerklaering(legeerklaering.legeerklaringGjelder.first().typeLegeerklaring)
     pasientData = ArenaEiaInfo.PasientData().apply {
         fnr = legeerklaering.pasientopplysninger.pasient.fodselsnummer

@@ -19,7 +19,7 @@ fun mapFellesformatToBehandlingsVedlegg(fellesformat: EIFellesformat, outcomes: 
     val hcp = org.healthcareProfessional
     val orgIdent = org.ident[0]
     return Behandlingsvedlegg(
-            type = PaleConstant.LEGEERKL.string,
+            type = fellesformat.msgHead.msgInfo.type.v,
             status = PaleConstant.OPPFØLGING.string,
             pasientId = extractPersonIdent(legeerklaering),
             ediLoggId = fellesformat.mottakenhetBlokk.ediLoggId,

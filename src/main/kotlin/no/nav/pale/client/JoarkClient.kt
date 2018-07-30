@@ -31,7 +31,7 @@ fun createJoarkRequest(fellesformat: EIFellesformat, fagmelding: ByteArray, beha
     merknad = PaleConstant.legeerklæring.string
     mottakskanalKode = PaleConstant.eia.string
     mottattDato = newInstance.newXMLGregorianCalendar(GregorianCalendar())
-    innhold = PaleConstant.Legeerklæring.string
+    innhold = fellesformat.msgHead.msgInfo.type.dn
     journalForendeEnhetId = null
     journalposttypeKode = PaleConstant.journalposttypeKodeI.string
     journalstatusKode = PaleConstant.journalstatusKodeMO.string
