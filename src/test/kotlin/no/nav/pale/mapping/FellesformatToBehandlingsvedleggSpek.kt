@@ -18,7 +18,9 @@ object FellesformatToBehandlingsvedleggSpek : Spek({
                 OutcomeType.PATIENT_PERSON_NUMBER_NOT_FOUND.toOutcome(
                         generatePersonNumber(LocalDate.now().minusYears(40)),
                         apprecError = ApprecError.PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA),
-                OutcomeType.CHILD_OF_PATIENT.toOutcome())
+                OutcomeType.CHILD_OF_PATIENT.toOutcome(),
+                OutcomeType.BEHANDLER_HAS_FNR_USES_DNR.toOutcome(),
+                OutcomeType.PATIENT_EMIGRATED.toOutcome())
         val fellesformat = defaultFellesformat(defaultPerson())
         it("Won't cause an exception") {
             println(objectMapper.writeValueAsString(mapFellesformatToBehandlingsVedlegg(fellesformat, outcomes)))

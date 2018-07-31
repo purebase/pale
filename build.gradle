@@ -93,34 +93,34 @@ class Jaxb2Task extends DefaultTask {
         outputDir.deleteDir()
         outputDir.mkdirs()
         ant.taskdef(
-                classpath: project.configurations.generateJaxb2.asPath,
-                name: 'xjc',
-                classname: 'org.jvnet.jaxb2_commons.xjc.XJC2Task'
+                'classpath': project.configurations.generateJaxb2.asPath,
+                'name': 'xjc',
+                'classname': 'org.jvnet.jaxb2_commons.xjc.XJC2Task'
         )
 
         ant.xjc(
-                destdir: outputDir,
-                package: 'no.nav.model.pale',
-                schema: "$sourceDir/NAV-Legeerklaring-2008-06-06.xsd",
-                encoding: 'UTF-8',
-                fork: "true"
+                'destdir': outputDir,
+                'package': 'no.nav.model.pale',
+                'schema': "$sourceDir/NAV-Legeerklaring-2008-06-06.xsd",
+                'encoding': 'UTF-8',
+                'fork': 'true'
         )
 
         ant.xjc(
-                destdir: outputDir,
-                schema: "$sourceDir/Fellesformat_1.0.xsd",
-                encoding: 'UTF-8',
-                fork: "true"
+                'destdir': outputDir,
+                'schema': "$sourceDir/Fellesformat_1.0.xsd",
+                'encoding': 'UTF-8',
+                'fork': 'true'
         ) {
             binding(dir: xjbDir, includes: "fellesformat_apprec.xjb")
         }
 
         ant.xjc(
-                destdir: outputDir,
-                package: 'no.nav.model.arenainfo',
-                schema: "$sourceDir/ArenaInfo2-1.xsd",
-                encoding: 'UTF-8',
-                fork: "true"
+                'destdir': outputDir,
+                'package': 'no.nav.model.arenainfo',
+                'schema': "$sourceDir/ArenaInfo2-1.xsd",
+                'encoding': 'UTF-8',
+                'fork': 'true'
         )
     }
 }
