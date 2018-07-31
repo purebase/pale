@@ -148,7 +148,6 @@ class EmbeddedEnvironment {
         }.create() as Journalbehandling
         configureTimeout(journalbehandlingClient)
 
-        // val pdfClient = PdfClient("http://localhost:8080/api")
         val pdfClient = PdfClient("$mockHttpServerUrl/create_pdf")
         val jedis = Jedis(redisServer.host, redisServer.bindPort)
 

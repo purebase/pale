@@ -530,6 +530,7 @@ fun connectionFactory(fasitProperties: FasitProperties) = MQConnectionFactory().
     port = fasitProperties.mqPort
     queueManager = fasitProperties.mqQueueManagerName
     transportType = WMQConstants.WMQ_CM_CLIENT
+    // TODO mq crypo
     // sslCipherSuite = "TLS_RSA_WITH_AES_256_CBC_SHA"
     channel = fasitProperties.mqChannelName
     ccsid = 1208

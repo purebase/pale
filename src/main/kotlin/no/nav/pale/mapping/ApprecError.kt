@@ -2,7 +2,6 @@ package no.nav.pale.mapping
 
 enum class ApprecError(val v: String, val dn: String, val s: String) {
     GEN_DATE_ERROR("X99", "Meldingens dato datert(gendate) er nyere enn dagens dato", "2.16.578.1.12.4.1.1.8221"),
-    MISSING_PATIENT_INFO("E36", "Pasientopplysninger er utilstrekkelige", "2.16.578.1.12.4.1.1.8221"),
     BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
             "2.16.578.1.12.4.1.1.8222"),
     PATIENT_PERSON_NUMBER_NOT_FOUND_IN_SCHEMA("30", "Pasientens fødselsnummer finnes ikke i skjemaet.",
@@ -15,8 +14,9 @@ enum class ApprecError(val v: String, val dn: String, val s: String) {
     PATIENT_PERSON_NUMBER_OR_DNUMBER_MISSING_IN_POPULATION_REGISTER("53",
             "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.",
             "2.16.578.1.12.4.1.1.8222"),
-    DUPLICATE("X99", "Duplikat! - Denne legeerklæringen meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
-            "2.16.578.1.12.4.1.1.8221")
+    DUPLICATE("54", "Duplikat! - Denne legeerklæringen meldingen er mottatt tidligere. Skal ikke sendes på nytt.",
+            "2.16.578.1.12.4.1.1.8222"),
+    MISSING_PATIENT_INFO("55", "Pasientopplysninger er utilstrekkelige", "2.16.578.1.12.4.1.1.8222"),
     // All available apprecs for legeerklæring(OID=8222): https://volven.no/produkt.asp?id=335023&catID=3&subID=8
     // ALL available apprecs general OID=8221: https://volven.no/produkt.asp?id=340320&catID=3&subID=8
 }
