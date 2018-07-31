@@ -26,8 +26,11 @@ fun postTPSFlow(fellesformat: EIFellesformat, person: Person): List<Outcome> {
             RelationType.EKTEFELLE -> OutcomeType.MARRIED_TO_PATIENT
             RelationType.REGISTRERT_PARTNER_MED -> OutcomeType.REGISTERED_PARTNER_WITH_PATIENT
             RelationType.FAR -> OutcomeType.PARENT_TO_PATIENT
+            RelationType.FOSTERFAR -> OutcomeType.PARENT_TO_PATIENT
             RelationType.MOR -> OutcomeType.PARENT_TO_PATIENT
+            RelationType.FOSTERMOR -> OutcomeType.PARENT_TO_PATIENT
             RelationType.BARN -> OutcomeType.CHILD_OF_PATIENT
+            RelationType.FOSTERBARN -> OutcomeType.CHILD_OF_PATIENT
             in RelationType.values() -> null
             else -> throw RuntimeException("Found relation type \"${relations.tilRolle.value}\" that's not registered in the application")
         }

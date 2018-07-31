@@ -122,6 +122,18 @@ object PaleOutcomeITSpek : Spek({
             e.readArenaEiaInfo() shouldContainOutcome OutcomeType.PARENT_TO_PATIENT
         }
     }
+    describe("Doctor is patients foster father") {
+        it("Creates outcome for being parent to patient") {
+            val doctor = defaultPerson()
+            val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
+                    .withTilRolle(Familierelasjoner().withValue(RelationType.FOSTERFAR.kodeverkVerdi)))
+
+            e.defaultMocks(person)
+            e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
+            e.readAppRec().shouldHaveOkStatus()
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.PARENT_TO_PATIENT
+        }
+    }
     describe("Doctor is patients mother") {
         it("Creates outcome for being parent to patient") {
             val doctor = defaultPerson()
@@ -134,11 +146,35 @@ object PaleOutcomeITSpek : Spek({
             e.readArenaEiaInfo() shouldContainOutcome OutcomeType.PARENT_TO_PATIENT
         }
     }
+    describe("Doctor is patients foster mother") {
+        it("Creates outcome for being parent to patient") {
+            val doctor = defaultPerson()
+            val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
+                    .withTilRolle(Familierelasjoner().withValue(RelationType.FOSTERMOR.kodeverkVerdi)))
+
+            e.defaultMocks(person)
+            e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
+            e.readAppRec().shouldHaveOkStatus()
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.PARENT_TO_PATIENT
+        }
+    }
     describe("Doctor is patients child") {
         it("Creates outcome for being child of patient") {
             val doctor = defaultPerson()
             val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
                     .withTilRolle(Familierelasjoner().withValue(RelationType.BARN.kodeverkVerdi)))
+
+            e.defaultMocks(person)
+            e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
+            e.readAppRec().shouldHaveOkStatus()
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.CHILD_OF_PATIENT
+        }
+    }
+    describe("Doctor is patients foster child") {
+        it("Creates outcome for being child of patient") {
+            val doctor = defaultPerson()
+            val person = defaultPerson().withHarFraRolleI(Familierelasjon().withTilPerson(doctor)
+                    .withTilRolle(Familierelasjoner().withValue(RelationType.FOSTERBARN.kodeverkVerdi)))
 
             e.defaultMocks(person)
             e.produceMessage(defaultFellesformat(person = person, doctor = doctor))
