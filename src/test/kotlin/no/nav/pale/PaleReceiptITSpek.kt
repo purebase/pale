@@ -36,7 +36,7 @@ object PaleReceiptITSpek : Spek({
             e.defaultMocks(person)
             e.produceMessage(defaultFellesformat(person = person))
             e.readAppRec().shouldHaveOkStatus()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
         }
     }
     describe("Duplicate message") {
@@ -47,7 +47,7 @@ object PaleReceiptITSpek : Spek({
             e.defaultMocks(person)
             e.produceMessage(fellesformat)
             e.readAppRec()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
         }
         it("Creates error receipt saying its a duplicate") {
             e.produceMessage(fellesformat)
@@ -142,7 +142,7 @@ object PaleReceiptITSpek : Spek({
             verify(e.personV3Mock, timeout(5000).atLeast(2)).hentPerson(any())
             e.readAppRec().shouldHaveOkStatus()
             val arenaEiaInfo = e.readArenaEiaInfo()
-            arenaEiaInfo shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
+            arenaEiaInfo shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
         }
     }
 })

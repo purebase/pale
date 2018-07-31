@@ -347,9 +347,9 @@ fun sendArenaInfo(
         else -> null
     }
     val info = createArenaInfo(fellesformat, validationResult.tssId, sperrekode, validationResult.navkontor).apply {
+        // TODO eiaData may not be used by Arena
         eiaData = ArenaEiaInfo.EiaData().apply {
             systemSvar.addAll(validationResult.outcomes
-                    .filter { it.outcomeType.messagePriority.createsArenaInfo }
                     .map { it.toSystemSvar() })
 
             if (systemSvar.isEmpty()) {

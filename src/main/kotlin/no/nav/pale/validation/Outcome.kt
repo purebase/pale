@@ -80,9 +80,9 @@ operator fun MutableList<Outcome>.plusAssign(outcomeType: OutcomeType) {
     this += outcomeType.toOutcome()
 }
 
-enum class Priority(val priorityNumber: Int, val createsArenaInfo: Boolean) {
-    RETUR(1, false),
-    MANUAL_PROCESSING(2, true),
-    FOLLOW_UP(3, true),
-    NOTE(4, false)
+enum class Priority(val priorityNumber: Int) {
+    RETUR(1),
+    MANUAL_PROCESSING(2),
+    FOLLOW_UP(3),
+    NOTE(4)
 }
