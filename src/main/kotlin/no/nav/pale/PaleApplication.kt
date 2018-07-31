@@ -515,7 +515,7 @@ fun <T> retryWithInterval(interval: Array<Long>, callName: String, blocking: sus
                     throw e
                 log.warn("Caught IO exception trying to reach {}, retrying", callName, e)
             }
-            RETRY_COUNTER.inc()
+            RETRY_COUNTER.labels(callName).inc()
             Thread.sleep(time)
         }
 
