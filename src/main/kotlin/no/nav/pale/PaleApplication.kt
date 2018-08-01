@@ -131,7 +131,7 @@ fun main(args: Array<String>) = runBlocking {
     connectionFactory(fasitProperties).createConnection(fasitProperties.mqUsername, fasitProperties.mqPassword).use {
         connection ->
         connection.start()
-        JedisSentinelPool(redisMasterName, setOf(fasitProperties.redisHost)).resource.use {
+        JedisSentinelPool(redisMasterName, setOf("${fasitProperties.redisHost}:6379")).resource.use {
             jedis ->
             val session = connection.createSession()
             val inputQueue = session.createQueue(fasitProperties.inputQueueName)
