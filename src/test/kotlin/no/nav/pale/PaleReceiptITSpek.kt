@@ -37,7 +37,7 @@ object PaleReceiptITSpek : Spek({
             val samhandlerPraksis = person.defaultSamhandlerPraksis()
             val samhandler = person.toSamhandler(listOf(samhandlerPraksis))
             e.defaultMocks(person, samhandlerList = listOf(samhandler))
-            e.produceMessage(defaultFellesformat(person = person, samhandlerPraksis = samhandlerPraksis ))
+            e.produceMessage(defaultFellesformat(person = person, samhandlerPraksis = samhandlerPraksis))
             e.readAppRec().shouldHaveOkStatus()
             e.readArenaEiaInfo() shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
         }
@@ -46,7 +46,7 @@ object PaleReceiptITSpek : Spek({
         val person = defaultPerson()
         val samhandlerPraksis = person.defaultSamhandlerPraksis()
         val samhandler = person.toSamhandler(listOf(samhandlerPraksis))
-        val fellesformat = defaultFellesformat(person = person, samhandlerPraksis = samhandlerPraksis )
+        val fellesformat = defaultFellesformat(person = person, samhandlerPraksis = samhandlerPraksis)
 
         it("Creates valid receipt and ArenaEiaInfo") {
             e.defaultMocks(person, samhandlerList = listOf(samhandler))
@@ -137,7 +137,6 @@ object PaleReceiptITSpek : Spek({
             val samhandlerPraksis = person.defaultSamhandlerPraksis()
             val samhandler = person.toSamhandler(listOf(samhandlerPraksis))
 
-
             e.defaultMocks(person, samhandlerList = listOf(samhandler))
             `when`(e.personV3Mock.hentPerson(any()))
                     .then {
@@ -145,7 +144,7 @@ object PaleReceiptITSpek : Spek({
                         HentPersonResponse().withPerson(person)
                     }
                     .thenReturn(HentPersonResponse().withPerson(person))
-            e.produceMessage(defaultFellesformat(person, samhandlerPraksis = samhandlerPraksis ))
+            e.produceMessage(defaultFellesformat(person, samhandlerPraksis = samhandlerPraksis))
 
             verify(e.personV3Mock, timeout(5000).atLeast(2)).hentPerson(any())
             e.readAppRec().shouldHaveOkStatus()

@@ -321,7 +321,6 @@ val defaultPersonProperties = arrayOf(
 
 class GeneratedAddress(var city: String? = null) : Gateadresse()
 
-
 fun Person.defaultSamhandlerPraksis(
     company: Company = fairy.company(),
     address: Address = fairy.person().address,
