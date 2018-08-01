@@ -35,10 +35,10 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     BEHANDLER_HAS_FNR_USES_DNR(75, "Behandler har angitt D-nummer, men SAR fant gyldig F-nummer.", Priority.NOTE),
     ADDRESS_MISSING_SAR(76, "Adresse mangler i SAR.", Priority.NOTE),
 
-    // Find best result from KUHR sar
+    // Find best result from KUHR sarz
     NO_VALID_TSSID_PRACTICE_TYPE_SAR(77, "Finner ingen gyldig praksistype i SAR.", Priority.NOTE),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78, "Funnet TSS ident er legevakt.", Priority.NOTE),
-    UNCERTAIN_RESPONSE_SAR(141, "Usikkert svar fra SAR, lav sannsynlighet %s for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE),
+    UNCERTAIN_RESPONSE_SAR(141, "Usikkert svar fra SAR, lav sannsynlighet %s prosent for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE),
 
     // Arena requires this outcome on successful messages if no other outcomes
     LEGEERKLAERING_MOTTAT(245, "Legeerklæring er mottatt.", Priority.NOTE),

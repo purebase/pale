@@ -319,30 +319,8 @@ val defaultPersonProperties = arrayOf(
         PersonProperties.ageBetween(PersonProvider.MIN_AGE, 69)
 )
 
-fun Company.getCenterName(): String =
-        this.name.replace("AS", when (this.name.length % 3) {
-            0 -> "Legesenter AS"
-            1 -> "Legekontor AS"
-            else -> "AS"
-        })
-
 class GeneratedAddress(var city: String? = null) : Gateadresse()
 
-fun createSamhanderPeriode(
-    praksisgyldig_fra: LocalDateTime = LocalDateTime.now().minusYears(10),
-    praksisgyldig_til: LocalDateTime = LocalDateTime.now().plusYears(10)
-): SamhandlerPeriode {
-    return SamhandlerPeriode(
-            endret_ved_import = "hendelse",
-            sist_endret = LocalDateTime.now(),
-            slettet = "Nope",
-            gyldig_fra = praksisgyldig_fra,
-            gyldig_til = praksisgyldig_til,
-            samh_praksis_id = "12356",
-            samh_praksis_periode_id = "1234"
-
-    )
-}
 
 fun Person.defaultSamhandlerPraksis(
     company: Company = fairy.company(),

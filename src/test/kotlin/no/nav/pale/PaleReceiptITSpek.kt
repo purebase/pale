@@ -2,6 +2,8 @@ package no.nav.pale
 
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
+import no.nav.pale.datagen.defaultSamhandlerPraksis
+import no.nav.pale.datagen.toSamhandler
 import no.nav.pale.mapping.ApprecError
 import no.nav.pale.utils.shouldContainApprecError
 import no.nav.pale.utils.shouldContainOutcome
@@ -32,22 +34,25 @@ object PaleReceiptITSpek : Spek({
     describe("Valid message") {
         it("Creates outcome for valid messages") {
             val person = defaultPerson()
-
-            e.defaultMocks(person)
-            e.produceMessage(defaultFellesformat(person = person))
+            val samhandlerPraksis = person.defaultSamhandlerPraksis()
+            val samhandler = person.toSamhandler(listOf(samhandlerPraksis))
+            e.defaultMocks(person, samhandlerList = listOf(samhandler))
+            e.produceMessage(defaultFellesformat(person = person, samhandlerPraksis = samhandlerPraksis ))
             e.readAppRec().shouldHaveOkStatus()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
         }
     }
     describe("Duplicate message") {
         val person = defaultPerson()
-        val fellesformat = defaultFellesformat(person = person)
+        val samhandlerPraksis = person.defaultSamhandlerPraksis()
+        val samhandler = person.toSamhandler(listOf(samhandlerPraksis))
+        val fellesformat = defaultFellesformat(person = person, samhandlerPraksis = samhandlerPraksis )
 
         it("Creates valid receipt and ArenaEiaInfo") {
-            e.defaultMocks(person)
+            e.defaultMocks(person, samhandlerList = listOf(samhandler))
             e.produceMessage(fellesformat)
             e.readAppRec()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
+            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
         }
         it("Creates error receipt saying its a duplicate") {
             e.produceMessage(fellesformat)
@@ -129,20 +134,23 @@ object PaleReceiptITSpek : Spek({
     describe("Temporary downtime") {
         it("Still handles the message") {
             val person = defaultPerson()
+            val samhandlerPraksis = person.defaultSamhandlerPraksis()
+            val samhandler = person.toSamhandler(listOf(samhandlerPraksis))
 
-            e.defaultMocks(person)
+
+            e.defaultMocks(person, samhandlerList = listOf(samhandler))
             `when`(e.personV3Mock.hentPerson(any()))
                     .then {
                         Thread.sleep(5000)
                         HentPersonResponse().withPerson(person)
                     }
                     .thenReturn(HentPersonResponse().withPerson(person))
-            e.produceMessage(defaultFellesformat(person))
+            e.produceMessage(defaultFellesformat(person, samhandlerPraksis = samhandlerPraksis ))
 
             verify(e.personV3Mock, timeout(5000).atLeast(2)).hentPerson(any())
             e.readAppRec().shouldHaveOkStatus()
             val arenaEiaInfo = e.readArenaEiaInfo()
-            arenaEiaInfo shouldContainOutcome OutcomeType.UNCERTAIN_RESPONSE_SAR
+            arenaEiaInfo shouldContainOutcome OutcomeType.LEGEERKLAERING_MOTTAT
         }
     }
 })
