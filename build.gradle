@@ -51,8 +51,7 @@ applicationDefaultJvmArgs = [
         '-XX:+UnlockExperimentalVMOptions',
         '-XX:+UseCGroupMemoryLimitForHeap',
         '-XX:+UseG1GC',
-        '-XshowSettings:vm',
-        '-Dlogback.configurationFile=logback-remote.xml'
+        '-XshowSettings:vm'
 ]
 
 startScripts {
