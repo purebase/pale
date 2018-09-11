@@ -5,6 +5,8 @@ import com.devskiller.jfairy.producer.company.Company
 import com.devskiller.jfairy.producer.person.Address
 import com.devskiller.jfairy.producer.person.PersonProperties
 import com.devskiller.jfairy.producer.person.PersonProvider
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.Document
 import no.nav.model.msghead.HealthcareProfessional
@@ -432,7 +434,7 @@ fun Person.toSamhandler(
             ikke_godkjent_for_refusjon = "0",
             godkjent_egenandel_refusjon = "0",
             godkjent_for_fil = "0",
-            endringslogg_tidspunkt_siste = LocalDateTime.now().minusDays(14),
+            endringslogg_tidspunkt_siste = null,
             samh_praksis = samhandlerPraksisListe,
             breg_hovedenhet = null,
             samh_ident = samhandlerIdentList,

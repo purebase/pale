@@ -1,5 +1,6 @@
 package no.nav.pale.client
 
+import com.fasterxml.jackson.databind.JsonNode
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.pale.objectMapper
 import okhttp3.Credentials
@@ -50,7 +51,7 @@ data class Samhandler(
     val godkjent_egenandel_refusjon: String,
     val godkjent_for_fil: String,
     val breg_hovedenhet: SamhandlerBregHovedenhet?,
-    val endringslogg_tidspunkt_siste: LocalDateTime?,
+    val endringslogg_tidspunkt_siste: JsonNode?, //TODO PGA dato parsing
     val samh_ident: List<SamhandlerIdent>,
     val samh_praksis: List<SamhandlerPraksis>,
     val samh_avtale: List<SamhandlerAvtale>,
