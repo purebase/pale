@@ -1,6 +1,5 @@
 package no.nav.pale.validation
 
-import no.nav.pale.mapping.ApprecError
 import no.nav.tjeneste.virksomhet.organisasjonenhet.v2.informasjon.Organisasjonsenhet
 
 fun postNORG2Flow(navKontor: Organisasjonsenhet?): List<Outcome> {
