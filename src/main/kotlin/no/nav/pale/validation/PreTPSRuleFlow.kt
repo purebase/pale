@@ -1,6 +1,7 @@
 package no.nav.pale.validation
 
 import no.nav.model.fellesformat.EIFellesformat
+import no.nav.pale.mapping.ApprecError
 import java.time.LocalDate
 
 fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> {
@@ -14,7 +15,8 @@ fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> {
     }
 
     if (extractDoctorIdentFromSignature(fellesformat) == extractPersonIdent(legeerklaering)) {
-        outcome += OutcomeType.BEHANDLER_IS_PATIENT
+        outcome += OutcomeType.BEHANDLER_IS_PATIENT.toOutcome(
+                apprecError = ApprecError.BEHANDLER_IS_PATIENT)
     }
     collectFlowStatistics(outcome)
     return outcome

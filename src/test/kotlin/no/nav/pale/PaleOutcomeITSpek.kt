@@ -11,8 +11,10 @@ import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.datagen.generatePersonNumber
 import no.nav.pale.datagen.ident
+import no.nav.pale.mapping.ApprecError
 import no.nav.pale.model.Behandlingsvedlegg
 import no.nav.pale.utils.readResourceAsString
+import no.nav.pale.utils.shouldContainApprecError
 import no.nav.pale.utils.shouldContainOutcome
 import no.nav.pale.utils.shouldHaveOkStatus
 import no.nav.pale.validation.OutcomeType
@@ -239,8 +241,7 @@ object PaleOutcomeITSpek : Spek({
 
             e.defaultMocks(doctor, doctor = doctor)
             e.produceMessage(defaultFellesformat(doctor, doctor = doctor))
-            e.readAppRec().shouldHaveOkStatus()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.BEHANDLER_IS_PATIENT
+            e.readAppRec().shouldContainApprecError(apprecError = ApprecError.BEHANDLER_IS_PATIENT)
         }
     }
     describe("Patient is registered dead in TPS") {

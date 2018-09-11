@@ -128,7 +128,9 @@ object PaleReceiptITSpek : Spek({
 
             e.defaultMocks(person, navOffice = null)
             e.produceMessage(defaultFellesformat(person))
-            e.readAppRec() shouldContainApprecError ApprecError.MISSING_PATIENT_INFO
+            e.readAppRec().shouldHaveOkStatus()
+            val arenaEiaInfo = e.readArenaEiaInfo()
+            arenaEiaInfo shouldContainOutcome OutcomeType.PERSON_HAS_NO_NAV_KONTOR
         }
     }
     describe("Temporary downtime") {

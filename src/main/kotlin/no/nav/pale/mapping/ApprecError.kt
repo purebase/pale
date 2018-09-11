@@ -1,6 +1,8 @@
 package no.nav.pale.mapping
 
 enum class ApprecError(val v: String, val dn: String, val s: String) {
+    BEHANDLER_IS_PATIENT("X99", "Legeerklæring kan ikkje godtas, behandler er pasient.", "2.16.578.1.12.4.1.1.8221"),
+    MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA("X99", "Avvik mellom fødselsnummer fra elektronisk signatur og skjemaet.", "2.16.578.1.12.4.1.1.8221"),
     GEN_DATE_ERROR("X99", "Meldingens dato datert(gendate) er nyere enn dagens dato", "2.16.578.1.12.4.1.1.8221"),
     BEHANDLER_PERSON_NUMBER_NOT_VALID("21", "Behandlers fødselsnummer er ikke et gyldig fødselsnummer.",
             "2.16.578.1.12.4.1.1.8222"),

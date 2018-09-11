@@ -40,7 +40,8 @@ fun validationFlow(fellesformat: EIFellesformat): List<Outcome> {
 
     if (doctorIdentFromSender?.id != null && doctorIdentFromSender.id.trim().isNotEmpty()) {
         if (doctorPersonNumberFromSignature != doctorIdentFromSender.id) {
-            outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
+            outcome += OutcomeType.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA.toOutcome(
+                    apprecError = ApprecError.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA)
         } else if (!validatePersonAndDNumber11Digits(doctorIdentFromSender.id)) {
             outcome += OutcomeType.PERSON_NUMBER_NOT_11_DIGITS.toOutcome(name, doctorPersonNumberFromSignature,
                     doctorPersonNumberFromSignature.length, apprecError = ApprecError.BEHANDLER_PERSON_NUMBER_NOT_VALID)
