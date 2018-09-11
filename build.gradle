@@ -23,6 +23,9 @@ buildscript {
     ext.redis_mock_version = '0.1.6'
     ext.spek_version = '2.0.0-alpha.1'
     ext.cluent_version = '1.39'
+    ext.jaxb_api_version = '2.1'
+    ext.javax_activation_version = '1.1.1'
+    ext.javax_jaxws_api_version = '2.2.1'
 
     ext.jaxb2SourceDir = file("$buildDir/generated-sources/jaxb2")
 }
@@ -158,11 +161,15 @@ repositories {
     maven { url  "https://dl.bintray.com/spekframework/spek-dev" }
 }
 
+// suppress warning for experimental coroutines
+kotlin { experimental { coroutines "enable"} }
+
 dependencies {
     generateJaxb2 "com.sun.xml.bind:jaxb-xjc:$jaxb_version"
-    generateJaxb2 "com.sun.xml.bind:jaxb-impl:$jaxb_version"
-    generateJaxb2 "com.sun.xml.bind:jaxb-core:$jaxb_version"
+    generateJaxb2 "org.glassfish.jaxb:jaxb-runtime:$jaxb_version"
+    generateJaxb2 "javax.xml.bind:jaxb-api:$jaxb_api_version"
     generateJaxb2 "org.jvnet.jaxb2_commons:jaxb2-basics-ant:$jaxb_basic_ant_version"
+    generateJaxb2 "javax.activation:activation:$javax_activation_version"
 
     // General application flow
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
@@ -205,6 +212,11 @@ dependencies {
     testImplementation "org.eclipse.jetty:jetty-servlet:$jetty_version"
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
     testImplementation "org.amshove.kluent:kluent:$cluent_version"
+    implementation "javax.xml.bind:jaxb-api:$jaxb_api_version"
+    implementation "org.glassfish.jaxb:jaxb-runtime:$jaxb_version"
+    implementation "javax.activation:activation:$javax_activation_version"
     testRuntimeOnly "org.spekframework.spek2:spek-runtime-jvm:$spek_version"
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
+
+    implementation "javax.xml.ws:jaxws-api:$javax_jaxws_api_version"
 }

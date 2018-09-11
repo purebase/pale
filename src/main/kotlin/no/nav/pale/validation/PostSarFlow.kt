@@ -5,7 +5,6 @@ import no.nav.pale.SamhandlerPraksisMatch
 import no.nav.pale.calculatePercentageStringMatch
 import no.nav.pale.client.Samhandler
 import no.nav.pale.findBestSamhandlerPraksis
-import kotlin.math.roundToInt
 
 fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): List<Outcome> {
     val outcome = mutableListOf<Outcome>()
@@ -20,7 +19,7 @@ fun postSARFlow(fellesformat: EIFellesformat, samhandler: List<Samhandler>): Lis
 
     val samhandlerPraksisMatch = SamhandlerPraksisMatch(samhandlerPraksis, calculatePercentageStringMatch(samhandlerPraksis.navn, orgName))
     if (samhandlerPraksisMatch.percentageMatch < 0.9) {
-        outcome += OutcomeType.UNCERTAIN_RESPONSE_SAR.toOutcome((samhandlerPraksisMatch.percentageMatch.times(100.0).roundToInt()))
+        outcome += OutcomeType.UNCERTAIN_RESPONSE_SAR
     }
 
     if (samhandlerPraksis.arbeids_adresse_linje_1 == null || samhandlerPraksis.arbeids_adresse_linje_1.isEmpty()) {

@@ -29,16 +29,16 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     PATIENT_SURNAME_NOT_FOUND(33, "Pasientens etternavn finnes ikke i skjema.", Priority.RETUR),
     PATIENT_FIRST_NAME_NOT_FOUND(34, "Pasientens fornavn finnes ikke i skjema.", Priority.RETUR),
     PERSON_NUMBER_NOT_11_DIGITS(47, "%s sitt fødselsnummer eller D-nummer %s er ikke 11 tegn. Det er %s tegn langt.", Priority.RETUR),
-    PERSON_HAS_NO_NAV_KONTOR(50, "Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i Folkeregisteret.", Priority.RETUR),
+    PERSON_HAS_NO_NAV_KONTOR(50, "Personen er ikke registrert med lokal NAV-tilhørighet (TK-nr) i Folkeregisteret.", Priority.MANUAL_PROCESSING),
     PATIENT_NOT_FOUND_TPS(53, "Pasientens fødselsnummer eller D-nummer finnes ikke registrert i Folkeregisteret.", Priority.RETUR),
     PATIENT_EMIGRATED(54, "Person er registrert utvandret i Folkeregisteret.", Priority.MANUAL_PROCESSING),
     BEHANDLER_HAS_FNR_USES_DNR(75, "Behandler har angitt D-nummer, men SAR fant gyldig F-nummer.", Priority.NOTE),
     ADDRESS_MISSING_SAR(76, "Adresse mangler i SAR.", Priority.NOTE),
 
     // Find best result from KUHR sarz
-    NO_VALID_TSSID_PRACTICE_TYPE_SAR(77, "Finner ingen gyldig praksistype i SAR.", Priority.NOTE),
+    NO_VALID_TSSID_PRACTICE_TYPE_SAR(77, "Finner ingen gyldig praksistype i SAR.", Priority.MANUAL_PROCESSING),
     BEHANDLER_TSSID_EMERGENCY_ROOM(78, "Funnet TSS ident er legevakt.", Priority.NOTE),
-    UNCERTAIN_RESPONSE_SAR(141, "Usikkert svar fra SAR, lav sannsynlighet %s prosent for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE),
+    UNCERTAIN_RESPONSE_SAR(141, "Usikkert svar fra SAR, lav sannsynlighet for identifikasjon av samhandler. Bør verifiseres.", Priority.NOTE),
 
     // Arena requires this outcome on successful messages if no other outcomes
     LEGEERKLAERING_MOTTAT(245, "Legeerklæring er mottatt.", Priority.NOTE),
@@ -46,13 +46,13 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     // contain the signature date, and even if it doesn't we'd throw an exception and we wont let it through
     // SIGNATURE_DATE_MISSING(65, "Signaturdato mangler.", Priority.RETUR),
 
-    MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA(221, "Avvik mellom fødselsnummer fra elektronisk signatur og skjemaet.", Priority.NOTE),
+    MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA(221, "Avvik mellom fødselsnummer fra elektronisk signatur og skjemaet.", Priority.RETUR),
     PATIENT_HAS_SPERREKODE_6(248, "Pasient er registrert med sperrekode 6, sperret adresse, strengt fortrolig. Kode 6 overstyrer oppfølgingsregler. Melding går ikke til Arena.", Priority.MANUAL_PROCESSING),
     PATIENT_HAS_SPERREKODE_7(249, "Pasient er registrert med sperrekode 7, sperret adresse, fortrolig.", Priority.NOTE),
     SIGNATURE_TOO_NEW(251, "Melding mottatt til behandling i dag %s er signert med dato %s, og avvises", Priority.RETUR),
 
     // Pasientopplysninger
-    BEHANDLER_IS_PATIENT(350, "Vurder om legeerklæring kan godtas, behandler er pasient.", Priority.FOLLOW_UP),
+    BEHANDLER_IS_PATIENT(350, "Vurder om legeerklæring kan godtas, behandler er pasient.", Priority.RETUR),
     REGISTERED_DEAD_IN_TPS(351, "Legeerklæring til vurdering, personen er registrert død i Folkeregisteret.", Priority.FOLLOW_UP),
     PATIENT_IS_OVER_70(352, "Legeerklæring til vurdering,  personen er over 70 år.", Priority.FOLLOW_UP),
 
