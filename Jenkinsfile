@@ -7,7 +7,7 @@ pipeline {
         APPLICATION_NAME = 'pale'
         APPLICATION_SERVICE = 'CMDB-276255'
         APPLICATION_COMPONENT = 'CMDB-274766'
-        FASIT_ENVIRONMENT = 'q1'
+        FASIT_ENVIRONMENT = 'q4'
         ZONE = 'fss'
         DOCKER_SLUG = 'integrasjon'
     }
