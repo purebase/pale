@@ -1,6 +1,5 @@
 package no.nav.pale.client
 
-import com.fasterxml.jackson.databind.JsonNode
 import net.logstash.logback.argument.StructuredArguments.keyValue
 import no.nav.pale.objectMapper
 import okhttp3.Credentials
@@ -10,7 +9,7 @@ import okhttp3.Request
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 val log: Logger = LoggerFactory.getLogger(SarClient::class.java)
 
@@ -51,7 +50,7 @@ data class Samhandler(
     val godkjent_egenandel_refusjon: String,
     val godkjent_for_fil: String,
     val breg_hovedenhet: SamhandlerBregHovedenhet?,
-    val endringslogg_tidspunkt_siste: JsonNode?, // TODO PGA dato parsing
+    val endringslogg_tidspunkt_siste: ZonedDateTime?,
     val samh_ident: List<SamhandlerIdent>,
     val samh_praksis: List<SamhandlerPraksis>,
     val samh_avtale: List<SamhandlerAvtale>,
@@ -79,8 +78,8 @@ data class SamhandlerPraksis(
     val refusjon_type_kode: String,
     val laerer: String,
     val lege_i_spesialisering: String,
-    val tidspunkt_resync_periode: LocalDateTime,
-    val tidspunkt_registrert: LocalDateTime,
+    val tidspunkt_resync_periode: ZonedDateTime?,
+    val tidspunkt_registrert: ZonedDateTime?,
     val samh_praksis_status_kode: String,
     val telefonnr: String?,
     val arbeids_kommune_nr: String,
@@ -111,7 +110,7 @@ data class SamhandlerPraksis(
 )
 
 data class SamhandlerPraksisKonto(
-    val tidspunkt_registrert: LocalDateTime,
+    val tidspunkt_registrert: ZonedDateTime,
     val registrert_av_id: String,
     val konto: String,
     val samh_praksis_id: String,
@@ -120,17 +119,17 @@ data class SamhandlerPraksisKonto(
 
 data class SamhandlerPeriode(
     val endret_ved_import: String,
-    val sist_endret: LocalDateTime,
+    val sist_endret: ZonedDateTime,
     val slettet: String,
-    val gyldig_fra: LocalDateTime,
-    val gyldig_til: LocalDateTime?,
+    val gyldig_fra: ZonedDateTime,
+    val gyldig_til: ZonedDateTime?,
     val samh_praksis_id: String,
     val samh_praksis_periode_id: String
 )
 
 data class SamhandlerAvtale(
-    val gyldig_fra: LocalDateTime,
-    val gyldig_til: LocalDateTime?,
+    val gyldig_fra: ZonedDateTime,
+    val gyldig_til: ZonedDateTime?,
     val prosentandel: String,
     val avtale_type_kode: String,
     val samh_id: String,
@@ -138,9 +137,9 @@ data class SamhandlerAvtale(
 )
 
 data class SamhandlerDirekteOppgjoerAvtale(
-    val gyldig_fra: LocalDateTime,
-    val koll_avtale_mottatt_dato: LocalDateTime?,
-    val monster_avtale_mottatt_dato: LocalDateTime?,
+    val gyldig_fra: ZonedDateTime,
+    val koll_avtale_mottatt_dato: ZonedDateTime?,
+    val monster_avtale_mottatt_dato: ZonedDateTime?,
     val samh_id: String,
     val samh_direkte_oppgjor_avtale_id: String
 )

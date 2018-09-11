@@ -76,7 +76,6 @@ import no.nav.tjeneste.virksomhet.person.v3.informasjon.Postnummer
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.UstrukturertAdresse
 import java.math.BigInteger
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -335,8 +334,8 @@ fun Person.defaultSamhandlerPraksis(
                 refusjon_type_kode = "normal_refusjon",
                 laerer = "0",
                 lege_i_spesialisering = "0",
-                tidspunkt_resync_periode = LocalDateTime.now().minusYears(1),
-                tidspunkt_registrert = LocalDateTime.now().minusYears(5),
+                tidspunkt_resync_periode = null,
+                tidspunkt_registrert = null,
                 samh_praksis_status_kode = "aktiv",
                 telefonnr = telephoneNumber(this).toString(),
                 arbeids_kommune_nr = "0123",
@@ -351,7 +350,7 @@ fun Person.defaultSamhandlerPraksis(
                 samh_id = samhIdents().samhandlerIdent.toString(),
                 samh_praksis_id = samhandlerPraksisId.toString(),
                 samh_praksis_konto = listOf(SamhandlerPraksisKonto(
-                        tidspunkt_registrert = LocalDateTime.now().minusYears(5),
+                        tidspunkt_registrert = ZonedDateTime.now().minusYears(5),
                         registrert_av_id = "AB123CDE",
                         konto = "12341212345",
                         samh_praksis_id = samhandlerPraksisId.toString(),
@@ -359,9 +358,9 @@ fun Person.defaultSamhandlerPraksis(
                 )),
                 samh_praksis_periode = listOf(SamhandlerPeriode(
                         endret_ved_import = "0",
-                        sist_endret = LocalDateTime.now().minusYears(5),
+                        sist_endret = ZonedDateTime.now().minusYears(5),
                         slettet = "0",
-                        gyldig_fra = Date(0).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+                        gyldig_fra = Date(0).toInstant().atZone(ZoneId.systemDefault()),
                         gyldig_til = null,
                         samh_praksis_id = samhandlerPraksisId.toString(),
                         samh_praksis_periode_id = fairy.baseProducer().randomBetween(1000000000, 2000000000).toString()
@@ -432,14 +431,14 @@ fun Person.toSamhandler(
             ikke_godkjent_for_refusjon = "0",
             godkjent_egenandel_refusjon = "0",
             godkjent_for_fil = "0",
-            endringslogg_tidspunkt_siste = null,
+            endringslogg_tidspunkt_siste = ZonedDateTime.now().minusYears(15),
             samh_praksis = samhandlerPraksisListe,
             breg_hovedenhet = null,
             samh_ident = samhandlerIdentList,
             samh_avtale = listOf(),
             samh_email = listOf(),
             samh_direkte_oppgjor_avtale = listOf(SamhandlerDirekteOppgjoerAvtale(
-                    gyldig_fra = LocalDateTime.now().minusYears(15),
+                    gyldig_fra = ZonedDateTime.now().minusYears(15),
                     samh_id = samhIdents().samhandlerIdent.toString(),
                     samh_direkte_oppgjor_avtale_id = "1000050000",
                     koll_avtale_mottatt_dato = null,
