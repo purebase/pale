@@ -5,8 +5,6 @@ import com.devskiller.jfairy.producer.company.Company
 import com.devskiller.jfairy.producer.person.Address
 import com.devskiller.jfairy.producer.person.PersonProperties
 import com.devskiller.jfairy.producer.person.PersonProvider
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.JsonNodeType
 import no.nav.model.fellesformat.EIFellesformat
 import no.nav.model.msghead.Document
 import no.nav.model.msghead.HealthcareProfessional

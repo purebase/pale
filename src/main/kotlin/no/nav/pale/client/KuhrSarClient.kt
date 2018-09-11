@@ -51,7 +51,7 @@ data class Samhandler(
     val godkjent_egenandel_refusjon: String,
     val godkjent_for_fil: String,
     val breg_hovedenhet: SamhandlerBregHovedenhet?,
-    val endringslogg_tidspunkt_siste: JsonNode?, //TODO PGA dato parsing
+    val endringslogg_tidspunkt_siste: JsonNode?, // TODO PGA dato parsing
     val samh_ident: List<SamhandlerIdent>,
     val samh_praksis: List<SamhandlerPraksis>,
     val samh_avtale: List<SamhandlerAvtale>,
