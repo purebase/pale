@@ -23,7 +23,10 @@ fun createArenaInfo(
     mappeType = findMappeTypeInLegeerklaering(legeerklaering.legeerklaringGjelder.first().typeLegeerklaring)
     pasientData = ArenaEiaInfo.PasientData().apply {
         fnr = legeerklaering.pasientopplysninger.pasient.fodselsnummer
-        isSperret = legeerklaering.forbeholdLegeerklaring.tilbakeholdInnhold.toInt() == 2
+        when (legeerklaering?.forbeholdLegeerklaring?.tilbakeholdInnhold?.toInt()) {
+            2 -> isSperret = true
+            else -> false
+        }
         tkNummer = navkontor
         if (sperrekode != null && (sperrekode == 6 || sperrekode == 7)) {
             spesreg = sperrekode
