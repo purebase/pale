@@ -78,7 +78,6 @@ import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.apache.wss4j.dom.WSConstants
 import org.apache.wss4j.dom.handler.WSHandlerConstants
-import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisSentinelPool
@@ -87,6 +86,7 @@ import java.io.IOException
 import java.io.StringReader
 import java.io.StringWriter
 import java.security.MessageDigest
+import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.jms.Connection
 import javax.jms.MessageProducer
@@ -483,8 +483,8 @@ fun findBestSamhandlerPraksis(samhandlers: List<Samhandler>, fellesformat: EIFel
             }
             .filter {
                 it.samh_praksis_periode
-                        .filter { it.gyldig_fra <= DateTime.now() }
-                        .filter { it.gyldig_til == null || it.gyldig_til >= DateTime.now() }
+                        .filter { it.gyldig_fra <= Date() }
+                        .filter { it.gyldig_til == null || it.gyldig_til >= Date() }
                         .any()
             }
             .filter { !it.navn.isNullOrEmpty() }

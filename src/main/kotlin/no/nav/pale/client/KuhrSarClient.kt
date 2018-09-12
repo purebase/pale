@@ -6,10 +6,10 @@ import okhttp3.Credentials
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.joda.time.DateTime
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
+import java.util.Date
 
 val log: Logger = LoggerFactory.getLogger(SarClient::class.java)
 
@@ -50,7 +50,7 @@ data class Samhandler(
     val godkjent_egenandel_refusjon: String,
     val godkjent_for_fil: String,
     val breg_hovedenhet: SamhandlerBregHovedenhet?,
-    val endringslogg_tidspunkt_siste: DateTime?,
+    val endringslogg_tidspunkt_siste: Date?,
     val samh_ident: List<SamhandlerIdent>,
     val samh_praksis: List<SamhandlerPraksis>,
     val samh_avtale: List<SamhandlerAvtale>,
@@ -78,8 +78,8 @@ data class SamhandlerPraksis(
     val refusjon_type_kode: String,
     val laerer: String,
     val lege_i_spesialisering: String,
-    val tidspunkt_resync_periode: DateTime?,
-    val tidspunkt_registrert: DateTime?,
+    val tidspunkt_resync_periode: Date?,
+    val tidspunkt_registrert: Date?,
     val samh_praksis_status_kode: String,
     val telefonnr: String?,
     val arbeids_kommune_nr: String,
@@ -110,7 +110,7 @@ data class SamhandlerPraksis(
 )
 
 data class SamhandlerPraksisKonto(
-    val tidspunkt_registrert: DateTime,
+    val tidspunkt_registrert: Date,
     val registrert_av_id: String,
     val konto: String,
     val samh_praksis_id: String,
@@ -119,17 +119,17 @@ data class SamhandlerPraksisKonto(
 
 data class SamhandlerPeriode(
     val endret_ved_import: String,
-    val sist_endret: DateTime,
+    val sist_endret: Date,
     val slettet: String,
-    val gyldig_fra: DateTime,
-    val gyldig_til: DateTime?,
+    val gyldig_fra: Date,
+    val gyldig_til: Date?,
     val samh_praksis_id: String,
     val samh_praksis_periode_id: String
 )
 
 data class SamhandlerAvtale(
-    val gyldig_fra: DateTime,
-    val gyldig_til: DateTime?,
+    val gyldig_fra: Date,
+    val gyldig_til: Date?,
     val prosentandel: String,
     val avtale_type_kode: String,
     val samh_id: String,
@@ -137,9 +137,9 @@ data class SamhandlerAvtale(
 )
 
 data class SamhandlerDirekteOppgjoerAvtale(
-    val gyldig_fra: DateTime,
-    val koll_avtale_mottatt_dato: DateTime?,
-    val monster_avtale_mottatt_dato: DateTime?,
+    val gyldig_fra: Date,
+    val koll_avtale_mottatt_dato: Date?,
+    val monster_avtale_mottatt_dato: Date?,
     val samh_id: String,
     val samh_direkte_oppgjor_avtale_id: String
 )
