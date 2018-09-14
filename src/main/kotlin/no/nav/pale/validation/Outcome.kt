@@ -58,17 +58,10 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
 
     // Pasientrelasjoner
     MARRIED_TO_PATIENT(353, "Vurder om legeerklæring kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP),
-    // TODO: Might not be used anymore, removed from ruleset
-    COHABITANT_WITH_PATIENT(354, "Vurder om legeerklæring  kan godtas, behandler er samboer med pasient.", Priority.FOLLOW_UP),
     REGISTERED_PARTNER_WITH_PATIENT(355, "Vurder om legeerklæring kan godtas, behandler er registerert partnes med pasient.", Priority.FOLLOW_UP),
     PARENT_TO_PATIENT(356, "Vurder om legeerklæring kan godtas, behandler er foreldre til pasient.", Priority.FOLLOW_UP),
     CHILD_OF_PATIENT(357, "Vurder om legeerklæring kan godtas, behandler er barn av pasient.", Priority.FOLLOW_UP),
-    // TODO: Might not be used anymore, removed from ruleset
-    MARIED_LIVES_SEPERATED(358, "Vurder om legeerklæring kan godtas, behandler er gift med pasienten- lever atskilt.", Priority.FOLLOW_UP),
-
-    // TODO: Might not be used anymore, not in ruleset
-    BEHANDLER_PERSON_NUMBER_MISSMATCH_CERTIFICATE(381, "Behandler har endret fødselsnummer, sertifikatet for digital signatur må oppdateres.", Priority.NOTE)
-}
+    }
 
 fun OutcomeType.toOutcome(vararg args: Any, apprecError: ApprecError? = null): Outcome =
     Outcome(this, args, apprecError = apprecError)

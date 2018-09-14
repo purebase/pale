@@ -133,6 +133,30 @@ object PaleReceiptITSpek : Spek({
             arenaEiaInfo shouldContainOutcome OutcomeType.PERSON_HAS_NO_NAV_KONTOR
         }
     }
+    describe("Message mismatched person number diffrent for schema signature") {
+        it("Creates error receipt for mismatched person number diffrent for schema signature") {
+            val doctor = defaultPerson().withAktoer(PersonIdent().withIdent(NorskIdent().withIdent("04030350265")))
+            val fellesformat = defaultFellesformat(defaultPerson(), doctor = doctor)
+            fellesformat.mottakenhetBlokk.avsenderFnrFraDigSignatur = "12128913767"
+            e.produceMessage(fellesformat)
+            e.readAppRec() shouldContainApprecError ApprecError.MISMATCHED_PERSON_NUMBER_SIGNATURE_SCHEMA
+        }
+    }
+    describe("Message treat is also patient") {
+        it("Creates error receipt for treat is also patient") {
+            val doctor = defaultPerson().withAktoer(PersonIdent().withIdent(NorskIdent().withIdent("04030350265")))
+            e.produceMessage(defaultFellesformat(doctor, doctor = doctor))
+            e.readAppRec() shouldContainApprecError ApprecError.BEHANDLER_IS_PATIENT
+        }
+    }
+
+    describe("Message treat is also patient") {
+        it("Creates error receipt for treat is also patient") {
+            val doctor = defaultPerson().withAktoer(PersonIdent().withIdent(NorskIdent().withIdent("04030350265")))
+            e.produceMessage(defaultFellesformat(doctor, doctor = doctor))
+            e.readAppRec() shouldContainApprecError ApprecError.BEHANDLER_IS_PATIENT
+        }
+    }
     describe("Temporary downtime") {
         it("Still handles the message") {
             val person = defaultPerson()

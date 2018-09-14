@@ -5,6 +5,7 @@ import no.nav.pale.datagen.createFamilyRelation
 import no.nav.pale.datagen.defaultFellesformat
 import no.nav.pale.datagen.defaultPerson
 import no.nav.pale.utils.shouldContainOutcome
+import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatus
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Personstatuser
@@ -68,6 +69,20 @@ object PostTPSRuleFlowSpek : Spek({
                 .withPersonstatus(Personstatus().withPersonstatus(Personstatuser().withValue("UTVA")))
         it("Creates the outcome for having emigrated") {
             postTPSFlow(defaultFellesformat(patient), patient) shouldContainOutcome OutcomeType.PATIENT_EMIGRATED
+        }
+    }
+    describe("Patient is registered as SPSF in TPS") {
+        val doctor = defaultPerson()
+        val patient = defaultPerson().withDiskresjonskode(Diskresjonskoder().withValue("SPSF"))
+        it("Creates the outcome for code 6 person") {
+            postTPSFlow(defaultFellesformat(patient), patient) shouldContainOutcome OutcomeType.PATIENT_HAS_SPERREKODE_6
+        }
+    }
+    describe("Patient is registered as SPFO in TPS") {
+        val doctor = defaultPerson()
+        val patient = defaultPerson().withDiskresjonskode(Diskresjonskoder().withValue("SPFO"))
+        it("Creates the outcome for code 7 person") {
+            postTPSFlow(defaultFellesformat(patient), patient) shouldContainOutcome OutcomeType.PATIENT_HAS_SPERREKODE_7
         }
     }
 })
