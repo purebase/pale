@@ -42,7 +42,7 @@ plugins {
 
 
 group 'no.nav.pale'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 
 mainClassName = 'no.nav.pale.PaleApplicationKt'
