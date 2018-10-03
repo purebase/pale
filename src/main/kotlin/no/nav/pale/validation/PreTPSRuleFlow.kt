@@ -11,7 +11,8 @@ fun preTPSFlow(fellesformat: EIFellesformat): List<Outcome> {
 
     if (patientIdent != null && !patientIdent.isEmpty() && patientIdent.length == 11 &&
             extractBornDate(patientIdent).isBefore(LocalDate.now().minusYears(70))) {
-        outcome += OutcomeType.PATIENT_IS_OVER_70
+        outcome += OutcomeType.PATIENT_IS_OVER_70.toOutcome(
+                apprecError = ApprecError.PATIENT_IS_OVER_70)
     }
 
     if (extractDoctorIdentFromSignature(fellesformat) == extractPersonIdent(legeerklaering)) {

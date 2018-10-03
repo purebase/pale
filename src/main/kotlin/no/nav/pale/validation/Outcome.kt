@@ -54,7 +54,7 @@ enum class OutcomeType(val messageNumber: Int, val messageText: String, val mess
     // Pasientopplysninger
     BEHANDLER_IS_PATIENT(350, "Vurder om legeerklæring kan godtas, behandler er pasient.", Priority.RETUR),
     REGISTERED_DEAD_IN_TPS(351, "Legeerklæring til vurdering, personen er registrert død i Folkeregisteret.", Priority.FOLLOW_UP),
-    PATIENT_IS_OVER_70(352, "Legeerklæring til vurdering,  personen er over 70 år.", Priority.FOLLOW_UP),
+    PATIENT_IS_OVER_70(352, "Legeerklæring til vurdering,  personen er over 70 år.", Priority.RETUR),
 
     // Pasientrelasjoner
     MARRIED_TO_PATIENT(353, "Vurder om legeerklæring kan godtas, behandler er gift med pasient.", Priority.FOLLOW_UP),

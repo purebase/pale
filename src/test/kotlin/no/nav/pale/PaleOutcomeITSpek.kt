@@ -56,8 +56,7 @@ object PaleOutcomeITSpek : Spek({
             val person = defaultPerson(PersonProperties.ageBetween(71, PersonProvider.MAX_AGE))
             e.defaultMocks(person)
             e.produceMessage(defaultFellesformat(person = person))
-            e.readAppRec().shouldHaveOkStatus()
-            e.readArenaEiaInfo() shouldContainOutcome OutcomeType.PATIENT_IS_OVER_70
+            e.readAppRec().shouldContainApprecError(apprecError = ApprecError.PATIENT_IS_OVER_70)
         }
     }
     describe("Sperrekode 6") {
